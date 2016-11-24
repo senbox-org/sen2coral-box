@@ -1,0 +1,109 @@
+<filesystem>
+
+    <folder name="Actions">
+        <folder name="Operators">
+            <file name="org-esa-sen2coral-algorithms-DeglintOpAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.core.gpf.ui.DefaultOperatorAction.create"/>
+                <attr name="displayName" stringvalue="Deglint Processor"/>
+                <attr name="operatorName" stringvalue="DeglintOp"/>
+                <attr name="dialogTitle" stringvalue="Deglint"/>
+                <attr name="helpId" stringvalue="DeglintOperator"/>
+                <attr name="targetProductNameSuffix" stringvalue="_deglint"/>
+                <attr name="ShortDescription"
+                      stringvalue="Apply deglint"/>
+            </file>
+
+            <file name="org-esa-sen2coral-algorithms-DepthInvariantIndicesOpAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.core.gpf.ui.DefaultOperatorAction.create"/>
+                <attr name="displayName" stringvalue="DepthInvariantIndices Processor"/>
+                <attr name="operatorName" stringvalue="DepthInvariantIndicesOp"/>
+                <attr name="dialogTitle" stringvalue="DepthInvariantIndicesOp"/>
+                <attr name="helpId" stringvalue="DepthInvariantIndicesOperator"/>
+                <attr name="targetProductNameSuffix" stringvalue="_depthInvariant"/>
+                <attr name="ShortDescription"
+                      stringvalue="Apply DepthInvariantIndicesOp"/>
+            </file>
+
+            <file name="org-esa-sen2coral-algorithms-EmpiricalBathymetryOpAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.core.gpf.ui.DefaultOperatorAction.create"/>
+                <attr name="displayName" stringvalue="EmpiricalBathymetry Processor"/>
+                <attr name="operatorName" stringvalue="EmpiricalBathymetryOp"/>
+                <attr name="dialogTitle" stringvalue="EmpiricalBathymetryOp"/>
+                <attr name="helpId" stringvalue="EmpiricalBathymetryOperator"/>
+                <attr name="targetProductNameSuffix" stringvalue="_empBathymetry"/>
+                <attr name="ShortDescription"
+                      stringvalue="Apply EmpiricalBathymetryOp"/>
+            </file>
+
+            <file name="org-esa-sen2coral-algorithms-LandCloudWhiteCapMaskOpAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.core.gpf.ui.DefaultOperatorAction.create"/>
+                <attr name="displayName" stringvalue="LandCloudWhiteCapMask Processor"/>
+                <attr name="operatorName" stringvalue="LandCloudWhiteCapMaskOp"/>
+                <attr name="dialogTitle" stringvalue="LandCloudWhiteCapMaskOp"/>
+                <attr name="helpId" stringvalue="LandCloudWhiteCapMaskOperator"/>
+                <attr name="targetProductNameSuffix" stringvalue="_mask"/>
+                <attr name="ShortDescription"
+                      stringvalue="Apply LandCloudWhiteCapMaskOp"/>
+            </file>
+
+            <file name="org-esa-sen2coral-algorithms-RadiometricNormalisationPIFsOpAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.core.gpf.ui.DefaultOperatorAction.create"/>
+                <attr name="displayName" stringvalue="RadiometricNormalisationPIFs Processor"/>
+                <attr name="operatorName" stringvalue="RadiometricNormalisationPIFsOp"/>
+                <attr name="dialogTitle" stringvalue="RadiometricNormalisationPIFsOp"/>
+                <attr name="helpId" stringvalue="RadiometricNormalisationPIFsOperator"/>
+                <attr name="targetProductNameSuffix" stringvalue="_normal"/>
+                <attr name="ShortDescription"
+                      stringvalue="Apply RadiometricNormalisationPIFsOp"/>
+            </file>
+        </folder>
+    </folder>
+
+    <folder name="Menu">
+        <folder name="Optical">
+            <folder name="Sen2Coral Processing">
+                <folder name="Processing modules">
+                    <file name="org-esa-sen2coral-algorithms-DeglintOpAction.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/org-esa-sen2coral-algorithms-DeglintOpAction.instance"/>
+                        <attr name="position" intvalue="1"/>
+                    </file>
+                    <file name="org-esa-sen2coral-algorithms-DepthInvariantIndicesOpAction.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/org-esa-sen2coral-algorithms-DepthInvariantIndicesOpAction.instance"/>
+                        <attr name="position" intvalue="1"/>
+                    </file>
+                    <file name="org-esa-sen2coral-algorithms-EmpiricalBathymetryOpAction.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/org-esa-sen2coral-algorithms-EmpiricalBathymetryOpAction.instance"/>
+                        <attr name="position" intvalue="1"/>
+                    </file>
+                    <file name="org-esa-sen2coral-algorithms-LandCloudWhiteCapMaskOpAction.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/org-esa-sen2coral-algorithms-LandCloudWhiteCapMaskOpAction.instance"/>
+                        <attr name="position" intvalue="1"/>
+                    </file>
+                    <file name="org-esa-sen2coral-algorithms-RadiometricNormalisationPIFsOpAction.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/org-esa-sen2coral-algorithms-RadiometricNormalisationPIFsOpAction.instance"/>
+                        <attr name="position" intvalue="1"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+
+    <folder name="Services">
+        <folder name="JavaHelp">
+            <file name="org-esa-sen2coral-sen2coral-algorithms-helpset.xml" url="helpset.xml">
+                <attr name="position" intvalue="3818"/>
+            </file>
+        </folder>
+    </folder>
+
+</filesystem>

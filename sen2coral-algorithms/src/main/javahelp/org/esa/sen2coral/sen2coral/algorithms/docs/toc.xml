@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='ISO-8859-1'  ?>
+<!DOCTYPE toc
+        PUBLIC
+        "-//Sun Microsystems Inc.//DTD
+     JavaHelp TOC Version 2.0//EN"
+        "http://java.sun.com/products/javahelp/toc_2_0.dtd">
+
+<toc version="2.0" categoryclosedimage="folder" categoryopenimage="folder" topicimage="doc">
+
+    <tocitem text="Sentinel Toolbox Application">
+        <tocitem text="Optical">
+            <tocitem text="Sen2Coral">
+                <tocitem text="Sen2Coral Algorithms">
+
+                <tocitem text="Sen2Coral Algorithms Complete List" target="Sen2CoralOperatorsIndexList"/>
+
+
+                    <tocitem text="Deglint Operator" target="DeglintOperator">
+                        <tocitem text="Deglint Algorithm Specification" target="DeglintAlgorithm"/>
+                    </tocitem>
+                    <tocitem text="DepthInvariantIndices Operator" target="DepthInvariantIndicesOperator">
+                        <tocitem text="DepthInvariantIndices Algorithm Specification" target="DepthInvariantIndicesAlgorithm"/>
+                    </tocitem>
+                    <tocitem text="EmpiricalBathymetry Operator" target="EmpiricalBathymetryOperator">
+                        <tocitem text="EmpiricalBathymetry Algorithm Specification" target="EmpiricalBathymetryAlgorithm"/>
+                    </tocitem>
+                    <tocitem text="LandCloudWhiteCapMask Operator" target="LandCloudWhiteCapMaskOperator">
+                        <tocitem text="LandCloudWhiteCapMask Algorithm Specification" target="LandCloudWhiteCapMaskAlgorithm"/>
+                    </tocitem>
+                    <tocitem text="RadiometricNormalisationPIFs Operator" target="RadiometricNormalisationPIFsOperator">
+                        <tocitem text="RadiometricNormalisationPIFs Algorithm Specification" target="RadiometricNormalisationPIFsAlgorithm"/>
+                    </tocitem>
+
+                </tocitem>
+            </tocitem>
+        </tocitem>
+    </tocitem>
+
+</toc>

@@ -1,0 +1,78 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement"/>
+  </node>
+  <node id="DeglintOp">
+    <operator>DeglintOp</operator>
+    <sources>
+      <sourceProduct refid="Read"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+    </parameters>
+  </node>
+  <node id="LandCloudWhiteCapMaskOp">
+    <operator>LandCloudWhiteCapMaskOp</operator>
+    <sources>
+      <sourceProduct refid="DeglintOp"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+    </parameters>
+  </node>
+  <node id="RadiometricNormalisationPIFsOp">
+    <operator>RadiometricNormalisationPIFsOp</operator>
+    <sources>
+      <sourceProduct refid="LandCloudWhiteCapMaskOp"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+    </parameters>
+  </node>
+  <node id="DepthInvariantIndicesOp">
+    <operator>DepthInvariantIndicesOp</operator>
+    <sources>
+      <sourceProduct refid="RadiometricNormalisationPIFsOp"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+    </parameters>
+  </node>
+  <node id="KMeansClusterAnalysis">
+    <operator>KMeansClusterAnalysis</operator>
+    <sources>
+      <sourceProduct refid="DepthInvariantIndicesOp"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <clusterCount>14</clusterCount>
+      <iterationCount>30</iterationCount>
+      <randomSeed>31415</randomSeed>
+      <sourceBandNames/>
+      <roiMaskName/>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="Read">
+            <displayPosition x="7.0" y="16.0"/>
+    </node>
+    <node id="DeglintOp">
+      <displayPosition x="92.0" y="56.0"/>
+    </node>
+    <node id="LandCloudWhiteCapMaskOp">
+      <displayPosition x="181.0" y="88.0"/>
+    </node>
+    <node id="RadiometricNormalisationPIFsOp">
+      <displayPosition x="251.0" y="141.0"/>
+    </node>
+    <node id="DepthInvariantIndicesOp">
+      <displayPosition x="295.0" y="199.0"/>
+    </node>
+    <node id="KMeansClusterAnalysis">
+      <displayPosition x="348.0" y="240.0"/>
+    </node>
+  </applicationData>
+</graph>

@@ -1,0 +1,66 @@
+<!--
+  ~ Copyright (C) 2016 by CS ROMANIA
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<html>
+<head>
+    <title>Deglint - Algorithm Specification</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            Deglint Algorithm Specification</td>
+        <td class="header" align="right"><a href="nbdocs://org.esa.snap.snap.help/org/esa/snap/snap/help/docs/general/overview/SnapOverview.html"><img src="../images/snap_header.jpg" border=0></a></td>
+    </tr>
+</table>
+
+<h3>Deglint</h3>
+
+<p>
+    The purpose of the glint correction or "deglint" is to remove the contribution of the direct reflectance
+    from the top of the air-water interface from the imagery. Such photons have never penetrated the
+    water surface and do not carry spectral information about subsurface features. Dependent on
+    conditions and pixel size glint can manifest as sheen on the surface or as bright lines co-incident with
+    waves.
+</p>
+
+<IMG SRC="../images/deglint/deglintExample.jpg" ALT="Example deglint applied to bands 2, 3 and 4 of Sentinel 2 scene over
+a reef in northern Palau. Band 8 was used as the glint reference band.">
+
+<p>
+    The deglint algorithm described here is based on Hedley at al. (2005) and other very similar methods
+    described in Kay et al. (2008). The algorithm is entirely image-based, bands in visible wavelengths
+    are corrected one at a time by reference to another band which is in the NIR (near infra-red) or SWIR
+    (short wave infra-red). It is assumed that the NIR reference band only contains the glint (because
+    water is opaque in the NIR) and so the contribution of the glint in the visible band can be estimated
+    by the brightness in the NIR band, by a simple linear relationship. To establish the relationship a
+    linear regression between the two bands is performed over a deep water area, where the
+    contribution from below the water surface is assumed homogenous, and so the derived relationship
+    is only based on the surface reflectance. It is required to specify the minimum expected NIR value in
+    the absence of glint, denoted MinNIR. This can be taken as the minimum value over the sample area
+    (default) or physically set as a number (optional).
+</p>
+
+<IMG SRC="../images/deglint/deglintSchema.jpg" ALT="Reproduced from Hedley et al. 2005">
+
+<p>
+</p>
+<hr>
+</body>
+</html>

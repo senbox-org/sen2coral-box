@@ -1,0 +1,63 @@
+<graph id="Graph">
+  <version>1.0</version>
+  <node id="Read">
+    <operator>Read</operator>
+    <sources/>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement"/>
+  </node>
+  <node id="DeglintOp">
+    <operator>DeglintOp</operator>
+    <sources>
+      <sourceProduct refid="Read"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+    </parameters>
+  </node>
+  <node id="LandCloudWhiteCapMaskOp">
+    <operator>LandCloudWhiteCapMaskOp</operator>
+    <sources>
+      <sourceProduct refid="DeglintOp"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+    </parameters>
+  </node>
+  <node id="EmpiricalBathymetryOp">
+    <operator>EmpiricalBathymetryOp</operator>
+    <sources>
+      <sourceProduct refid="LandCloudWhiteCapMaskOp"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <sourceBands/>
+    </parameters>
+  </node>
+  <node id="Write">
+    <operator>Write</operator>
+    <sources>
+      <sourceProduct refid="EmpiricalBathymetryOp"/>
+    </sources>
+    <parameters class="com.bc.ceres.binding.dom.XppDomElement">
+      <file>d:\Users\obarrile\target.dim</file>
+      <formatName>BEAM-DIMAP</formatName>
+    </parameters>
+  </node>
+  <applicationData id="Presentation">
+    <Description/>
+    <node id="Read">
+            <displayPosition x="7.0" y="16.0"/>
+    </node>
+    <node id="DeglintOp">
+      <displayPosition x="92.0" y="56.0"/>
+    </node>
+    <node id="LandCloudWhiteCapMaskOp">
+      <displayPosition x="181.0" y="88.0"/>
+    </node>
+    <node id="EmpiricalBathymetryOp">
+      <displayPosition x="303.0" y="133.0"/>
+    </node>
+    <node id="Write">
+            <displayPosition x="492.0" y="157.0"/>
+    </node>
+  </applicationData>
+</graph>

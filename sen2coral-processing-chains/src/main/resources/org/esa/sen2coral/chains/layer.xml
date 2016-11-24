@@ -1,0 +1,47 @@
+<filesystem>
+
+    <folder name="Actions">
+        <folder name="Operators">
+            <file name="org-esa-sen2coral-chains-graphs-EmpiricalBathymetryGraphAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="Empirical Bathymetry Graph"/>
+                <attr name="graphFile" stringvalue="EmpiricalBathymetryGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="Empirical Bathymetry Graph"/>
+                <attr name="targetProductNameSuffix" stringvalue="_bat"/>
+                <attr name="ShortDescription" stringvalue="EmpiricalBathymetryGraph"/>
+                <attr name="helpId" stringvalue="EmpiricalBathymetryGraph"/>
+            </file>
+            <file name="org-esa-sen2coral-chains-graphs-HabitatMapGraphAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.graphbuilder.rcp.actions.GraphAction.create"/>
+                <attr name="displayName" stringvalue="Habitat Map Graph"/>
+                <attr name="graphFile" stringvalue="HabitatMapGraph.xml"/>
+                <attr name="dialogTitle" stringvalue="Habitat Map Graph"/>
+                <attr name="targetProductNameSuffix" stringvalue="_habitat"/>
+                <attr name="ShortDescription" stringvalue="HabitatMapGraph"/>
+                <attr name="helpId" stringvalue="HabitatMapGraph"/>
+            </file>
+        </folder>
+    </folder>
+
+    <folder name="Menu">
+        <folder name="Optical">
+            <folder name="Sen2Coral Processing">
+                <folder name="Processing chains">
+                    <file name="org-esa-sen2coral-chains-graphs-EmpiricalBathymetryGraphAction.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/org-esa-sen2coral-chains-graphs-EmpiricalBathymetryGraphAction.instance"/>
+                        <attr name="position" intvalue="1"/>
+                    </file>
+                    <file name="org-esa-sen2coral-chains-graphs-HabitatMapGraphAction.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/org-esa-sen2coral-chains-graphs-HabitatMapGraphAction.instance"/>
+                        <attr name="position" intvalue="1"/>
+                    </file>
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+
+</filesystem>

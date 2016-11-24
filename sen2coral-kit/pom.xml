@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>sen2coral</artifactId>
+        <groupId>org.esa.sen2coral</groupId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>sen2coral-kit</artifactId>
+    <packaging>nbm</packaging>
+
+    <name>Sen2Coral Toolbox Kit Module</name>
+    <description>
+        The Sen2Coral Toolbox is a SNAP extension dedicated to the for mapping
+        (habitat, bathymetry, and water quality) and detection change for
+        coral reef health assessment and monitoring.
+    </description>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>nbm-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>nbm</goal>
+                            <goal>cluster</goal>
+                            <goal>autoupdate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <useDefaultManifestFile>true</useDefaultManifestFile>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
+
+    <dependencies>
+
+        <!--
+             Make sure the list of dependencies reflects the wanted contents of the SEN2CORAL.
+             Use same order as in the <modules> tag of the parent POM.
+        -->
+
+        <dependency>
+            <groupId>org.esa.sen2coral</groupId>
+            <artifactId>sen2coral-algorithms</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.esa.sen2coral</groupId>
+            <artifactId>sen2coral-algorithms-ui</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.esa.sen2coral</groupId>
+            <artifactId>sen2coral-inversion</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.esa.sen2coral</groupId>
+            <artifactId>sen2coral-processing-chains</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.esa.snap</groupId>
+            <artifactId>snap-rcp</artifactId>
+            <version>${snap.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-modules</artifactId>
+        </dependency>
+
+    </dependencies>
+
+</project>

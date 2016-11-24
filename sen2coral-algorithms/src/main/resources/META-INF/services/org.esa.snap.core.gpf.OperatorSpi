@@ -1,0 +1,5 @@
+org.esa.sen2coral.algorithms.DeglintOp$Spi
+org.esa.sen2coral.algorithms.DepthInvariantIndicesOp$Spi
+org.esa.sen2coral.algorithms.EmpiricalBathymetryOp$Spi
+org.esa.sen2coral.algorithms.LandCloudWhiteCapMaskOp$Spi
+org.esa.sen2coral.algorithms.RadiometricNormalisationPIFsOp$Spi

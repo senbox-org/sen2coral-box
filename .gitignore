@@ -1,0 +1,11 @@
+.idea/
+modules/
+target/
+generated-sources/
+*.iml
+*.ipr
+*.iws
+*.class
+*~
+*.pyc
+*.java.orig

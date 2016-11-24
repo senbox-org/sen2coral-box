@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='ISO-8859-1' ?>
+<!DOCTYPE map
+        PUBLIC "-//Sun Microsystems Inc.//DTD JavaHelp Map Version 2.0//EN"
+        "http://java.sun.com/products/javahelp/map_2_0.dtd">
+
+<map version="2.0">
+
+    <mapID target="DeglintOperator" url="deglint/DeglintTool.html"/>
+    <mapID target="DeglintAlgorithm" url="deglint/DeglintAlgoSpec.html"/>
+
+    <mapID target="DepthInvariantIndicesOperator" url="depthInvariantIndices/DepthInvariantIndicesTool.html"/>
+    <mapID target="DepthInvariantIndicesAlgorithm" url="depthInvariantIndices/DepthInvariantIndicesAlgoSpec.html"/>
+
+    <mapID target="EmpiricalBathymetryOperator" url="empiricalBathymetry/EmpiricalBathymetryTool.html"/>
+    <mapID target="EmpiricalBathymetryAlgorithm" url="empiricalBathymetry/EmpiricalBathymetryAlgoSpec.html"/>
+
+    <mapID target="LandCloudWhiteCapMaskOperator" url="landCloudWhiteCapMask/LandCloudWhiteCapMaskTool.html"/>
+    <mapID target="LandCloudWhiteCapMaskAlgorithm" url="landCloudWhiteCapMask/LandCloudWhiteCapMaskAlgoSpec.html"/>
+
+    <mapID target="RadiometricNormalisationPIFsOperator" url="radiometricNormalisationPIFs/RadiometricNormalisationPIFsTool.html"/>
+    <mapID target="RadiometricNormalisationPIFsAlgorithm" url="radiometricNormalisationPIFs/RadiometricNormalisationPIFsAlgoSpec.html"/>
+
+    <mapID target="Sen2CoralOperatorsIndexList" url="Sen2CoralOperatorsIndexList.html"/>
+
+</map>
