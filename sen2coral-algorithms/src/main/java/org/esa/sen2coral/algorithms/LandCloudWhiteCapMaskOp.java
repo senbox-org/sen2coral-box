@@ -90,55 +90,57 @@ public class LandCloudWhiteCapMaskOp extends Operator {
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
 
-        for (String srcBandName : referenceBandNames) {
-            ProductUtils.copyBand(srcBandName, sourceProduct, srcBandName, targetProduct, true);
-        }
-
-
-        if(applyMask) {
-            final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
-            for (Band srcBand : sourceBands) {
-                final String targetBandName = srcBand.getName();
-                final Band targetBand = new Band(targetBandName,
-                                                 srcBand.getDataType(),
-                                                 srcBand.getRasterWidth(),
-                                                 srcBand.getRasterHeight());
-
-                targetBand.setUnit(srcBand.getUnit());
-                targetBand.setNoDataValue(srcBand.getNoDataValue());
-                targetBand.setNoDataValueUsed(true);
-                ProductUtils.copyGeoCoding(srcBand,targetBand);
-                targetProduct.addBand(targetBand);
-
-                expressionMap.put(targetBand, createExpression(srcBand, getReferenceBandName(srcBand.getName())));
+        if(referenceBandNames != null && sourceBandNames != null) {
+            for (String srcBandName : referenceBandNames) {
+                ProductUtils.copyBand(srcBandName, sourceProduct, srcBandName, targetProduct, true);
             }
-        }
 
-        Set<Dimension> distictDimension = new HashSet<>();
 
-        //add masks
+            if (applyMask) {
+                final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
+                for (Band srcBand : sourceBands) {
+                    final String targetBandName = srcBand.getName();
+                    final Band targetBand = new Band(targetBandName,
+                                                     srcBand.getDataType(),
+                                                     srcBand.getRasterWidth(),
+                                                     srcBand.getRasterHeight());
 
-        for (String referenceBandName : referenceBandNames) {
-            Band band = sourceProduct.getBand(referenceBandName);
-            if(distictDimension.add(band.getRasterSize())) {
-                Mask mask = Mask.BandMathsType.create(String.format("%s_%s", maskName, band.getName()), maskDescription, band.getRasterWidth(), band.getRasterHeight(),
-                                                      String.format("%s.raw < %f", referenceBandName, threshold), Color.CYAN, 0.5);
+                    targetBand.setUnit(srcBand.getUnit());
+                    targetBand.setNoDataValue(srcBand.getNoDataValue());
+                    targetBand.setNoDataValueUsed(true);
+                    ProductUtils.copyGeoCoding(srcBand, targetBand);
+                    targetProduct.addBand(targetBand);
 
-                ProductUtils.copyGeoCoding(band,mask);
-                targetProduct.addMask(mask);
+                    expressionMap.put(targetBand, createExpression(srcBand, getReferenceBandName(srcBand.getName())));
+                }
             }
+
+            Set<Dimension> distictDimension = new HashSet<>();
+
+            //add masks
+
+            for (String referenceBandName : referenceBandNames) {
+                Band band = sourceProduct.getBand(referenceBandName);
+                if (distictDimension.add(band.getRasterSize())) {
+                    Mask mask = Mask.BandMathsType.create(String.format("%s_%s", maskName, band.getName()), maskDescription, band.getRasterWidth(), band.getRasterHeight(),
+                                                          String.format("%s.raw < %f", referenceBandName, threshold), Color.CYAN, 0.5);
+
+                    ProductUtils.copyGeoCoding(band, mask);
+                    targetProduct.addMask(mask);
+                }
+            }
+
         }
-
-
     }
 
     private String createExpression(final Band srcBand, String referenceBandName) {
         final StringBuilder str = new StringBuilder("");
 
+        double scaledThreshold = (threshold - srcBand.getScalingOffset())/srcBand.getScalingFactor();
         str.append("(");
         str.append(referenceBandName);
         str.append(" <= ");
-        str.append(threshold);
+        str.append(/*threshold*/scaledThreshold);
         str.append(") ? ");
         str.append(srcBand.getName());
         str.append(" : ");

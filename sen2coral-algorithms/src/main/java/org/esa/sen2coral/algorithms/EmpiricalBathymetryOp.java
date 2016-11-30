@@ -1,8 +1,14 @@
 package org.esa.sen2coral.algorithms;
 
 import com.bc.ceres.core.ProgressMonitor;
+import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.GeoPos;
+import org.esa.snap.core.datamodel.Mask;
+import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
+import org.esa.snap.core.datamodel.ProductData;
+import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -11,8 +17,20 @@ import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
 import org.esa.snap.core.gpf.annotations.TargetProduct;
+import org.esa.snap.core.gpf.pointop.PixelOperator;
+import org.esa.snap.core.gpf.pointop.Sample;
+import org.esa.snap.core.gpf.pointop.SourceSampleConfigurer;
+import org.esa.snap.core.gpf.pointop.TargetSampleConfigurer;
+import org.esa.snap.core.gpf.pointop.WritableSample;
+import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 
+import java.awt.*;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 
 /**
  * deglint operator
@@ -22,12 +40,11 @@ import java.io.File;
         authors = "Omar Barrilero",
         version = "1.0",
         description = "EmpiricalBathymetryOp algorithm")
-public class EmpiricalBathymetryOp extends Operator {
+public class EmpiricalBathymetryOp extends PixelOperator {
 
     @SourceProduct
     private Product sourceProduct;
-    @TargetProduct
-    private Product targetProduct;
+
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands",
             rasterDataNodeType = Band.class, label = "Bands to use")
@@ -36,8 +53,8 @@ public class EmpiricalBathymetryOp extends Operator {
     @Parameter(label = "Bathymetry point data")
     private File bathymetryFile = null;
 
-    @Parameter(defaultValue = "0.0", description = "'n' default value")
-    private Double nValue = 0.0;
+    @Parameter(defaultValue = "10000", description = "'n' default value")
+    private Double nValue = 10000.0;
 
     @Parameter(defaultValue = "0.7", description = "Minimum r-squared value")
     private Double minRSquared = 0.7;
@@ -45,48 +62,166 @@ public class EmpiricalBathymetryOp extends Operator {
     @Parameter(defaultValue = "5", description = "Maximum number of steps")
     private int maxSteps = 5;
 
+    private double noDataValue[] = {0.0,0.0};
+    private double regressionCoefficients[] = null; //m0, m1, r-squared
 
-
-
-    /**
-     * Default constructor. The graph processing framework
-     * requires that an operator has a default constructor.
-     */
-    public EmpiricalBathymetryOp() {
-
-    }
-
-    /**
-     * Initializes this operator and sets the one and only target product.
-     * <p>The target product can be either defined by a field of type {@link Product} annotated with the
-     * {@link TargetProduct TargetProduct} annotation or
-     * by calling {@link #setTargetProduct} method.</p>
-     * <p>The framework calls this method after it has created this operator.
-     * Any client code that must be performed before computation of tile data
-     * should be placed here.</p>
-     *
-     * @throws OperatorException If an error occurs during operator initialisation.
-     * @see #getTargetProduct()
-     */
     @Override
-    public void initialize() throws OperatorException {
-        //TODO
+    protected void prepareInputs() throws OperatorException {
+        if(sourceBandNames != null && sourceProduct != null) {
+            //TODO comprueba tamano de sourcebands, q solo haya 2...
+            ensureSingleRasterSize(sourceProduct, sourceBandNames);
+
+            //TODO check vector
+
+            //TODO load noDataValues
+
+            //TODO checkbathymetryFile
+        }
     }
 
-    /**
-     * Called by the framework in order to compute a tile for the given target band.
-     * <p>The default implementation throws a runtime exception with the message "not implemented".</p>
-     *
-     * @param targetBand The target band.
-     * @param targetTile The current tile associated with the target band to be computed.
-     * @param pm         A progress monitor which should be used to determine computation cancelation requests.
-     * @throws OperatorException If an error occurs during computation of the target raster.
-     */
     @Override
-    public void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
-        //TODO
+    protected Product createTargetProduct() throws OperatorException {
+        if(sourceBandNames != null && sourceProduct != null) {
+            int sceneWidth = sourceProduct.getBand(sourceBandNames[0]).getRasterWidth();
+            int sceneHeight = sourceProduct.getBand(sourceBandNames[0]).getRasterHeight();
+
+
+            Product targetProduct = new Product(sourceProduct.getName() + "_empiricalBathymetry", sourceProduct.getProductType(), sceneWidth, sceneHeight);
+            targetProduct.setNumResolutionsMax(1);
+
+            ProductUtils.copyProductNodes(sourceProduct, targetProduct);
+
+            //Add band
+            Band targetBand = new Band("EmpiricalBathymetry_" + sourceBandNames[0] + sourceBandNames[1], ProductData.TYPE_FLOAT32, sceneWidth, sceneHeight);
+            targetBand.setDescription("EmpiricalBathymetry " + sourceBandNames[0] + " and " + sourceBandNames[1]);
+            targetBand.setUnit(" ");
+            targetBand.setScalingFactor(1.0);
+            targetBand.setScalingOffset(0);
+            targetBand.setLog10Scaled(false);
+            targetBand.setNoDataValueUsed(true);
+            targetBand.setNoDataValue(0.0);
+            targetBand.setValidPixelExpression(" ");
+            targetBand.setGeoCoding(sourceProduct.getBand(sourceBandNames[0]).getGeoCoding());
+            targetProduct.addBand(targetBand);
+
+            return targetProduct;
+        }
+        return new Product("_empiricalBathymetry", "dummy", 2, 2);
     }
 
+    @Override
+    protected void computePixel(int x, int y, Sample[] sourceSamples, WritableSample[] targetSamples) {
+
+        double source1 = sourceSamples[0].getDouble();
+        double source2 = sourceSamples[1].getDouble();
+
+        if(source1 == noDataValue[0] || source2 == noDataValue[1]) {
+            targetSamples[0].set(getTargetProduct().getBandAt(0).getNoDataValue());
+        }
+        else {
+
+            targetSamples[0].set(getRegressionCoefficients()[1] * (Math.log(nValue*source1)/Math.log(nValue*source2)) + getRegressionCoefficients()[0]);
+        }
+    }
+
+    @Override
+    protected void configureSourceSamples(SourceSampleConfigurer sampleConfigurer) throws OperatorException {
+        if(sourceBandNames != null) {
+            for (int i = 0; i < sourceBandNames.length; i++) {
+                sampleConfigurer.defineSample(i, sourceBandNames[i]);
+            }
+        }
+    }
+
+    @Override
+    protected void configureTargetSamples(TargetSampleConfigurer sampleConfigurer) throws OperatorException {
+        //if(getTargetProduct() != null) {
+            sampleConfigurer.defineSample(0, getTargetProduct().getBandAt(0).getName());
+        //}
+    }
+
+    private synchronized double[] getRegressionCoefficients() {
+        if (regressionCoefficients == null) {
+            ArrayList<BathymetryPoint> bathymetryPointList = getBathymetryPointData();
+            if(bathymetryPointList == null || bathymetryPointList.size()<2) {
+                //TODO
+            }
+            regressionCoefficients = new double[3];
+            SimpleRegression regression = new SimpleRegression();
+            Band band1 = sourceProduct.getBand(sourceBandNames[0]);
+            Band band2 = sourceProduct.getBand(sourceBandNames[1]);
+            try {
+                band1.loadRasterData();
+                band2.loadRasterData();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            for(BathymetryPoint bathymetryPoint : bathymetryPointList) {
+                PixelPos pixelPos1 = band1.getGeoCoding().getPixelPos(new GeoPos(bathymetryPoint.getLat(),bathymetryPoint.getLon()),null);
+                PixelPos pixelPos2 = band2.getGeoCoding().getPixelPos(new GeoPos(bathymetryPoint.getLat(),bathymetryPoint.getLon()),null);
+
+                double valueBand1 = band1.getPixelDouble((int) Math.round(pixelPos1.x),(int) Math.round(pixelPos1.y));
+                double valueBand2 = band2.getPixelDouble((int) Math.round(pixelPos2.x),(int) Math.round(pixelPos2.y));
+
+                if(valueBand1 != band1.getNoDataValue() && valueBand2 != band2.getNoDataValue()) {
+                    regression.addData(Math.log(nValue * valueBand1) / Math.log(nValue * valueBand2), bathymetryPoint.getZ());
+                }
+            }
+
+            regressionCoefficients[0] = regression.getIntercept();
+            regressionCoefficients[1] = regression.getSlope();
+            regressionCoefficients[2] = regression.getRSquare();
+        }
+        return regressionCoefficients;
+    }
+
+    private ArrayList<BathymetryPoint> getBathymetryPointData() {
+        ArrayList<BathymetryPoint> bathymetryPoints = new ArrayList<>();
+        String line = "";
+        String separators = ";";
+
+        try (BufferedReader br = new BufferedReader(new FileReader(bathymetryFile))) {
+
+            while ((line = br.readLine()) != null) {
+                // use comma as separator
+                String[] bathymetryMesure = line.split(separators);
+                if(bathymetryMesure.length == 3) {
+                    BathymetryPoint point = new BathymetryPoint(Double.parseDouble(bathymetryMesure[0]),
+                                                                Double.parseDouble(bathymetryMesure[1]),
+                                                                Double.parseDouble(bathymetryMesure[2]));
+                    bathymetryPoints.add(point);
+                }
+            }
+
+        } catch (IOException e) {
+            return null;
+        }
+
+        return bathymetryPoints;
+    }
+
+    private class BathymetryPoint {
+        private double lat, lon, z;
+
+        BathymetryPoint(double lat, double lon, double z) {
+            this.lat = lat;
+            this.lon = lon;
+            this.z = z;
+        }
+
+        public double getLat() {
+            return lat;
+        }
+
+        public double getLon() {
+            return lon;
+        }
+
+        public double getZ() {
+            return z;
+        }
+    }
 
     /**
      * The SPI is used to register this operator in the graph processing framework
@@ -101,6 +236,27 @@ public class EmpiricalBathymetryOp extends Operator {
         public Spi() {
             super(EmpiricalBathymetryOp.class);
         }
+    }
+
+    private Dimension ensureSingleRasterSize(Product product, String[] sourceBandNames) throws OperatorException{
+        Dimension rasterSize = null;
+        if(sourceBandNames == null || sourceBandNames.length < 1) {
+            throw new OperatorException("At least one source band should be selected");
+        }
+        RasterDataNode firstRasterDataNode = product.getRasterDataNode(sourceBandNames[0]);
+        if(firstRasterDataNode == null) {
+            throw new OperatorException(String.format("Error when reading band: %s ",
+                                                      firstRasterDataNode.getName()));
+        }
+        rasterSize = firstRasterDataNode.getRasterSize();
+        for (String sourceBandName : sourceBandNames) {
+            if (rasterSize == null || !rasterSize.equals(product.getRasterDataNode(sourceBandName).getRasterSize())) {
+                throw new OperatorException(String.format("All source rasters must have the same size of %d x %d pixels.",
+                                                          rasterSize.width,
+                                                          rasterSize.height));
+            }
+        }
+        return rasterSize;
     }
 }
 
