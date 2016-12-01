@@ -18,6 +18,8 @@ import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.datamodel.SampleCoding;
 import org.esa.snap.core.datamodel.TiePointGrid;
 import org.esa.snap.core.datamodel.VirtualBand;
+import org.esa.snap.core.dataop.barithm.BandArithmetic;
+import org.esa.snap.core.dataop.barithm.RasterDataSymbol;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.Tile;
@@ -28,7 +30,12 @@ import org.esa.snap.core.gpf.pointop.TargetSampleConfigurer;
 import org.esa.snap.core.gpf.pointop.WritableSample;
 import org.esa.snap.core.image.ResolutionLevel;
 import org.esa.snap.core.image.VirtualBandOpImage;
+import org.esa.snap.core.jexp.ParseException;
+import org.esa.snap.core.jexp.Parser;
 import org.esa.snap.core.jexp.Term;
+import org.esa.snap.core.jexp.WritableNamespace;
+import org.esa.snap.core.jexp.impl.ParserImpl;
+import org.esa.snap.core.util.Guardian;
 import org.esa.snap.core.util.ProductUtils;
 
 import java.awt.Color;
@@ -37,6 +44,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.RenderedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -57,8 +65,9 @@ public abstract class PointOperatorMultisize extends Operator {
 
     private transient RasterDataNode[] sourceRasters;
     private transient RasterDataNode[] computedRasters;
-    private transient Mask validPixelMask;
+    //private transient Mask validPixelMask;
     private transient Band[] targetBands;
+    private transient HashMap<Dimension, Mask> validPixelMaskMap = new HashMap<>() ;
 
     /**
      * Configures this {@code PointOperator} by performing a number of initialisation steps in the given order:
@@ -187,8 +196,8 @@ public abstract class PointOperatorMultisize extends Operator {
         return createDefaultSamples(sourceRasters, sourceTiles, location, dim);
     }
 
-    Sample createSourceMaskSamples(Rectangle targetRectangle, Point location) {
-        final Tile sourceMaskTile = getSourceMaskTile(targetRectangle);
+    Sample createSourceMaskSamples(Rectangle targetRectangle, Point location, Dimension dim) {
+        final Tile sourceMaskTile = getSourceMaskTile(targetRectangle, dim);
         return sourceMaskTile != null ? new WritableSampleImpl(-1, sourceMaskTile, location) : null;
     }
 
@@ -217,7 +226,8 @@ public abstract class PointOperatorMultisize extends Operator {
         return sourceTiles;
     }
 
-    private Tile getSourceMaskTile(Rectangle region) {
+    private Tile getSourceMaskTile(Rectangle region, Dimension dim) {
+        Mask validPixelMask = validPixelMaskMap.get(dim);
         if (validPixelMask != null) {
             return getSourceTile(validPixelMask, region);
         }
@@ -460,20 +470,39 @@ public abstract class PointOperatorMultisize extends Operator {
                 return;
             }
 
-            Assert.state(validPixelMask == null, "valid pixel mask already defined");
+            //Assert.state(validPixelMask == null, "valid pixel mask already defined");
 
             if (!getSourceProduct().isCompatibleBandArithmeticExpression(maskExpression)) {
                 String msg = String.format("The valid-pixel mask expression '%s' can not be used with the source product.", maskExpression);
                 throw new OperatorException(msg);
             }
 
-            validPixelMask = Mask.BandMathsType.create("__source_mask", null,
-                                                       getSourceProduct().getSceneRasterWidth(),
-                                                       getSourceProduct().getSceneRasterHeight(),
-                                                       maskExpression,
-                                                       Color.GREEN, 0.0);
+
+            Guardian.assertNotNull("expression", maskExpression);
+            WritableNamespace namespace = BandArithmetic.createDefaultNamespace(new Product[]{getSourceProduct()}, 0);
+            Parser parser = new ParserImpl(namespace, false);
+
+            Term term;
+            try {
+                term = parser.parse(maskExpression);
+            } catch (ParseException var13) {
+                throw new OperatorException("Invalid mask expression");
+            }
+            RasterDataSymbol[] rasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(new Term[]{term});
+            if(rasterDataSymbols.length <= 0) {
+                throw new OperatorException("Invalid mask expression");
+            }
+            Dimension dim = rasterDataSymbols[0].getRaster().getRasterSize();
+            Assert.state(validPixelMaskMap.get(dim) == null, String.format("Valid pixel mask already defined for dimension (%d,%d)", dim.width, dim.height));
+
+            Mask validPixelMask = Mask.BandMathsType.create(String.format("__source_mask_%d_%d", dim.width, dim.height), null,
+                                                            dim.width,
+                                                            dim.height,
+                                                            maskExpression,
+                                                            Color.GREEN, 0.0);
             validPixelMask.setOwner(getSourceProduct());
             computedRasters.add(validPixelMask);
+            validPixelMaskMap.put(dim, validPixelMask);
         }
 
         RasterDataNode[] getComputeNodes() {

@@ -1,37 +1,24 @@
 package org.esa.sen2coral.algorithms;
 
-import com.bc.ceres.core.ProgressMonitor;
-import com.bc.ceres.core.SubProgressMonitor;
-import com.bc.ceres.core.VirtualDir;
+
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Mask;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.ProductNodeGroup;
-import org.esa.snap.core.datamodel.RasterDataNode;
-import org.esa.snap.core.datamodel.TiePointGrid;
-import org.esa.snap.core.datamodel.VirtualBand;
-import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
-import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
-import org.esa.snap.core.gpf.annotations.TargetProduct;
-import org.esa.snap.core.gpf.pointop.PixelOperator;
-import org.esa.snap.core.gpf.pointop.PointOperator;
 import org.esa.snap.core.gpf.pointop.Sample;
 import org.esa.snap.core.gpf.pointop.SourceSampleConfigurer;
 import org.esa.snap.core.gpf.pointop.TargetSampleConfigurer;
 import org.esa.snap.core.gpf.pointop.WritableSample;
 import org.esa.snap.core.util.ProductUtils;
-import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 
-import java.awt.*;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
@@ -72,7 +59,8 @@ public class DeglintOp extends PixelOperatorMultisize {
 
     //Processing parameters
     SimpleRegression[] regressions = null;
-    double calculatedMinNIR = Double.MAX_VALUE;
+    double[] slopes = null;
+    double calculatedMinNIR[] = null;
     private double noDataValue[] = null;
     HashMap<String,String> sourcesReferencesMap = null;
     HashMap<String,Integer> referencesIndexMap = new HashMap<>();
@@ -82,6 +70,8 @@ public class DeglintOp extends PixelOperatorMultisize {
 
     @Override
     protected Product createTargetProduct() throws OperatorException {
+
+
         int sceneWidth = 0, sceneHeight = 0;
         Set<Integer> distictWidths = new HashSet<>();
         for (Band band : getSourceProduct().getBands()) {
@@ -109,25 +99,23 @@ public class DeglintOp extends PixelOperatorMultisize {
 
         //add bands that are going to be 'deglinted'
         for (String bandName : sourceBandNames) {
-            /*Band sourceBand = getSourceProduct().getBand(bandName);
+            Band sourceBand = getSourceProduct().getBand(bandName);
             int sourceBandWidth = sourceBand.getRasterWidth();
             int sourceBandHeight = sourceBand.getRasterHeight();
 
-            Band targetBand = new Band(sourceBand.getName(), ProductData.TYPE_FLOAT32, sourceBandWidth, sourceBandHeight);
+            Band targetBand = new Band(bandName, /*ProductData.TYPE_FLOAT32*/sourceBand.getDataType(), sourceBandWidth, sourceBandHeight);
             ProductUtils.copySpectralBandProperties(sourceBand, targetBand);
-            targetBand.setDescription(sourceBand.getDescription() + "(normalized)");
+            targetBand.setDescription("Normalized band");
             targetBand.setUnit(sourceBand.getUnit());
             targetBand.setScalingFactor(sourceBand.getScalingFactor());
             targetBand.setScalingOffset(sourceBand.getScalingOffset());
             targetBand.setLog10Scaled(sourceBand.isLog10Scaled());
-            targetBand.setNoDataValueUsed(sourceBand.isNoDataValueUsed());
+            //the same no data value but used always true
+            targetBand.setNoDataValueUsed(true);
             targetBand.setNoDataValue(sourceBand.getNoDataValue());
             targetBand.setValidPixelExpression(sourceBand.getValidPixelExpression());
             targetBand.setGeoCoding(sourceBand.getGeoCoding());
-            targetProduct.addBand(targetBand);*/
-
-            Band band = ProductUtils.copyBand(bandName, getSourceProduct(), targetProduct, false);
-            band.setGeoCoding(getSourceProduct().getBand(bandName).getGeoCoding());
+            targetProduct.addBand(targetBand);
         }
 
         //add reference bands if includeReferences is true
@@ -136,7 +124,6 @@ public class DeglintOp extends PixelOperatorMultisize {
                 ProductUtils.copyBand(bandName, getSourceProduct(), targetProduct, true);
             }
         }
-
         return targetProduct;
     }
 
@@ -154,7 +141,7 @@ public class DeglintOp extends PixelOperatorMultisize {
 
         sourcesReferencesMap = buildSourcesReferencesMap(getSourceProduct(), sourceBandNames, referenceBands);
 
-        if (sunGlintVector == null && sunGlintVector.isEmpty()) {
+        if (sunGlintVector == null || sunGlintVector.isEmpty() || sourceProduct.getVectorDataGroup().get(sunGlintVector) == null) {
             throw new OperatorException(String.format("Error when reading Sun glint areas in %s. It must contain at least one polygon.",
                                                       sunGlintVector));
         }
@@ -188,21 +175,45 @@ public class DeglintOp extends PixelOperatorMultisize {
     }
 
     @Override
-    protected void computePixel(int x, int y, Sample[] sourceSamples, WritableSample targetSample/*, int index*/) {
-        regressions = getRegressions();
-        if(minNIR < 0) {
-            minNIR = calculatedMinNIR;
-        }
+    protected void computePixel(int x, int y, Sample[] sourceSamples, WritableSample targetSample) {
+        //compute regreesions if is null
+        getRegressions();
+
         int index = targetSample.getIndex();
+        if(minNIR < 0) {
+            minNIR = calculatedMinNIR[index];
+        }
+
         int referenceIndex = referencesIndexMap.get(sourcesReferencesMap.get(sourceBandNames[index]));
-        double correctedValue = sourceSamples[index].getFloat() - regressions[index].getSlope() * (sourceSamples[referenceIndex].getFloat() - minNIR);
-        correctedValue = (correctedValue >= 0) ? correctedValue : noDataValue[index];
+        double correctedValue = sourceSamples[index].getFloat() - getSlopes()[index] * (sourceSamples[referenceIndex].getFloat() - minNIR);
+        correctedValue = (correctedValue < 0 && maskNegativeValues) ? noDataValue[index] : correctedValue;
         targetSample.set(correctedValue);
+    }
+
+    private synchronized double[] getSlopes() {
+        if(slopes == null) {
+            slopes = new double[getRegressions().length];
+            for(int i = 0 ; i < slopes.length ; i++) {
+                slopes[i] = getRegressions()[i].getSlope();
+            }
+        }
+        return slopes;
+    }
+
+    private synchronized double[] getMinNIR() {
+        if(calculatedMinNIR == null) {
+            calculatedMinNIR = new double[getRegressions().length];
+            for(int i = 0 ; i < calculatedMinNIR.length ; i++) {
+                calculatedMinNIR[i] = getRegressions()[i].getSlope();
+            }
+        }
+        return calculatedMinNIR;
     }
 
     private synchronized SimpleRegression[] getRegressions() {
         if (regressions == null) {
             regressions = new SimpleRegression[sourceBandNames.length];
+            calculatedMinNIR = new double [sourceBandNames.length];
             int iCounter = 0;
             //pm.beginTask("Computing linear regression...", sourceBandNames.length);
             try {
@@ -212,6 +223,7 @@ public class DeglintOp extends PixelOperatorMultisize {
                     Band srcBand = getSourceProduct().getBand(srcBandName);
 
                     regressions[iCounter] = new SimpleRegression();
+                    calculatedMinNIR[iCounter] = Double.MAX_VALUE;
 
                     //create mask
                     final Mask mask = new Mask("tempMask",
@@ -247,7 +259,9 @@ public class DeglintOp extends PixelOperatorMultisize {
                                 if (referenceValue == referenceNoData) {
                                     continue;
                                 }
-                                if(referenceValue<calculatedMinNIR) calculatedMinNIR = referenceValue;
+                                if(referenceValue<calculatedMinNIR[iCounter]) {
+                                    calculatedMinNIR[iCounter] = referenceValue;
+                                }
                                 regressions[iCounter].addData(referenceValue, value);
                             }
                         }
@@ -261,6 +275,75 @@ public class DeglintOp extends PixelOperatorMultisize {
             }
         }
         return regressions;
+    }
+
+    private synchronized SimpleRegression getRegressions(int index) {
+        if (regressions == null) {
+            regressions = new SimpleRegression[sourceBandNames.length];
+            calculatedMinNIR = new double [sourceBandNames.length];
+            int iCounter = 0;
+            //pm.beginTask("Computing linear regression...", sourceBandNames.length);
+            try {
+                for (String srcBandName : sourceBandNames) {
+                    //get corresponding referenceBand
+                    String referenceBand = sourcesReferencesMap.get(srcBandName);
+                    Band srcBand = getSourceProduct().getBand(srcBandName);
+
+                    regressions[iCounter] = new SimpleRegression();
+                    calculatedMinNIR[iCounter] = Double.MAX_VALUE;
+
+                    //create mask
+                    final Mask mask = new Mask("tempMask",
+                                               srcBand.getRasterWidth(),
+                                               srcBand.getRasterHeight(),
+                                               Mask.VectorDataType.INSTANCE);
+                    Mask.VectorDataType.setVectorData(mask, getSourceProduct().getVectorDataGroup().get(sunGlintVector));
+                    ProductUtils.copyImageGeometry(srcBand, mask, false);
+
+                    //get noData values to exclude them
+                    double noData = srcBand.getNoDataValue();
+                    double referenceNoData = getSourceProduct().getRasterDataNode(referenceBand).getNoDataValue();
+
+                    //load data if it is not loaded
+                    try {
+                        mask.loadRasterData();
+                        srcBand.loadRasterData();
+                        getSourceProduct().getRasterDataNode(referenceBand).loadRasterData();
+                    } catch (IOException e) {
+                        //todo throw?
+                        e.printStackTrace();
+                    }
+
+                    //add data to regressions
+                    for (int i = 0; i < srcBand.getRasterWidth(); i++) {
+                        for (int j = 0; j < srcBand.getRasterHeight(); j++) {
+                            if (mask.getPixelInt(i, j) == 0) {
+                                continue;
+                            }
+                            double value = srcBand.getPixelDouble(i, j);
+                            if (value != noData) {
+                                double referenceValue = getSourceProduct().getRasterDataNode(referenceBand).getPixelDouble(i, j);
+                                if (referenceValue == referenceNoData) {
+                                    continue;
+                                }
+                                if(referenceValue<calculatedMinNIR[iCounter]) {
+                                    calculatedMinNIR[iCounter] = referenceValue;
+                                }
+                                regressions[iCounter].addData(referenceValue, value);
+                            }
+                        }
+                    }
+                    iCounter++;
+                    mask.dispose();
+                    //pm.worked(1);
+                }
+            } finally {
+                //pm.done();
+            }
+        } else if (regressions[index] == null) {
+
+        }
+        return regressions[index];
     }
 
     private HashMap<String,String> buildSourcesReferencesMap(Product product, String[] sourceBandNames, String[] referenceBandNames) throws OperatorException {

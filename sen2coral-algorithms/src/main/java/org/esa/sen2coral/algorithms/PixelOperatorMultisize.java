@@ -57,7 +57,7 @@ public abstract class PixelOperatorMultisize extends PointOperatorMultisize {
         final Point location = new Point();
         Rectangle targetRectangle = targetTile.getRectangle();
         final Sample[] sourceSamples = createSourceSamples(targetRectangle, location, targetBand.getRasterSize()); //todo hacer pasar un param con la ban
-        final Sample sourceMaskSamples = createSourceMaskSamples(targetRectangle, location);
+        final Sample sourceMaskSamples = createSourceMaskSamples(targetRectangle, location, targetBand.getRasterSize());
         final WritableSample targetSamples = createTargetSample(targetTile, location);
 
         final int x1 = targetRectangle.x;
