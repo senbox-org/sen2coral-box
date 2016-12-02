@@ -60,6 +60,42 @@ a reef in northern Palau. Band 8 was used as the glint reference band.">
 <IMG SRC="../images/deglint/deglintSchema.jpg" ALT="Reproduced from Hedley et al. 2005">
 
 <p>
+    A step by step outline of the procedure is:
+<ul>
+    <li>Select a sample area (or areas) of the image displaying a range of sun glint, but where the
+        image would be expected to be more or less homogeneous if the sun glint was not present
+        (e.g. over deep water).</li>
+    <li>Select which band(s) to correct and the NIR band to be used as the glint reference</li>
+    <li>For each band to have sun glint removed, perform a linear regression of NIR brightness
+        (x-axis) against the band signal (y-axis) using the selected pixels. The slope of the regression
+        line is the output of interest, for band i, call it bi.</li>
+    <li>Determine MinNIR , the minimum in the NIR band over the sample area, or, input a value to
+        use for MinNIR.</li>
+    <li>To deglint band i for all pixels in the image, subtract the product of bi and the NIR brightness
+        of the pixel (minus MinNIR ) from the pixel value in band i according to the equation:</li>
+    <IMG SRC="../images/deglint/equation.jpg">
+</ul>
+</p>
+
+<p>
+    An important point, of specific relevance to Sentinel 2, is that the band to be corrected and the NIR
+    reference must be of the same spatial resolution, and have close spatial and temporal alignment.
+    The algorithm assumes that each pixel images exactly the same water surface feature in the two
+    bands, if the bands are not in exact spatial alignment, the regression will be poor and correction will
+    not work well. Similarly if due to integration time requirements the bands are not imaged
+    coincidentally since the sea surface is in motion the correction may not work well. While these issues
+    could be investigated from a theoretical analysis of the instrument design, trial and error is the most
+    practical method for achieving optimal results.
+</p>
+
+<p>
+    The following table lists the Sentinel 2 MSI bands and indicates which bands can be used as NIR references for
+    correction of bands 1 to 5. Bands from 6 onwards (773 nm) are not corrected because they are not
+    useful for subsurface mapping as these wavelengths do not penetrate into the water.
+</p>
+<IMG SRC="../images/deglint/deglintS2Bands.jpg">
+
+<p>
 </p>
 <hr>
 </body>

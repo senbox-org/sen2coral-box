@@ -16,7 +16,7 @@
 
 <html>
 <head>
-    <title>Deglint - Algorithm Specification</title>
+    <title>Empirical Bathymetry - Algorithm Specification</title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
     <link rel="stylesheet" href="../style.css">
 </head>
@@ -25,61 +25,51 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-            Deglint Algorithm Specification</td>
+            Empirical Bathymetry Algorithm Specification</td>
         <td class="header" align="right"><a href="nbdocs://org.esa.snap.snap.help/org/esa/snap/snap/help/docs/general/overview/SnapOverview.html"><img src="../images/snap_header.jpg" border=0></a></td>
     </tr>
 </table>
 
-<h3>Deglint</h3>
+<h3>Empirical Bathymetry</h3>
 
 <p>
-    The <u><b>A</b></u>tmospherically <u><b>R</b></u>esistant <u><b>V</b></u>egetation <u><b>I</b></u>ndex
-    algorithm was introduced by Kaufman and Tanre (1992). <br><br>
-
-    The resistance of the <b>ARVI</b> to atmospheric effects (in comparison to the NDVI) is accomplished by a self-correction process for the atmospheric effect on the red channel.<br>
-    This is done using the difference in the radiance between the blue and the red channels to correct the radiance in the red channel.<br>
-    Compared to the red band, the blue band is much more easily scattered by the atmosphere particles. This explains why the sky is usually perceived as being blue. <br>
-    Thus, the ARVI index takes advantage of the different scattering responses from the blue and red band to retrieve information regarding the atmosphere opacity. <br>
-
-    Simulations using radiative transfer computations on arithmetic and natural surface spectra, for various atmospheric conditions, show that ARVI has a similar dynamic range to the NDVI, but is, on average, four times less sensitive to atmospheric effects than the NDVI. <br><br>
-</p>
-
-
-<p>
-    The ARVI results from the following equation:
+    Estimation of bathymetry by empirical regression methods is a commonly applied shallow water
+    mapping technique. Where some in-situ bathymetric data is available, for example from a boat
+    sonar system (most of which are automatically log to GPS now), and with a good quality image, a
+    simple regression method can be used to calibrate a bathymetry retrieval algorithm.
 </p>
 
 <p>
-    <b>ARVI = (IR_factor * near_IR - rb) / (IR_factor * near_IR + rb)</b><br><br>
+    A variety of empirical bathymetry methods have been published, they all rely on the assumption of
+    exponential attenuation of light with depth and are similar to the depth invariant index method
+    described previously. The method implemented follows that of Stumpf et al. (2003) which
+    relies on the ratio of the log-transform of two bands. I.e. the depth, z, is
+</p>
+<IMG SRC="../images/empiricalBathymetry/equation.jpg">
+
+<p>
+    where n is a user-set constant which should be chosen to ensure the logarithms are positive and the
+    relationship is maximally linear. The Rw terms are the atmospherically corrected reflectances in two
+    bands i and j. The constants m1 and m0 are estimated by linear regression over the in-situ sample
+    points.
 </p>
 
 <p>
-    , where: <br><br>
-    <b>rb = (red_factor * red) - gamma * (blue_factor * blue - red_factor * red)</b>, with <b>gamma = 1</b> <br><br>
-
+    A step by step procedure, given an atmospherically corrected image, is:
+<ul>
+    <li>Choose which two bands to use. For Sentinel 2 these will most frequently be Band 2 and 3
+        but other options should be available.</li>
+    <li>Import a set of bathymetry point data (latitude, longitude, depth) and extract the pixel
+        values of the two bands at those points.</li>
+    <li>Choose a value for n, or a default value can be set based on the criteria that the logarithm of
+        n multiplied by any pixel value to be processed should be non-negative.</li>
+    <li>Perform a least-squares regression to estimate m1 and m0, report r-squared.</li>
+    <li>Possibly choose another value for n, based on maximising the r-squared value, and repeat
+        the above step.</li>
+    <li>Process all non-masked pixels to create depth layer based on m1 and m0 and the above
+        equation.</li>
+</ul>
 </p>
-
-<p>
-    The main reason why the blue band is more susceptible to atmospheric scattering than the red band is because its wavelength is shorter. Generally, the shorter wavelength has stronger scattering.<br>
-    It's very similar to the way sea waves behave over oceans. When a large wave strikes an object, such as a ferryboat, it is more capable of continuing on its path by going around the object. On the other hand, it is dispersed more easily when the waves are smaller in size.<br>
-    Consequently, by obtaining the difference between the reflectance of the highly sensitive blue band and the less sensitive red band <b>(blue - red)</b>, it serves like an indicator of what the atmospheric conditions were like. <br><br>
-    Here <b>gamma</b> serves as a weighting function for the difference reflectance of the two bands. Various values can be chosen for it, which mainly depends on the type of aerosol size. <br>
-    According to Kaufaman and Tanre's statement in 1992, it is best to select a gamma value of 1 when information on the aerosol type is not available.<br><br>
-
-    <b>Consequently</b>, the main purpose of the above <b>rb</b> equation is to decrease the influence brought forth from the atmosphere, where a more accurate assessment of the value of the red reflectance can be obtained.<br><br>
-</p>
-
-<h3>ARVI-Flags</h3>
-
-<p>
-    Also the processor computes an additional flags band called 'arvi_flags'
-    with the following bit coding:</p>
-<table>
-    <tr><th>Bit Position</th><th>Description</th></tr>
-    <tr><td>Bit 0</td><td>The computed value for ARVI is NAN or is Infinite</td></tr>
-    <tr><td>Bit 1</td><td>The computed value for ARVI is less than 0 (zero)</td></tr>
-    <tr><td>Bit 2</td><td>The computed value for ARVI is greater than 1 (one)</td></tr>
-</table>
 <p>
 </p>
 <hr>

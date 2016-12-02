@@ -16,7 +16,7 @@
 
 <html>
 <head>
-    <title>Deglint - Algorithm Specification</title>
+    <title>Depth Invariant Indices - Algorithm Specification</title>
     <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
     <link rel="stylesheet" href="../style.css">
 </head>
@@ -25,61 +25,89 @@
 <table class="header">
     <tr class="header">
         <td class="header">&nbsp;
-            Deglint Algorithm Specification</td>
+            Depth Invariant Indices Algorithm Specification</td>
         <td class="header" align="right"><a href="nbdocs://org.esa.snap.snap.help/org/esa/snap/snap/help/docs/general/overview/SnapOverview.html"><img src="../images/snap_header.jpg" border=0></a></td>
     </tr>
 </table>
 
-<h3>Deglint</h3>
+<h3>Depth Invariant Indices</h3>
 
 <p>
-    The <u><b>A</b></u>tmospherically <u><b>R</b></u>esistant <u><b>V</b></u>egetation <u><b>I</b></u>ndex
-    algorithm was introduced by Kaufman and Tanre (1992). <br><br>
+    The calculation of depth invariant indices is a water column correction step
+    that is frequently a useful pre-processing step for benthic classification. The presentation here
+    follows Lyzenga (1978) and Green et al. (2000). The basic ideal is that attenuation of the reflectance
+    is approximately inverse exponential with water depth, therefore the transform,
+</p>
+<IMG SRC="../images/depthInvariantIndices/equation.jpg">
 
-    The resistance of the <b>ARVI</b> to atmospheric effects (in comparison to the NDVI) is accomplished by a self-correction process for the atmospheric effect on the red channel.<br>
-    This is done using the difference in the radiance between the blue and the red channels to correct the radiance in the red channel.<br>
-    Compared to the red band, the blue band is much more easily scattered by the atmosphere particles. This explains why the sky is usually perceived as being blue. <br>
-    Thus, the ARVI index takes advantage of the different scattering responses from the blue and red band to retrieve information regarding the atmosphere opacity. <br>
+<p>
+    approximately linearises the effect of depth on reflectance. Ri is the pixel reflectance in band i, and
+    Ri-deep, is the deep water reflectance in that band. A plot of the pixel values of two such transformed
+    bands over a benthic type with constant reflectance but at different depths will lie on a line (following figure)
+</p>
+<IMG SRC="../images/depthInvariantIndices/plot.jpg" ALT="Reproduced from Lyzenga (1978). Hypothetical plot of log transformed reflectancesfor three bottom types in waters varying from 0 to 5 m.">
 
-    Simulations using radiative transfer computations on arithmetic and natural surface spectra, for various atmospheric conditions, show that ARVI has a similar dynamic range to the NDVI, but is, on average, four times less sensitive to atmospheric effects than the NDVI. <br><br>
+<p>
+    The slope of these lines is the same and is dependent on the optical properties of the water, but the
+    vertical position (i.e. the x or y-intercept) of the lines is not, and is a function of the bottom
+    reflectance. In mathematical terms for bands i and j,
+</p>
+<IMG SRC="../images/depthInvariantIndices/equation1.jpg">
+
+<p>
+    The constant term dij determines the intercept and is the depth invariant index we seek to compute.
+    It is therefore necessary to know the ratio of the water attenuation coefficients in the two bands
+    ki/kj, however it is not necessary to know the individual attenuation coefficients. The ratio can be
+    calculated from the image by taking a sample of pixels of consistent bottom type over a range of
+    depths and performing a least squares regression of the above equation. The procedure is therefore
+    entirely image based, and knowledge of the bottom reflectances, water optical properties or depths
+    are not required. A weakness however is that it is assumed that water optical properties are
+    consistent across the site at least such that the ratio of the attenuation coefficients ki and kj are
+    consistent.
 </p>
 
 
 <p>
-    The ARVI results from the following equation:
+    The step by step process to produce one depth-invariant index layer is:
+<ul>
+    <li>Select two bands to use to make the depth invariant index, the bands should have water
+        penetration as far as the features of interest so with respect to Sentinel 2 MSI this means
+        bands 1 to 5, although bands 1 to 3 are in the most useful wavelength range.</li>
+    <li>Select an ROI over a deep water region. From this ROI the deep water reflectance, Ri
+        deep, is calculated for both bands.</li>
+    <li>Select a set of ROIs over the same bottom type but at different depths. Areas of submerged
+        sand are a good choice since they are easily identifiable, relatively homogenous and being
+        bright provide a good signal to noise ratio.</li>
+    <li>The ratio of attenuation coefficients is calculated using least squares regression with
+        perpendicular offsets. The method of perpendicular offsets (Weisstein 2016) is used because
+        there is no concept of dependent and independent variable, and the calculated ratio should
+        be the effectively the same regardless of which way around the bands are chosen (i.e. the
+        reciprocal if bands are swapped). From Green et al. (2000) the calculation is:
+        <br/><IMG SRC="../images/depthInvariantIndices/equation2.jpg">
+        <br/>where,
+        <br/><IMG SRC="../images/depthInvariantIndices/equation3.jpg">
+        <br/>and the covariance is calculated as usual,
+        <br/><IMG SRC="../images/depthInvariantIndices/equation4.jpg">
+        <br/>where the Xi values from which the means are taken are over the sample of homogenous
+        bottom pixels.
+    </li>
+    <li>Finally the depth invariant index is calculated in every pixel (except any that are masked due
+        to cloud, land, etc.) and the output layer created according to the formula:
+        <br/><IMG SRC="../images/depthInvariantIndices/equation5.jpg">
+    </li>
+
+</ul>
 </p>
 
 <p>
-    <b>ARVI = (IR_factor * near_IR - rb) / (IR_factor * near_IR + rb)</b><br><br>
+    An example generation of a depth invariant index layer from bands 2 and 3 of a Sentinel 2 image is
+    shown below.
 </p>
+<IMG SRC="../images/depthInvariantIndices/example.jpg" ALT="Example depth invariant index generation from bands 2 and 3 of a Sentinel 2 image of
+Lizard Island. Note in (b) how the sand area looks homogenous across shallow areas and the
+deep lagoons, coral areas appear dark. Very deep water where the bottom cannot be seen
+becomes noise (bottom right hand corner).">
 
-<p>
-    , where: <br><br>
-    <b>rb = (red_factor * red) - gamma * (blue_factor * blue - red_factor * red)</b>, with <b>gamma = 1</b> <br><br>
-
-</p>
-
-<p>
-    The main reason why the blue band is more susceptible to atmospheric scattering than the red band is because its wavelength is shorter. Generally, the shorter wavelength has stronger scattering.<br>
-    It's very similar to the way sea waves behave over oceans. When a large wave strikes an object, such as a ferryboat, it is more capable of continuing on its path by going around the object. On the other hand, it is dispersed more easily when the waves are smaller in size.<br>
-    Consequently, by obtaining the difference between the reflectance of the highly sensitive blue band and the less sensitive red band <b>(blue - red)</b>, it serves like an indicator of what the atmospheric conditions were like. <br><br>
-    Here <b>gamma</b> serves as a weighting function for the difference reflectance of the two bands. Various values can be chosen for it, which mainly depends on the type of aerosol size. <br>
-    According to Kaufaman and Tanre's statement in 1992, it is best to select a gamma value of 1 when information on the aerosol type is not available.<br><br>
-
-    <b>Consequently</b>, the main purpose of the above <b>rb</b> equation is to decrease the influence brought forth from the atmosphere, where a more accurate assessment of the value of the red reflectance can be obtained.<br><br>
-</p>
-
-<h3>ARVI-Flags</h3>
-
-<p>
-    Also the processor computes an additional flags band called 'arvi_flags'
-    with the following bit coding:</p>
-<table>
-    <tr><th>Bit Position</th><th>Description</th></tr>
-    <tr><td>Bit 0</td><td>The computed value for ARVI is NAN or is Infinite</td></tr>
-    <tr><td>Bit 1</td><td>The computed value for ARVI is less than 0 (zero)</td></tr>
-    <tr><td>Bit 2</td><td>The computed value for ARVI is greater than 1 (one)</td></tr>
-</table>
 <p>
 </p>
 <hr>

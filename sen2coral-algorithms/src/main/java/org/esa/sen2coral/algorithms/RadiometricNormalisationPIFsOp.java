@@ -1,21 +1,15 @@
 package org.esa.sen2coral.algorithms;
 
-import com.bc.ceres.core.ProgressMonitor;
+
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Mask;
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
-import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
-import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
-import org.esa.snap.core.gpf.annotations.SourceProducts;
-import org.esa.snap.core.gpf.annotations.TargetProduct;
-import org.esa.snap.core.gpf.pointop.PixelOperator;
 import org.esa.snap.core.gpf.pointop.Sample;
 import org.esa.snap.core.gpf.pointop.SourceSampleConfigurer;
 import org.esa.snap.core.gpf.pointop.TargetSampleConfigurer;
@@ -23,13 +17,12 @@ import org.esa.snap.core.gpf.pointop.WritableSample;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * deglint operator
+ * Radiometric Normalisation with PIFs operator
  */
 @OperatorMetadata(alias = "RadiometricNormalisationPIFsOp",
         category = "Raster",
@@ -117,14 +110,12 @@ public class RadiometricNormalisationPIFsOp extends PixelOperatorMultisize {
 
 
     @Override
-    protected void computePixel(int x, int y, Sample[] sourceSamples, WritableSample targetSample/*, int index*/) {
+    protected void computePixel(int x, int y, Sample[] sourceSamples, WritableSample targetSample) {
         regressions = getRegressions();
-        //for(int i = 0 ; i<sourceBandNames.length ; i++) {
         int index = targetSample.getIndex();
             double correctedValue = sourceSamples[index].getFloat()*regressions[index].getSlope() + regressions[index].getIntercept();
             correctedValue = (correctedValue >= 0) ? correctedValue : noDataValue[index];
             targetSample.set(correctedValue);
-        //}
     }
 
     @Override
@@ -150,58 +141,54 @@ public class RadiometricNormalisationPIFsOp extends PixelOperatorMultisize {
         if (regressions == null) {
             regressions = new SimpleRegression[sourceBandNames.length];
             int iCounter = 0;
-            //pm.beginTask("Computing linear regression...", sourceBandNames.length);
-            try {
-                final Band[] sourceBands = OperatorUtils.getSourceBands(slaveProduct, sourceBandNames, false);
-                for (Band srcBand : sourceBands) {
-                    Band refBand = referenceProduct.getBand(srcBand.getName());
-                    regressions[iCounter] = new SimpleRegression();
 
-                    //create mask
-                    final Mask mask = new Mask("tempMask",
-                                               srcBand.getRasterWidth(),
-                                               srcBand.getRasterHeight(),
-                                               Mask.VectorDataType.INSTANCE);
-                    Mask.VectorDataType.setVectorData(mask, referenceProduct.getVectorDataGroup().get(pifVector));
-                    ProductUtils.copyImageGeometry(srcBand, mask, false);
+            final Band[] sourceBands = OperatorUtils.getSourceBands(slaveProduct, sourceBandNames, false);
+            for (Band srcBand : sourceBands) {
+                Band refBand = referenceProduct.getBand(srcBand.getName());
+                regressions[iCounter] = new SimpleRegression();
 
-                    //get noData values to exclude them
-                    double noData = srcBand.getNoDataValue();
-                    double referenceNoData = refBand.getNoDataValue();
+                //create mask
+                final Mask mask = new Mask("tempMask",
+                                           srcBand.getRasterWidth(),
+                                           srcBand.getRasterHeight(),
+                                           Mask.VectorDataType.INSTANCE);
+                Mask.VectorDataType.setVectorData(mask, referenceProduct.getVectorDataGroup().get(pifVector));
+                ProductUtils.copyImageGeometry(srcBand, mask, false);
 
-                    //load data if it is not loaded
-                    try {
-                        mask.loadRasterData();
-                        srcBand.loadRasterData();
-                        refBand.loadRasterData();
-                    } catch (IOException e) {
-                        //todo throw?
-                        e.printStackTrace();
-                    }
+                //get noData values to exclude them
+                double noData = srcBand.getNoDataValue();
+                double referenceNoData = refBand.getNoDataValue();
 
-                    //add data to regressions
-                    for (int i = 0; i < srcBand.getRasterWidth(); i++) {
-                        for (int j = 0; j < srcBand.getRasterHeight(); j++) {
-                            if (mask.getPixelInt(i, j) == 0) {
+                //load data if it is not loaded
+                try {
+                    mask.loadRasterData();
+                    srcBand.loadRasterData();
+                    refBand.loadRasterData();
+                } catch (IOException e) {
+                    //todo throw?
+                    e.printStackTrace();
+                }
+
+                //add data to regressions
+                for (int i = 0; i < srcBand.getRasterWidth(); i++) {
+                    for (int j = 0; j < srcBand.getRasterHeight(); j++) {
+                        if (mask.getPixelInt(i, j) == 0) {
+                            continue;
+                        }
+                        double value = srcBand.getPixelDouble(i, j);
+                        if (value != noData) {
+                            double referenceValue = refBand.getPixelDouble(i, j);
+                            if (referenceValue == referenceNoData) {
                                 continue;
                             }
-                            double value = srcBand.getPixelDouble(i, j);
-                            if (value != noData) {
-                                double referenceValue = refBand.getPixelDouble(i, j);
-                                if (referenceValue == referenceNoData) {
-                                    continue;
-                                }
-                                regressions[iCounter].addData(value, referenceValue);
-                            }
+                            regressions[iCounter].addData(value, referenceValue);
                         }
                     }
-                    iCounter++;
-                    mask.dispose();
-                    srcBand.unloadRasterData();
-                    refBand.unloadRasterData();
                 }
-            } finally {
-                //pm.done();
+                iCounter++;
+                mask.dispose();
+                srcBand.unloadRasterData();
+                refBand.unloadRasterData();
             }
         }
         return regressions;

@@ -5,7 +5,6 @@ import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Mask;
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.ProductNodeGroup;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -71,7 +70,6 @@ public class DeglintOp extends PixelOperatorMultisize {
     @Override
     protected Product createTargetProduct() throws OperatorException {
 
-
         int sceneWidth = 0, sceneHeight = 0;
         Set<Integer> distictWidths = new HashSet<>();
         for (Band band : getSourceProduct().getBands()) {
@@ -103,7 +101,7 @@ public class DeglintOp extends PixelOperatorMultisize {
             int sourceBandWidth = sourceBand.getRasterWidth();
             int sourceBandHeight = sourceBand.getRasterHeight();
 
-            Band targetBand = new Band(bandName, /*ProductData.TYPE_FLOAT32*/sourceBand.getDataType(), sourceBandWidth, sourceBandHeight);
+            Band targetBand = new Band(bandName, sourceBand.getDataType(), sourceBandWidth, sourceBandHeight);
             ProductUtils.copySpectralBandProperties(sourceBand, targetBand);
             targetBand.setDescription("Normalized band");
             targetBand.setUnit(sourceBand.getUnit());
@@ -176,172 +174,91 @@ public class DeglintOp extends PixelOperatorMultisize {
 
     @Override
     protected void computePixel(int x, int y, Sample[] sourceSamples, WritableSample targetSample) {
-        //compute regreesions if is null
-        getRegressions();
 
         int index = targetSample.getIndex();
+        double minNIRAux = minNIR;
+        double slope = getSlope(index);
+        //compute regression and MinNIR if is null
+        //getRegression(index);
         if(minNIR < 0) {
-            minNIR = calculatedMinNIR[index];
+            minNIRAux = calculatedMinNIR[index];
         }
 
         int referenceIndex = referencesIndexMap.get(sourcesReferencesMap.get(sourceBandNames[index]));
-        double correctedValue = sourceSamples[index].getFloat() - getSlopes()[index] * (sourceSamples[referenceIndex].getFloat() - minNIR);
+        double correctedValue = sourceSamples[index].getFloat() - slope * (sourceSamples[referenceIndex].getFloat() - minNIRAux);
         correctedValue = (correctedValue < 0 && maskNegativeValues) ? noDataValue[index] : correctedValue;
         targetSample.set(correctedValue);
     }
 
-    private synchronized double[] getSlopes() {
+    private synchronized double getSlope(int index) {
         if(slopes == null) {
-            slopes = new double[getRegressions().length];
-            for(int i = 0 ; i < slopes.length ; i++) {
-                slopes[i] = getRegressions()[i].getSlope();
-            }
+            slopes = new double[sourceBandNames.length];
         }
-        return slopes;
+        if(slopes[index] == 0.0d){
+            slopes[index] = getRegression(index).getSlope();
+        }
+        return slopes[index];
     }
 
-    private synchronized double[] getMinNIR() {
-        if(calculatedMinNIR == null) {
-            calculatedMinNIR = new double[getRegressions().length];
-            for(int i = 0 ; i < calculatedMinNIR.length ; i++) {
-                calculatedMinNIR[i] = getRegressions()[i].getSlope();
-            }
-        }
-        return calculatedMinNIR;
-    }
 
-    private synchronized SimpleRegression[] getRegressions() {
+    private synchronized SimpleRegression getRegression(int index) {
+
         if (regressions == null) {
             regressions = new SimpleRegression[sourceBandNames.length];
             calculatedMinNIR = new double [sourceBandNames.length];
-            int iCounter = 0;
-            //pm.beginTask("Computing linear regression...", sourceBandNames.length);
-            try {
-                for (String srcBandName : sourceBandNames) {
-                    //get corresponding referenceBand
-                    String referenceBand = sourcesReferencesMap.get(srcBandName);
-                    Band srcBand = getSourceProduct().getBand(srcBandName);
-
-                    regressions[iCounter] = new SimpleRegression();
-                    calculatedMinNIR[iCounter] = Double.MAX_VALUE;
-
-                    //create mask
-                    final Mask mask = new Mask("tempMask",
-                                               srcBand.getRasterWidth(),
-                                               srcBand.getRasterHeight(),
-                                               Mask.VectorDataType.INSTANCE);
-                    Mask.VectorDataType.setVectorData(mask, getSourceProduct().getVectorDataGroup().get(sunGlintVector));
-                    ProductUtils.copyImageGeometry(srcBand, mask, false);
-
-                    //get noData values to exclude them
-                    double noData = srcBand.getNoDataValue();
-                    double referenceNoData = getSourceProduct().getRasterDataNode(referenceBand).getNoDataValue();
-
-                    //load data if it is not loaded
-                    try {
-                        mask.loadRasterData();
-                        srcBand.loadRasterData();
-                        getSourceProduct().getRasterDataNode(referenceBand).loadRasterData();
-                    } catch (IOException e) {
-                        //todo throw?
-                        e.printStackTrace();
-                    }
-
-                    //add data to regressions
-                    for (int i = 0; i < srcBand.getRasterWidth(); i++) {
-                        for (int j = 0; j < srcBand.getRasterHeight(); j++) {
-                            if (mask.getPixelInt(i, j) == 0) {
-                                continue;
-                            }
-                            double value = srcBand.getPixelDouble(i, j);
-                            if (value != noData) {
-                                double referenceValue = getSourceProduct().getRasterDataNode(referenceBand).getPixelDouble(i, j);
-                                if (referenceValue == referenceNoData) {
-                                    continue;
-                                }
-                                if(referenceValue<calculatedMinNIR[iCounter]) {
-                                    calculatedMinNIR[iCounter] = referenceValue;
-                                }
-                                regressions[iCounter].addData(referenceValue, value);
-                            }
-                        }
-                    }
-                    iCounter++;
-                    mask.dispose();
-                    //pm.worked(1);
-                }
-            } finally {
-                //pm.done();
-            }
         }
-        return regressions;
-    }
 
-    private synchronized SimpleRegression getRegressions(int index) {
-        if (regressions == null) {
-            regressions = new SimpleRegression[sourceBandNames.length];
-            calculatedMinNIR = new double [sourceBandNames.length];
-            int iCounter = 0;
-            //pm.beginTask("Computing linear regression...", sourceBandNames.length);
+        if (regressions[index] == null) {
+            String srcBandName = sourceBandNames[index];
+            //get corresponding referenceBand
+            String referenceBand = sourcesReferencesMap.get(srcBandName);
+            Band srcBand = getSourceProduct().getBand(srcBandName);
+
+            regressions[index] = new SimpleRegression();
+            calculatedMinNIR[index] = Double.MAX_VALUE;
+
+            //create mask
+            final Mask mask = new Mask("tempMask",
+                                       srcBand.getRasterWidth(),
+                                       srcBand.getRasterHeight(),
+                                       Mask.VectorDataType.INSTANCE);
+            Mask.VectorDataType.setVectorData(mask, getSourceProduct().getVectorDataGroup().get(sunGlintVector));
+            ProductUtils.copyImageGeometry(srcBand, mask, false);
+
+            //get noData values to exclude them
+            double noData = srcBand.getNoDataValue();
+            double referenceNoData = getSourceProduct().getRasterDataNode(referenceBand).getNoDataValue();
+
+            //load data if it is not loaded
             try {
-                for (String srcBandName : sourceBandNames) {
-                    //get corresponding referenceBand
-                    String referenceBand = sourcesReferencesMap.get(srcBandName);
-                    Band srcBand = getSourceProduct().getBand(srcBandName);
-
-                    regressions[iCounter] = new SimpleRegression();
-                    calculatedMinNIR[iCounter] = Double.MAX_VALUE;
-
-                    //create mask
-                    final Mask mask = new Mask("tempMask",
-                                               srcBand.getRasterWidth(),
-                                               srcBand.getRasterHeight(),
-                                               Mask.VectorDataType.INSTANCE);
-                    Mask.VectorDataType.setVectorData(mask, getSourceProduct().getVectorDataGroup().get(sunGlintVector));
-                    ProductUtils.copyImageGeometry(srcBand, mask, false);
-
-                    //get noData values to exclude them
-                    double noData = srcBand.getNoDataValue();
-                    double referenceNoData = getSourceProduct().getRasterDataNode(referenceBand).getNoDataValue();
-
-                    //load data if it is not loaded
-                    try {
-                        mask.loadRasterData();
-                        srcBand.loadRasterData();
-                        getSourceProduct().getRasterDataNode(referenceBand).loadRasterData();
-                    } catch (IOException e) {
-                        //todo throw?
-                        e.printStackTrace();
-                    }
-
-                    //add data to regressions
-                    for (int i = 0; i < srcBand.getRasterWidth(); i++) {
-                        for (int j = 0; j < srcBand.getRasterHeight(); j++) {
-                            if (mask.getPixelInt(i, j) == 0) {
-                                continue;
-                            }
-                            double value = srcBand.getPixelDouble(i, j);
-                            if (value != noData) {
-                                double referenceValue = getSourceProduct().getRasterDataNode(referenceBand).getPixelDouble(i, j);
-                                if (referenceValue == referenceNoData) {
-                                    continue;
-                                }
-                                if(referenceValue<calculatedMinNIR[iCounter]) {
-                                    calculatedMinNIR[iCounter] = referenceValue;
-                                }
-                                regressions[iCounter].addData(referenceValue, value);
-                            }
-                        }
-                    }
-                    iCounter++;
-                    mask.dispose();
-                    //pm.worked(1);
-                }
-            } finally {
-                //pm.done();
+                mask.loadRasterData();
+                srcBand.loadRasterData();
+                getSourceProduct().getRasterDataNode(referenceBand).loadRasterData();
+            } catch (IOException e) {
+                //todo throw?
+                e.printStackTrace();
             }
-        } else if (regressions[index] == null) {
 
+            //add data to regressions
+            for (int i = 0; i < srcBand.getRasterWidth(); i++) {
+                for (int j = 0; j < srcBand.getRasterHeight(); j++) {
+                    if (mask.getPixelInt(i, j) == 0) {
+                        continue;
+                    }
+                    double value = srcBand.getPixelDouble(i, j);
+                    if (value != noData) {
+                        double referenceValue = getSourceProduct().getRasterDataNode(referenceBand).getPixelDouble(i, j);
+                        if (referenceValue == referenceNoData) {
+                            continue;
+                        }
+                        if (referenceValue < calculatedMinNIR[index]) {
+                            calculatedMinNIR[index] = referenceValue;
+                        }
+                        regressions[index].addData(referenceValue, value);
+                    }
+                }
+            }
+            mask.dispose();
         }
         return regressions[index];
     }
