@@ -33,6 +33,7 @@ import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -58,16 +59,12 @@ public class LandCloudWhiteCapMaskOp extends Operator {
     private String[] sourceBandNames;
 
 
-    @Parameter(description = "The list of source bands.", alias = "sourceBands",
+    @Parameter(description = "The list of reference bands.", alias = "referenceBands",
             rasterDataNodeType = Band.class, label = "Reference Band")
     private String[] referenceBandNames;
 
     @Parameter(defaultValue = "0.10", description = "Maximum valid value", label = "Maximum valid value")
-    private Double threshold = 0.10;
-
-    @Parameter(label = "Apply mask to all bands", defaultValue = "true")
-    private Boolean applyMask = true;
-
+    private String thresholdString = "0.10";
 
     @Parameter(label = "Mask all negative reflectance values", defaultValue = "true")
     private Boolean maskNegativeValues = true;
@@ -75,12 +72,40 @@ public class LandCloudWhiteCapMaskOp extends Operator {
     private final String maskName = "LandCloudWhiteCapMask";
     private final String maskDescription = "Land, Cloud and White Cap Mask";
 
-    private Map<Band, String> expressionMap = new HashMap<>();
-
-
+    private Map<String, Double> referenceThresholdMap = new HashMap<>();
 
     @Override
     public void initialize() throws OperatorException {
+
+        if(getSourceProduct() == null) {
+            throw new OperatorException("Source product cannot be null");
+        }
+
+        if(referenceBandNames != null && referenceBandNames.length<=0) {
+            throw new OperatorException("At least one reference band must be selected");
+        }
+        String thresholdSplit[] = thresholdString.split(";");
+        if(thresholdSplit.length == 1) {
+            for(String referenceBandName : referenceBandNames) {
+                try {
+                    referenceThresholdMap.put(referenceBandName,Double.parseDouble(thresholdSplit[0]));
+                } catch (Exception e) {
+                    throw new OperatorException(e.getMessage());
+                }
+            }
+        } else if (thresholdSplit.length == referenceBandNames.length) {
+            for(int i = 0; i < referenceBandNames.length; i++) {
+                try {
+                    referenceThresholdMap.put(referenceBandNames[i],Double.parseDouble(thresholdSplit[i]));
+                } catch (Exception e) {
+                    throw new OperatorException(e.getMessage());
+                }
+            }
+        } else {
+            throw new OperatorException("Maximum valid value must be one value or as many values as selected reference bands separated by ';'. For example: 0.7;0.3;0.45 if three reference bands have been selected");
+        }
+
+
 
         targetProduct = new Product(sourceProduct.getName(),
                                     sourceProduct.getProductType(),
@@ -90,137 +115,75 @@ public class LandCloudWhiteCapMaskOp extends Operator {
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
 
-        if(referenceBandNames != null && sourceBandNames != null) {
+        if(referenceBandNames != null) {
             for (String srcBandName : referenceBandNames) {
                 ProductUtils.copyBand(srcBandName, sourceProduct, srcBandName, targetProduct, true);
             }
 
-
-            if (applyMask) {
-                final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
-                for (Band srcBand : sourceBands) {
-                    final String targetBandName = srcBand.getName();
-                    final Band targetBand = new Band(targetBandName,
-                                                     srcBand.getDataType(),
-                                                     srcBand.getRasterWidth(),
-                                                     srcBand.getRasterHeight());
-
-                    targetBand.setUnit(srcBand.getUnit());
-                    targetBand.setNoDataValue(srcBand.getNoDataValue());
-                    targetBand.setNoDataValueUsed(true);
-                    ProductUtils.copyGeoCoding(srcBand, targetBand);
-                    targetProduct.addBand(targetBand);
-
-                    expressionMap.put(targetBand, createExpression(srcBand, getReferenceBandName(srcBand.getName())));
-                }
-            }
-
-            Set<Dimension> distictDimension = new HashSet<>();
-
             //add masks
-
             for (String referenceBandName : referenceBandNames) {
                 Band band = sourceProduct.getBand(referenceBandName);
-                if (distictDimension.add(band.getRasterSize())) {
-                    Mask mask = Mask.BandMathsType.create(String.format("%s_%s", maskName, band.getName()), maskDescription, band.getRasterWidth(), band.getRasterHeight(),
-                                                          String.format("%s.raw < %f", referenceBandName, threshold), Color.CYAN, 0.5);
 
-                    ProductUtils.copyGeoCoding(band, mask);
-                    targetProduct.addMask(mask);
+                Mask mask = new Mask(getMaskName(band), band.getRasterWidth(), band.getRasterHeight(), Mask.RangeType.INSTANCE);
+                mask.setDescription(maskDescription);
+                mask.setImageColor(Color.CYAN);
+                mask.setImageTransparency(0.5);
+                Mask.RangeType.setRasterName(mask, referenceBandName);
+                Mask.RangeType.setMaximum(mask, referenceThresholdMap.get(referenceBandName));
+                if (maskNegativeValues) {
+                    Mask.RangeType.setMinimum(mask, 0.0);
+                } else {
+                    Mask.RangeType.setMinimum(mask, Double.MIN_VALUE);
                 }
-            }
 
+                ProductUtils.copyGeoCoding(band, mask);
+                targetProduct.addMask(mask);
+            }
         }
-    }
 
-    private String createExpression(final Band srcBand, String referenceBandName) {
-        final StringBuilder str = new StringBuilder("");
+        if(sourceBandNames != null) {
+            final Band[] sourceBands = OperatorUtils.getSourceBands(sourceProduct, sourceBandNames, false);
+            for (Band srcBand : sourceBands) {
+                final String targetBandName = srcBand.getName();
+                final Band targetBand = new Band(targetBandName,
+                                                 srcBand.getDataType(),
+                                                 srcBand.getRasterWidth(),
+                                                 srcBand.getRasterHeight());
 
-        double scaledThreshold = (threshold - srcBand.getScalingOffset())/srcBand.getScalingFactor();
-        str.append("(");
-        str.append(referenceBandName);
-        str.append(" <= ");
-        str.append(/*threshold*/scaledThreshold);
-        str.append(") ? ");
-        str.append(srcBand.getName());
-        str.append(" : ");
-        str.append(srcBand.getNoDataValue());
-
-        return str.toString();
-    }
-
-    @Override
-    public synchronized void computeTile(Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
-
-        try {
-            final Rectangle rect = targetTile.getRectangle();
-            final RasterDataEvalEnv env = new RasterDataEvalEnv(rect.x, rect.y, rect.width, rect.height);
-
-            final String expression = expressionMap.get(targetBand);
-            final Term term = createTerm(expression);
-
-            final RasterDataSymbol[] refRasterDataSymbols = BandArithmetic.getRefRasterDataSymbols(term);
-            for (RasterDataSymbol symbol : refRasterDataSymbols) {
-                final Tile tile = getSourceTile(symbol.getRaster(), rect);
-                symbol.setData(tile.getRawSamples());
-            }
-
-            pm.beginTask("Evaluating expression", rect.height);
-            int pixelIndex = 0;
-            for (int y = rect.y; y < rect.y + rect.height; y++) {
-                if (pm.isCanceled()) {
-                    break;
+                targetBand.setUnit(srcBand.getUnit());
+                targetBand.setNoDataValue(srcBand.getNoDataValue());
+                targetBand.setNoDataValueUsed(true);
+                String validExpression = "";
+                for (String maskName : getMaskNames(srcBand.getRasterSize())) {
+                    if (validExpression.length() == 0) {
+                        validExpression = maskName;
+                    } else {
+                        validExpression = validExpression + " && " + maskName;
+                    }
                 }
-                for (int x = rect.x; x < rect.x + rect.width; x++) {
-                    env.setElemIndex(pixelIndex);
-
-                    double val = term.evalD(env);
-                    targetTile.setSample(x, y, val);
-                    pixelIndex++;
-                }
-                pm.worked(1);
+                targetBand.setValidPixelExpression(validExpression);
+                targetBand.setSourceImage(srcBand.getSourceImage());
+                ProductUtils.copyGeoCoding(srcBand, targetBand);
+                targetProduct.addBand(targetBand);
             }
-
-        } catch (Throwable e) {
-            OperatorUtils.catchOperatorException(getId(), e);
-        } finally {
-            pm.done();
         }
     }
 
-    private Term createTerm(String expression) {
-        WritableNamespace namespace = BandArithmetic.createDefaultNamespace(new Product[]{sourceProduct}, 0,
-                                                                            new SourceProductPrefixProvider());
-        final Term term;
-        try {
-            Parser parser = new ParserImpl(namespace, false);
-            term = parser.parse(expression);
-        } catch (ParseException e) {
-            throw new OperatorException("Could not parse expression: " + expression, e);
-        }
-        return term;
+    private String getMaskName(Band referenceBand) {
+        return String.format("%s_%s", maskName, referenceBand.getName());
     }
 
-    private String getReferenceBandName(String srcBand) {
-        if(srcBand == null || referenceBandNames == null || referenceBandNames.length<1) {
-            return null;
-        }
+    private ArrayList<String> getMaskNames(Dimension dim) {
+        ArrayList<String> list = new ArrayList<>();
         for(String referenceBandName : referenceBandNames) {
-            if(sourceProduct.getBand(referenceBandName).getRasterSize().equals(sourceProduct.getBand(srcBand).getRasterSize())) {
-                return referenceBandName;
+            Band refBand = sourceProduct.getBand(referenceBandName);
+            if(refBand.getRasterSize().equals(dim)) {
+                list.add(getMaskName(refBand));
             }
         }
-        return null;
+        return list;
     }
 
-    private static class SourceProductPrefixProvider implements ProductNamespacePrefixProvider {
-
-        @Override
-        public String getPrefix(Product product) {
-            //return "$" + getSourceProductId(product) + ".";
-            return BandArithmetic.getProductNodeNamePrefix(product);
-        }
-    }
     /**
      * The SPI is used to register this operator in the graph processing framework
      * via the SPI configuration file

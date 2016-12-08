@@ -23,7 +23,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * deglint operator
+ * Deglint operator
  */
 @OperatorMetadata(alias = "DeglintOp",
         category = "Raster",
@@ -50,7 +50,7 @@ public class DeglintOp extends PixelOperatorMultisize {
     private Boolean includeReferences = true;
 
     @Parameter(defaultValue = "-1.0", description = "Minimum expected NIR value in the absence of glint")
-    private Double minNIR = -1.0;
+    private String minNIRString = "-1.0";
 
     @Parameter(label = "Mask all negative reflectance values", defaultValue = "true")
     private Boolean maskNegativeValues = true;
@@ -62,6 +62,7 @@ public class DeglintOp extends PixelOperatorMultisize {
     double calculatedMinNIR[] = null;
     private double noDataValue[] = null;
     HashMap<String,String> sourcesReferencesMap = null;
+    HashMap<String,Double> referencesMinNIRMap = new HashMap<>();
     HashMap<String,Integer> referencesIndexMap = new HashMap<>();
 
 
@@ -103,7 +104,7 @@ public class DeglintOp extends PixelOperatorMultisize {
 
             Band targetBand = new Band(bandName, sourceBand.getDataType(), sourceBandWidth, sourceBandHeight);
             ProductUtils.copySpectralBandProperties(sourceBand, targetBand);
-            targetBand.setDescription("Normalized band");
+            targetBand.setDescription("Deglinted band");
             targetBand.setUnit(sourceBand.getUnit());
             targetBand.setScalingFactor(sourceBand.getScalingFactor());
             targetBand.setScalingOffset(sourceBand.getScalingOffset());
@@ -136,6 +137,27 @@ public class DeglintOp extends PixelOperatorMultisize {
         if(referenceBands != null && referenceBands.length<=0) {
             throw new OperatorException("At least one reference band must be selected");
         }
+        String minNIRsplit[] = minNIRString.split(";");
+        if(minNIRsplit.length == 1) {
+            for(String referenceBand : referenceBands) {
+                try {
+                    referencesMinNIRMap.put(referenceBand,Double.parseDouble(minNIRsplit[0]));
+                } catch (Exception e) {
+                    throw new OperatorException(e.getMessage());
+                }
+            }
+        } else if (minNIRsplit.length == referenceBands.length) {
+            for(int i = 0; i < referenceBands.length; i++) {
+                try {
+                    referencesMinNIRMap.put(referenceBands[i],Double.parseDouble(minNIRsplit[i]));
+                } catch (Exception e) {
+                    throw new OperatorException(e.getMessage());
+                }
+            }
+        } else {
+            throw new OperatorException("Minimum NIR value must be one value or as many values as selected reference bands separated by ';'. For example: 0.7;0.3;0.45");
+        }
+
 
         sourcesReferencesMap = buildSourcesReferencesMap(getSourceProduct(), sourceBandNames, referenceBands);
 
@@ -176,15 +198,15 @@ public class DeglintOp extends PixelOperatorMultisize {
     protected void computePixel(int x, int y, Sample[] sourceSamples, WritableSample targetSample) {
 
         int index = targetSample.getIndex();
-        double minNIRAux = minNIR;
         double slope = getSlope(index);
-        //compute regression and MinNIR if is null
-        //getRegression(index);
-        if(minNIR < 0) {
+        String referenceName = sourcesReferencesMap.get(sourceBandNames[index]);
+        int referenceIndex = referencesIndexMap.get(referenceName);
+        double minNIRAux = referencesMinNIRMap.get(referenceName);
+
+        if(minNIRAux < 0) {
             minNIRAux = calculatedMinNIR[index];
         }
 
-        int referenceIndex = referencesIndexMap.get(sourcesReferencesMap.get(sourceBandNames[index]));
         double correctedValue = sourceSamples[index].getFloat() - slope * (sourceSamples[referenceIndex].getFloat() - minNIRAux);
         correctedValue = (correctedValue < 0 && maskNegativeValues) ? noDataValue[index] : correctedValue;
         targetSample.set(correctedValue);
@@ -196,10 +218,19 @@ public class DeglintOp extends PixelOperatorMultisize {
         }
         if(slopes[index] == 0.0d){
             slopes[index] = getRegression(index).getSlope();
+            updateBandDescription(index,slopes[index],getRegression(index).getR());
         }
         return slopes[index];
     }
 
+    private void updateBandDescription(int index,double slope,double r) {
+        String description = getTargetProduct().getBandAt(index).getDescription();
+        description = description + String.format(" - DeglintInfo-> Reference band:%s  MinNIRComputed:%f  MinNIRUsed:%f  Regression slope = %f    Regression R = %f",
+                                                  sourcesReferencesMap.get(sourceBandNames[index]),calculatedMinNIR[index],
+                                                  referencesMinNIRMap.get(sourcesReferencesMap.get(sourceBandNames[index]))<0?calculatedMinNIR[index]: referencesMinNIRMap.get(sourcesReferencesMap.get(sourceBandNames[index])),
+                                                  slope, r);
+        getTargetProduct().getBandAt(index).setDescription(description);
+    }
 
     private synchronized SimpleRegression getRegression(int index) {
 
@@ -259,6 +290,8 @@ public class DeglintOp extends PixelOperatorMultisize {
                 }
             }
             mask.dispose();
+
+
         }
         return regressions[index];
     }
