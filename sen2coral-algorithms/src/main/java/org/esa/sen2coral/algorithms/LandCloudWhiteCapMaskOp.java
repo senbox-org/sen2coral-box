@@ -2,7 +2,9 @@ package org.esa.sen2coral.algorithms;
 
 import com.bc.ceres.core.ProgressMonitor;
 import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.CrsGeoCoding;
 import org.esa.snap.core.datamodel.Mask;
+import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.ProductNodeGroup;
@@ -31,6 +33,9 @@ import org.esa.snap.core.jexp.WritableNamespace;
 import org.esa.snap.core.jexp.impl.ParserImpl;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
+import org.geotools.referencing.CRS;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.TransformException;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -77,13 +82,17 @@ public class LandCloudWhiteCapMaskOp extends Operator {
     @Override
     public void initialize() throws OperatorException {
 
+        //check that there is a source product
         if(getSourceProduct() == null) {
             throw new OperatorException("Source product cannot be null");
         }
 
+        //check that at least one reference band has been selected
         if(referenceBandNames != null && referenceBandNames.length<=0) {
             throw new OperatorException("At least one reference band must be selected");
         }
+
+        //check that it has been introduced one threshold (valid for all the references) or as many thresholds as reference bands
         String thresholdSplit[] = thresholdString.split(";");
         if(thresholdSplit.length == 1) {
             for(String referenceBandName : referenceBandNames) {
@@ -106,11 +115,36 @@ public class LandCloudWhiteCapMaskOp extends Operator {
         }
 
 
+        //TODO find maximum sceneRaster in bands
+        int width = 0;
+        int height = 0;
+        for(String referenceBandName : referenceBandNames) {
+            Band band = sourceProduct.getBand(referenceBandName);
+            if(width < band.getRasterWidth()) {
+                width = band.getRasterWidth();
+            }
+            if(height < band.getRasterHeight()) {
+                height = band.getRasterHeight();
+            }
+        }
+        if(sourceBandNames!=null && sourceBandNames.length>0) {
+            for(String sourceBandName : sourceBandNames) {
+                Band band = sourceProduct.getBand(sourceBandName);
+                if(width < band.getRasterWidth()) {
+                    width = band.getRasterWidth();
+                }
+                if(height < band.getRasterHeight()) {
+                    height = band.getRasterHeight();
+                }
+            }
+        }
+
+
 
         targetProduct = new Product(sourceProduct.getName(),
                                     sourceProduct.getProductType(),
-                                    sourceProduct.getSceneRasterWidth(),
-                                    sourceProduct.getSceneRasterHeight());
+                                    width,
+                                    height);
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
@@ -118,6 +152,7 @@ public class LandCloudWhiteCapMaskOp extends Operator {
         if(referenceBandNames != null) {
             for (String srcBandName : referenceBandNames) {
                 ProductUtils.copyBand(srcBandName, sourceProduct, srcBandName, targetProduct, true);
+                ProductUtils.copyGeoCoding(sourceProduct.getRasterDataNode(srcBandName),targetProduct.getRasterDataNode(srcBandName));
             }
 
             //add masks
@@ -136,7 +171,17 @@ public class LandCloudWhiteCapMaskOp extends Operator {
                     Mask.RangeType.setMinimum(mask, Double.MIN_VALUE);
                 }
 
-                ProductUtils.copyGeoCoding(band, mask);
+
+                Rectangle rectangle = new Rectangle(mask.getRasterWidth(), mask.getRasterHeight());
+                try {
+                    CrsGeoCoding geoCoding = new CrsGeoCoding(sourceProduct.getSceneCRS(), rectangle, band.getSourceImage().getModel().getImageToModelTransform(0));
+                    mask.setGeoCoding(geoCoding);
+                } catch (FactoryException e) {
+                    e.printStackTrace();
+                } catch (TransformException e) {
+                    e.printStackTrace();
+                }
+                //ProductUtils.copyGeoCoding(band, mask);
                 targetProduct.addMask(mask);
             }
         }
@@ -164,6 +209,7 @@ public class LandCloudWhiteCapMaskOp extends Operator {
                 targetBand.setValidPixelExpression(validExpression);
                 targetBand.setSourceImage(srcBand.getSourceImage());
                 ProductUtils.copyGeoCoding(srcBand, targetBand);
+                //ProductUtils.copyImageGeometry(srcBand, targetBand,true);
                 targetProduct.addBand(targetBand);
             }
         }
