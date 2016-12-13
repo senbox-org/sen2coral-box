@@ -1,29 +1,24 @@
 package org.esa.sen2coral.algorithms;
 
-import com.bc.ceres.core.ProgressMonitor;
+
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.GeoPos;
-import org.esa.snap.core.datamodel.Mask;
 import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.datamodel.RasterDataNode;
-import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
-import org.esa.snap.core.gpf.Tile;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
 import org.esa.snap.core.gpf.annotations.Parameter;
 import org.esa.snap.core.gpf.annotations.SourceProduct;
-import org.esa.snap.core.gpf.annotations.TargetProduct;
 import org.esa.snap.core.gpf.pointop.PixelOperator;
 import org.esa.snap.core.gpf.pointop.Sample;
 import org.esa.snap.core.gpf.pointop.SourceSampleConfigurer;
 import org.esa.snap.core.gpf.pointop.TargetSampleConfigurer;
 import org.esa.snap.core.gpf.pointop.WritableSample;
 import org.esa.snap.core.util.ProductUtils;
-import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 
 import java.awt.*;
 import java.io.BufferedReader;
@@ -33,7 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- * deglint operator
+ * Empirical Bathymetry operator
  */
 @OperatorMetadata(alias = "EmpiricalBathymetryOp",
         category = "Raster",
@@ -62,21 +57,43 @@ public class EmpiricalBathymetryOp extends PixelOperator {
     @Parameter(defaultValue = "5", description = "Maximum number of steps")
     private int maxSteps = 5;
 
-    private double noDataValue[] = {0.0,0.0};
-    private double regressionCoefficients[] = null; //m0, m1, r-squared
+    private double[] noDataValue = null;
+    private double[] regressionCoefficients = null; //m0, m1, r-squared
+    ArrayList<BathymetryPoint> bathymetryPointList = null;
 
     @Override
     protected void prepareInputs() throws OperatorException {
-        if(sourceBandNames != null && sourceProduct != null) {
-            //TODO comprueba tamano de sourcebands, q solo haya 2...
-            ensureSingleRasterSize(sourceProduct, sourceBandNames);
-
-            //TODO check vector
-
-            //TODO load noDataValues
-
-            //TODO checkbathymetryFile
+        if(getSourceProduct() == null) {
+            throw new OperatorException("Source product cannot be null");
         }
+
+        if(sourceBandNames == null || sourceBandNames.length != 2) {
+            throw new OperatorException("Two source bands must be selected");
+        }
+
+        //check raster size
+        ensureSingleRasterSize(sourceProduct, sourceBandNames);
+
+        //check bathymetry file
+        if(bathymetryFile == null) {
+            throw new OperatorException("A bathymetry file must be selected.");
+        }
+        if(!bathymetryFile.exists()) {
+            throw new OperatorException("Bathymetry file does not exist.");
+        }
+
+        bathymetryPointList = getBathymetryPointData(bathymetryFile);
+        if(bathymetryPointList == null || bathymetryPointList.size() <= 2) {
+            throw new OperatorException("Unable to obtain at least two points from the bathymetry file selected.");
+        }
+
+        //load noDataValues
+        noDataValue = new double[sourceBandNames.length];
+        for (int i = 0; i < sourceBandNames.length; i++) {
+            noDataValue[i] = getSourceProduct().getBand(sourceBandNames[i]).getNoDataValue();
+        }
+
+
     }
 
     @Override
@@ -142,10 +159,6 @@ public class EmpiricalBathymetryOp extends PixelOperator {
 
     private synchronized double[] getRegressionCoefficients() {
         if (regressionCoefficients == null) {
-            ArrayList<BathymetryPoint> bathymetryPointList = getBathymetryPointData();
-            if(bathymetryPointList == null || bathymetryPointList.size()<2) {
-                //TODO
-            }
             regressionCoefficients = new double[3];
             SimpleRegression regression = new SimpleRegression();
             Band band1 = sourceProduct.getBand(sourceBandNames[0]);
@@ -161,12 +174,30 @@ public class EmpiricalBathymetryOp extends PixelOperator {
                 PixelPos pixelPos1 = band1.getGeoCoding().getPixelPos(new GeoPos(bathymetryPoint.getLat(),bathymetryPoint.getLon()),null);
                 PixelPos pixelPos2 = band2.getGeoCoding().getPixelPos(new GeoPos(bathymetryPoint.getLat(),bathymetryPoint.getLon()),null);
 
-                double valueBand1 = band1.getPixelDouble((int) Math.round(pixelPos1.x),(int) Math.round(pixelPos1.y));
-                double valueBand2 = band2.getPixelDouble((int) Math.round(pixelPos2.x),(int) Math.round(pixelPos2.y));
+                //check pixel positions obtained
+                if(!pixelPos1.isValid() || !pixelPos2.isValid()) {
+                    continue;
+                }
+                int pixelPos1X = (int) Math.round(pixelPos1.x);
+                int pixelPos1Y = (int) Math.round(pixelPos1.y);
+                int pixelPos2X = (int) Math.round(pixelPos2.x);
+                int pixelPos2Y = (int) Math.round(pixelPos2.y);
+                if(pixelPos1X < 0 || pixelPos1Y < 0 || pixelPos1X >= band1.getRasterWidth() || pixelPos1Y >= band1.getRasterHeight()) {
+                    continue;
+                }
+                if(pixelPos2X < 0 || pixelPos2Y < 0 || pixelPos2X >= band2.getRasterWidth() || pixelPos2Y >= band2.getRasterHeight()) {
+                    continue;
+                }
 
-                if(valueBand1 != band1.getNoDataValue() && valueBand2 != band2.getNoDataValue()) {
+                double valueBand1 = band1.getPixelDouble(pixelPos1X,pixelPos1Y);
+                double valueBand2 = band2.getPixelDouble(pixelPos2X,pixelPos2Y);
+
+                if(valueBand1 != band1.getNoDataValue() && valueBand2 != band2.getNoDataValue() && ((nValue * valueBand1) > 1) && ((nValue * valueBand2) > 1)) {
                     regression.addData(Math.log(nValue * valueBand1) / Math.log(nValue * valueBand2), bathymetryPoint.getZ());
                 }
+            }
+            if(regression.getN() < 2) {
+                throw new OperatorException("Unable to find at least two points from the bathymetry file in the source image.");
             }
 
             regressionCoefficients[0] = regression.getIntercept();
@@ -176,12 +207,12 @@ public class EmpiricalBathymetryOp extends PixelOperator {
         return regressionCoefficients;
     }
 
-    private ArrayList<BathymetryPoint> getBathymetryPointData() {
+    private ArrayList<BathymetryPoint> getBathymetryPointData(File file) {
         ArrayList<BathymetryPoint> bathymetryPoints = new ArrayList<>();
         String line = "";
         String separators = ";";
 
-        try (BufferedReader br = new BufferedReader(new FileReader(bathymetryFile))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 
             while ((line = br.readLine()) != null) {
                 // use comma as separator

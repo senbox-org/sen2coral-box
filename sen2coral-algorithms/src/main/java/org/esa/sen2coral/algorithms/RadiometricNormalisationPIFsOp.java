@@ -45,9 +45,12 @@ public class RadiometricNormalisationPIFsOp extends PixelOperatorMultisize {
             label = "Pseudo-Invariant Features (PIFs) vector File")
     private String pifVector;
 
+
     //Processing parameters
     SimpleRegression[] regressions = null;
-    private double noDataValue[] = null;
+    double[] slopes = null;
+    double[] intercepts = null;
+    private double[] noDataValue = null;
 
 
     @Override
@@ -87,19 +90,46 @@ public class RadiometricNormalisationPIFsOp extends PixelOperatorMultisize {
             targetBand.setGeoCoding(sourceBand.getGeoCoding());
             targetProduct.addBand(targetBand);
         }
+
         return targetProduct;
     }
 
     @Override
     protected void prepareInputs() throws OperatorException {
-        //TODO comprueba bandas seleccionadas existen an reference y slave
-
-
-        if (pifVector != null && !pifVector.isEmpty()) {
-            //todo throw...
+        if(getSourceProduct() == null) {
+            throw new OperatorException("Source product cannot be null");
         }
 
-        //
+        //Check that sourceBands is not empty
+        if(sourceBandNames == null || sourceBandNames.length<=0) {
+            throw new OperatorException("At least one source band must be selected");
+        }
+
+        //Check that bands selected exist and have the same raster size
+        for(String sourceBandName : sourceBandNames) {
+            Band slaveBand = slaveProduct.getBand(sourceBandName);
+            Band referenceBand = referenceProduct.getBand(sourceBandName);
+            if(slaveBand == null) {
+                throw new OperatorException(String.format("The band %s is not available in the product %s.",
+                                                          sourceBandName, slaveProduct.getName()));
+            }
+            if(referenceBand == null) {
+                throw new OperatorException(String.format("The band %s is not available in the product %s.",
+                                                          sourceBandName, referenceProduct.getName()));
+            }
+            if(!slaveBand.getRasterSize().equals(referenceBand.getRasterSize())) {
+                throw new OperatorException(String.format("The band %s has a different raster size in slave and master product",
+                                                          sourceBandName));
+            }
+        }
+
+        //Check pifVector
+        if (pifVector != null && !pifVector.isEmpty()) {
+            throw new OperatorException(String.format("Error when reading pseudo-invariant features in %s. It must contain at least one polygon.",
+                                                      pifVector));
+        }
+
+        //get no data values
         noDataValue = new double[sourceBandNames.length];
         for (int i = 0; i < sourceBandNames.length; i++) {
             noDataValue[i] = referenceProduct.getBand(sourceBandNames[i]).getNoDataValue();
@@ -111,11 +141,11 @@ public class RadiometricNormalisationPIFsOp extends PixelOperatorMultisize {
 
     @Override
     protected void computePixel(int x, int y, Sample[] sourceSamples, WritableSample targetSample) {
-        regressions = getRegressions();
+        //regressions = getRegressions();
         int index = targetSample.getIndex();
-            double correctedValue = sourceSamples[index].getFloat()*regressions[index].getSlope() + regressions[index].getIntercept();
-            correctedValue = (correctedValue >= 0) ? correctedValue : noDataValue[index];
-            targetSample.set(correctedValue);
+        double correctedValue = sourceSamples[index].getFloat() */*regressions[index].getSlope()*/getSlope(index) + /*regressions[index].getIntercept()*/getIntercept(index);
+        correctedValue = (correctedValue >= 0) ? correctedValue : noDataValue[index];
+        targetSample.set(correctedValue);
     }
 
     @Override
@@ -165,8 +195,7 @@ public class RadiometricNormalisationPIFsOp extends PixelOperatorMultisize {
                     srcBand.loadRasterData();
                     refBand.loadRasterData();
                 } catch (IOException e) {
-                    //todo throw?
-                    e.printStackTrace();
+                    throw new OperatorException("Unable to load the raster data.");
                 }
 
                 //add data to regressions
@@ -192,6 +221,87 @@ public class RadiometricNormalisationPIFsOp extends PixelOperatorMultisize {
             }
         }
         return regressions;
+    }
+
+    private synchronized double getSlope(int index) {
+        if(slopes == null) {
+            slopes = new double[sourceBandNames.length];
+        }
+        if(slopes[index] == 0.0d){
+            slopes[index] = getRegression(index).getSlope();
+        }
+        return slopes[index];
+    }
+
+    private synchronized double getIntercept(int index) {
+        if(intercepts == null) {
+            intercepts = new double[sourceBandNames.length];
+        }
+        if(intercepts[index] == 0.0d){
+            intercepts[index] = getRegression(index).getIntercept();
+        }
+        return intercepts[index];
+    }
+
+    private synchronized SimpleRegression getRegression(int index) {
+        if (index >= sourceBandNames.length) {
+            return null;
+        }
+
+        if (regressions == null) {
+            regressions = new SimpleRegression[sourceBandNames.length];
+        }
+
+        if (regressions[index] == null) {
+            regressions[index] = new SimpleRegression();
+            //get bands
+            Band srcBand = slaveProduct.getBand(sourceBandNames[index]);
+            Band refBand = referenceProduct.getBand(sourceBandNames[index]);
+
+            //create temporary mask
+            final Mask mask = new Mask("tempMask",
+                                       srcBand.getRasterWidth(),
+                                       srcBand.getRasterHeight(),
+                                       Mask.VectorDataType.INSTANCE);
+            Mask.VectorDataType.setVectorData(mask, referenceProduct.getVectorDataGroup().get(pifVector));
+            ProductUtils.copyImageGeometry(srcBand, mask, false);
+
+            //get noData values to exclude them
+            double noData = srcBand.getNoDataValue();
+            double referenceNoData = refBand.getNoDataValue();
+
+            //load data if it is not loaded
+            try {
+                mask.loadRasterData();
+                srcBand.loadRasterData();
+                refBand.loadRasterData();
+            } catch (IOException e) {
+                throw new OperatorException(String.format("Unable to load raster data of the band %s.",
+                                                          sourceBandNames[index]));
+            }
+
+            //add data to regressions
+            for (int i = 0; i < srcBand.getRasterWidth(); i++) {
+                for (int j = 0; j < srcBand.getRasterHeight(); j++) {
+                    if (mask.getPixelInt(i, j) == 0) {
+                        continue;
+                    }
+                    double value = srcBand.getPixelDouble(i, j);
+                    if (value != noData) {
+                        double referenceValue = refBand.getPixelDouble(i, j);
+                        if (referenceValue == referenceNoData) {
+                            continue;
+                        }
+                        regressions[index].addData(value, referenceValue);
+                    }
+                }
+            }
+            mask.dispose();
+            srcBand.unloadRasterData();
+            refBand.unloadRasterData();
+
+        }
+        return regressions[index];
     }
 
 

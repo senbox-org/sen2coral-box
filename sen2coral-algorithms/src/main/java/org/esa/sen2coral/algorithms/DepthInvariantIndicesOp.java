@@ -55,16 +55,36 @@ public class DepthInvariantIndicesOp extends PixelOperator {
     //Processing parameters
     double[] deepWaterReflectance = null;
     double attenuationCoeffRatio = 0.0;
-    private double noDataValue[] = {0.0,0.0};
+    private double[] noDataValue = null;
 
     @Override
     protected void prepareInputs() throws OperatorException {
-        //TODO comprueba tamano de sourcebands, q solo haya 2...
+        if(getSourceProduct() == null) {
+            throw new OperatorException("Source product cannot be null");
+        }
+
+        if(sourceBandNames == null || sourceBandNames.length != 2) {
+            throw new OperatorException("Two source bands must be selected");
+        }
+        //check raster size
         ensureSingleRasterSize(sourceProduct, sourceBandNames);
 
-        //TODO check vector
+        //check vectors
+        if (deepWaterVector == null || deepWaterVector.isEmpty() || sourceProduct.getVectorDataGroup().get(deepWaterVector) == null) {
+            throw new OperatorException(String.format("Error when reading deep water areas in %s. It must contain at least one polygon.",
+                                                      deepWaterVector));
+        }
 
-        //TODO load noDataValues
+        if (sameBottomVectors == null || sameBottomVectors.isEmpty() || sourceProduct.getVectorDataGroup().get(sameBottomVectors) == null) {
+            throw new OperatorException(String.format("Error when reading \"same bottom\" areas in %s. It must contain at least one polygon.",
+                                                      sameBottomVectors));
+        }
+
+        //load noDataValues
+        noDataValue = new double[sourceBandNames.length];
+        for (int i = 0; i < sourceBandNames.length; i++) {
+            noDataValue[i] = getSourceProduct().getBand(sourceBandNames[i]).getNoDataValue();
+        }
     }
 
     @Override
@@ -125,7 +145,7 @@ public class DepthInvariantIndicesOp extends PixelOperator {
     private synchronized double[] getDeepWaterReflectance() {
         if (deepWaterReflectance == null) {
             Band srcBand1 = sourceProduct.getBand(sourceBandNames[0]);
-            Band srcBand2 = sourceProduct.getBand(sourceBandNames[0]);
+            Band srcBand2 = sourceProduct.getBand(sourceBandNames[1]);
 
             //create mask
             final Mask mask = new Mask("tempMask",
@@ -145,8 +165,7 @@ public class DepthInvariantIndicesOp extends PixelOperator {
                 srcBand1.loadRasterData();
                 srcBand2.loadRasterData();
             } catch (IOException e) {
-                //todo throw?
-                e.printStackTrace();
+                throw new OperatorException("Unable to load the raster data.");
             }
 
             //compute mean reflectance
@@ -171,13 +190,16 @@ public class DepthInvariantIndicesOp extends PixelOperator {
                     }
                 }
             }
-            //TODO do something if numPixels is 0
+            mask.dispose();
+
             if (numPixels1 > 0 && numPixels2 > 0) {
                 deepWaterReflectance = new double[2];
                 deepWaterReflectance[0] = pixelSum1 / numPixels1;
                 deepWaterReflectance[1] = pixelSum2 / numPixels2;
+            } else {
+                throw new OperatorException("Unable to compute deep water reflectance. " +
+                                                    "There are no valid pixels inside the deep water area selected.");
             }
-            mask.dispose();
         }
         return deepWaterReflectance;
     }
@@ -186,7 +208,7 @@ public class DepthInvariantIndicesOp extends PixelOperator {
     private synchronized double getAttenuationCoeffRatio() {
         if (attenuationCoeffRatio == 0.0) {
             Band srcBand1 = sourceProduct.getBand(sourceBandNames[0]);
-            Band srcBand2 = sourceProduct.getBand(sourceBandNames[0]);
+            Band srcBand2 = sourceProduct.getBand(sourceBandNames[1]);
 
             //create mask
             final Mask mask = new Mask("tempMask",
@@ -206,8 +228,7 @@ public class DepthInvariantIndicesOp extends PixelOperator {
                 srcBand1.loadRasterData();
                 srcBand2.loadRasterData();
             } catch (IOException e) {
-                //todo throw?
-                e.printStackTrace();
+                throw new OperatorException("Unable to load the raster data.");
             }
 
             //compute statistics
@@ -237,8 +258,8 @@ public class DepthInvariantIndicesOp extends PixelOperator {
                     }
                 }
             }
+            mask.dispose();
 
-            //TODO do something if numPixels is 0
             if (numPixels > 0) {
                 meanX = sumX/numPixels;
                 meanY = sumY/numPixels;
@@ -247,8 +268,10 @@ public class DepthInvariantIndicesOp extends PixelOperator {
                 sigmaYY = sumYY/numPixels-meanY*meanY;
                 a = (sigmaXX-sigmaYY)/(2.0*sigmaXY);
                 attenuationCoeffRatio = a + Math.sqrt(a*a+1);
+            } else {
+                throw new OperatorException("Unable to compute the ratio of attenuation coefficients. " +
+                                                    "There are no valid pixels inside the \"same bottom\" areas selected.");
             }
-            mask.dispose();
         }
         return attenuationCoeffRatio;
     }
@@ -267,6 +290,7 @@ public class DepthInvariantIndicesOp extends PixelOperator {
             super(DepthInvariantIndicesOp.class);
         }
     }
+
 
     private Dimension ensureSingleRasterSize(Product product, String[] sourceBandNames) throws OperatorException{
         Dimension rasterSize = null;

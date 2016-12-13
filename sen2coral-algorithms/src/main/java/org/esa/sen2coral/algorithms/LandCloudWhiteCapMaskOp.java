@@ -88,7 +88,7 @@ public class LandCloudWhiteCapMaskOp extends Operator {
         }
 
         //check that at least one reference band has been selected
-        if(referenceBandNames != null && referenceBandNames.length<=0) {
+        if(referenceBandNames == null || referenceBandNames.length<=0) {
             throw new OperatorException("At least one reference band must be selected");
         }
 
@@ -115,9 +115,9 @@ public class LandCloudWhiteCapMaskOp extends Operator {
         }
 
 
-        //TODO find maximum sceneRaster in bands
-        int width = 0;
-        int height = 0;
+        //Compute maximum sceneRaster in bands
+        int width = 0, height = 0;
+        Set<Integer> distictWidths = new HashSet<>();
         for(String referenceBandName : referenceBandNames) {
             Band band = sourceProduct.getBand(referenceBandName);
             if(width < band.getRasterWidth()) {
@@ -126,6 +126,7 @@ public class LandCloudWhiteCapMaskOp extends Operator {
             if(height < band.getRasterHeight()) {
                 height = band.getRasterHeight();
             }
+            distictWidths.add(band.getRasterHeight());
         }
         if(sourceBandNames!=null && sourceBandNames.length>0) {
             for(String sourceBandName : sourceBandNames) {
@@ -136,6 +137,7 @@ public class LandCloudWhiteCapMaskOp extends Operator {
                 if(height < band.getRasterHeight()) {
                     height = band.getRasterHeight();
                 }
+                distictWidths.add(band.getRasterHeight());
             }
         }
 
@@ -145,6 +147,7 @@ public class LandCloudWhiteCapMaskOp extends Operator {
                                     sourceProduct.getProductType(),
                                     width,
                                     height);
+        targetProduct.setNumResolutionsMax(distictWidths.size());
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 

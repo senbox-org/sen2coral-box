@@ -59,8 +59,8 @@ public class DeglintOp extends PixelOperatorMultisize {
     //Processing parameters
     SimpleRegression[] regressions = null;
     double[] slopes = null;
-    double calculatedMinNIR[] = null;
-    private double noDataValue[] = null;
+    double[] calculatedMinNIR = null;
+    private double[] noDataValue = null;
     HashMap<String,String> sourcesReferencesMap = null;
     HashMap<String,Double> referencesMinNIRMap = new HashMap<>();
     HashMap<String,Integer> referencesIndexMap = new HashMap<>();
@@ -131,10 +131,10 @@ public class DeglintOp extends PixelOperatorMultisize {
         if(getSourceProduct() == null) {
             throw new OperatorException("Source product cannot be null");
         }
-        if(sourceBandNames != null && sourceBandNames.length<=0) {
+        if(sourceBandNames == null || sourceBandNames.length<=0) {
             throw new OperatorException("At least one source band must be selected");
         }
-        if(referenceBands != null && referenceBands.length<=0) {
+        if(referenceBands == null || referenceBands.length<=0) {
             throw new OperatorException("At least one reference band must be selected");
         }
         String minNIRsplit[] = minNIRString.split(";");
@@ -266,8 +266,7 @@ public class DeglintOp extends PixelOperatorMultisize {
                 srcBand.loadRasterData();
                 getSourceProduct().getRasterDataNode(referenceBand).loadRasterData();
             } catch (IOException e) {
-                //todo throw?
-                e.printStackTrace();
+                throw new OperatorException("Unable to load the raster data.");
             }
 
             //add data to regressions
