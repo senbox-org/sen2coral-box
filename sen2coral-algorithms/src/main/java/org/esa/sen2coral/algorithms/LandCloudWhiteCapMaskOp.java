@@ -77,6 +77,14 @@ public class LandCloudWhiteCapMaskOp extends Operator {
     private final String maskName = "LandCloudWhiteCapMask";
     private final String maskDescription = "Land, Cloud and White Cap Mask";
 
+    //Setters
+    public void setReferenceBandNames(String[] referenceBandNames) {
+        this.referenceBandNames = referenceBandNames;
+    }
+    public void setThresholdString(String thresholdString) {
+        this.thresholdString = thresholdString;
+    }
+
     private Map<String, Double> referenceThresholdMap = new HashMap<>();
     private Map<String, String> maskReferenceMap = new HashMap<>();
 

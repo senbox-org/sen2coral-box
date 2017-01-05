@@ -73,5 +73,53 @@
 <p>
 </p>
 <hr>
+
+<h4>Empirical Bathymetry - implementation in SNAP</h4>
+
+<h5>Empirical Bathymetry parameters</h5>
+<table border="0" cellpadding="1" cellspacing="1">
+    <thead>
+    <tr>
+        <th>Parameter</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td><strong>sourceBandNames</strong></td>
+        <td>The bands to be used to estimate the bathymetry. The user must select two bands with the same raster size.
+        </td>
+    </tr>
+    <tr>
+        <td><strong>bathymetryFile</strong></td>
+        <td>The full path to a file containing the set of bathymetry point data (latitude, longitude, depth). The expected format is the values
+            separated by ';', one line per point. The lines beginning by '#' are ignored. For example, a valid file is: <br><br>
+            <IMG SRC="../images/empiricalBathymetry/bathymetryDataExample.jpg">
+        </td>
+    </tr>
+    <tr>
+        <td><strong>nValue</strong></td>
+        <td>The value by which the pixel value is going to be multiplied to assure
+            that the logarithm is non-negative.</td>
+    </tr>
+    <tr>
+        <td><strong>minRSquared</strong></td>
+        <td>The minimum R squared value to consider as valid the output.</td>
+    </tr>
+    <tr>
+        <td><strong>maxSteps</strong></td>
+        <td>The maximum number of iterations. A new iteration is only launched if the R squared is lower than
+            minRSquared.
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<h5>Empirical Bathymetry User Interface</h5>
+<p>
+    The parameters described above can be set through the graphical user interface designed in the SNAP Desktop component:
+</p>
+<IMG SRC="../images/empiricalBathymetry/empiricalBathymetryUI.jpg">
+
 </body>
 </html>

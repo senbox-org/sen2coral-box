@@ -17,46 +17,36 @@
 <table>
     <tr>
         <td><h4><b>Name</b></h4></td>
-        <td><h4><b>Purpose/Classification</b></h4></td>
         <td><h4><b>Short Description</b></h4></td>
-        <td><h4><b>Type</b></h4></td>
     </tr>
 
 
 
     <tr>
         <td><h3><b><a href="deglint/DeglintAlgoSpec.html">Deglint</a></b></h3></td>
-        <td><h5><u><b>D</b></u>ifference <u><b>V</b></u>egetation <u><b>I</b></u>ndex</h5></td>
-        <td><h5>This index is sensitive to the amount of vegetation</h5></td>
-        <td><h5>Vegetation Index</h5></td>
+        <td><h5>The Deglint processor uses NIR or SWIR bands to remove glint from visible bands.</h5></td>
     </tr>
 
     <tr>
         <td><h3><b><a href="depthInvariantIndices/DepthInvariantIndicesAlgoSpec.html">Depth Invariant Indices</a></b></h3></td>
-        <td><h5><u><b>R</b></u>atio <u><b>V</b></u>egetation <u><b>I</b></u>ndex</h5></td>
-        <td><h5>The simplest ratio-based index, it is also called the Simple Ratio (SR). It indicates the amount of vegetation. It also reduces the effects of atmosphere and topography</h5></td>
-        <td><h5>Vegetation Index</h5></td>
+        <td><h5>The Depth Invariant Indices processor produces depth invariant bands from pairs of image bands.
+            Image must contain identifiable areas of sand at different depths.</h5></td>
     </tr>
 
     <tr>
         <td><h3><b><a href="empiricalBathymetry/EmpiricalBathymetryAlgoSpec.html">Empirical Bathymetry</a></b></h3></td>
-        <td><h5><u><b>P</b></u>erpendicular <u><b>V</b></u>egetation <u><b>I</b></u>ndex</h5></td>
-        <td><h5>This index could be considered a generalization of the DVI, which allows for soil lines of different slopes.</h5></td>
-        <td><h5>Vegetation Index</h5></td>
+        <td><h5>The Empirical Bathymetry processor maps bathymetry based on regression of log band ratio (Lyzenga method).
+            Ancillary data required: Calibration data set of points in the image of known bathymetry.</h5></td>
     </tr>
 
     <tr>
         <td><h3><b><a href="landCloudWhiteCapMask/LandCloudWhiteCapMaskAlgoSpec.html">Land, Cloud and White Cap Mask</a></b></h3></td>
-        <td><h5><u><b>I</b></u>nfrared <u><b>P</b></u>ercentage <u><b>V</b></u>egetation <u><b>I</b></u>ndex</h5></td>
-        <td><h5>This index is functionally equivalent to NDVI and RVI, but it only ranges in value from 0.0 - 1.0</h5></td>
-        <td><h5>Vegetation Index</h5></td>
+        <td><h5>The Land, cloud and white cap mask processor produces a mask layer for land, clouds and white caps.</h5></td>
     </tr>
 
     <tr>
-        <td><h3><b><a href="radiometricNormalisationPIFs/radiometricNormalisationPIFsAlgoSpec.html">Radiometric Normalisation</a></b></h3></td>
-        <td><h5><u><b>W</b></u>eighted <u><b>D</b></u>ifference <u><b>V</b></u>egetation <u><b>I</b></u>ndex</h5></td>
-        <td><h5>WDVI is a mathematically simpler version of PVI, but it has an unrestricted range</h5></td>
-        <td><h5>Vegetation Index</h5></td>
+        <td><h3><b><a href="radiometricNormalisationPIFs/RadiometricNormalisationPIFsAlgoSpec.html">Radiometric Normalisation</a></b></h3></td>
+        <td><h5>The Radiometric Normalisation processor radiometrically aligns two or more images based on control points over pseudo-invariant features (PIFs).</h5></td>
     </tr>
 
 

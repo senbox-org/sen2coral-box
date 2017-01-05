@@ -98,5 +98,68 @@ a reef in northern Palau. Band 8 was used as the glint reference band.">
 <p>
 </p>
 <hr>
+
+<h4>Deglint implementation in SNAP</h4>
+<p>
+    The deglint algorithm has been implemented into SNAP with the following features:
+    <ul>
+        <li>Generation of multi-band products.</li>
+        <li>Support for multi-size input bands.</li>
+        <li>Possibility to mask negative reflectance values.</li>
+        <li>Highly configurable</li>
+    </ul>
+</p>
+
+<h5>Deglint parameters</h5>
+<table border="0" cellpadding="1" cellspacing="1">
+    <thead>
+    <tr>
+        <th>Parameter</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td><strong>sunGlintVector</strong></td>
+        <td>The sample area/s of the image displaying a range of sun glint. This parameters must be
+        the name of a vector data contained in the source product. If the source product does not contain
+        this kind of data, the user should create it previously by creating a new vector data container and adding
+        some areas by using the available tools (Rectangle, Polygon or Ellipse drawing tools)</td>
+    </tr>
+    <tr>
+        <td><strong>sourceBandNames</strong></td>
+        <td>The bands to be corrected. The user can select one or more bands.
+        </td>
+    </tr>
+    <tr>
+        <td><strong>referenceBands</strong></td>
+        <td>The NIR band to be used as reference. It should have the same raster size than the source bands selected.
+            If the source bands have different raster sizes, it should be selected at least one reference band per each raster size.
+            If they are selected two or more reference bands with the same raster size, only the first of them will be used for the correction.
+        </td>
+    </tr>
+    <tr>
+        <td><strong>includeReferences</strong></td>
+        <td>If this option is selected, besides the corrected bands, the bands used as reference will be included in the output product.</td>
+    </tr>
+    <tr>
+        <td><strong>minNIRString</strong></td>
+        <td>If the user sets an only value, this value will be used for all reference bands selected. It is possible to use individual values
+        for each reference band by separating them by ';'. If the value is negative, then the minimum in the NIR band over the sample area will
+        be used.</td>
+    </tr>
+    <tr>
+        <td><strong>maskNegativeValues</strong></td>
+        <td>If this option is selected, the negative reflectance values generated during the correction will be set to NoDataValue.</td>
+    </tr>
+    </tbody>
+</table>
+
+<h5>Deglint User Interface</h5>
+<p>
+    The parameters described above can be set through the graphical user interface designed in the SNAP Desktop component:
+</p>
+<IMG SRC="../images/deglint/deglintUI.jpg">
+
 </body>
 </html>

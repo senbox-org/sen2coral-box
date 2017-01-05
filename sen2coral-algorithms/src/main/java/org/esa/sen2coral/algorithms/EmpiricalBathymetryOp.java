@@ -57,9 +57,24 @@ public class EmpiricalBathymetryOp extends PixelOperator {
     @Parameter(defaultValue = "5", description = "Maximum number of steps")
     private int maxSteps = 5;
 
+    //processing parameters
     private double[] noDataValue = null;
     private double[] regressionCoefficients = null; //m0, m1, r-squared
-    ArrayList<BathymetryPoint> bathymetryPointList = null;
+    private ArrayList<BathymetryPoint> bathymetryPointList = null;
+
+    //Setters
+    public void setSourceBandNames(String[] sourceBandNames) {
+        this.sourceBandNames = sourceBandNames;
+    }
+    public void setBathymetryFile(File bathymetryFile) {
+        this.bathymetryFile = bathymetryFile;
+    }
+    public void setnValue(Double nValue) {
+        this.nValue = nValue;
+    }
+    public void setMinRSquared(Double minRSquared) {
+        this.minRSquared = minRSquared;
+    }
 
     @Override
     protected void prepareInputs() throws OperatorException {
@@ -92,8 +107,6 @@ public class EmpiricalBathymetryOp extends PixelOperator {
         for (int i = 0; i < sourceBandNames.length; i++) {
             noDataValue[i] = getSourceProduct().getBand(sourceBandNames[i]).getNoDataValue();
         }
-
-
     }
 
     @Override
@@ -215,13 +228,20 @@ public class EmpiricalBathymetryOp extends PixelOperator {
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 
             while ((line = br.readLine()) != null) {
+                if(line.startsWith("#")) {
+                    continue;
+                }
                 // use comma as separator
                 String[] bathymetryMesure = line.split(separators);
                 if(bathymetryMesure.length == 3) {
-                    BathymetryPoint point = new BathymetryPoint(Double.parseDouble(bathymetryMesure[0]),
-                                                                Double.parseDouble(bathymetryMesure[1]),
-                                                                Double.parseDouble(bathymetryMesure[2]));
-                    bathymetryPoints.add(point);
+                    try {
+                        BathymetryPoint point = new BathymetryPoint(Double.parseDouble(bathymetryMesure[0]),
+                                                                    Double.parseDouble(bathymetryMesure[1]),
+                                                                    Double.parseDouble(bathymetryMesure[2]));
+                        bathymetryPoints.add(point);
+                    } catch (NumberFormatException e) {
+                        //nothing to do
+                    }
                 }
             }
 

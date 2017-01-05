@@ -55,7 +55,6 @@ public class DeglintOp extends PixelOperatorMultisize {
     @Parameter(label = "Mask all negative reflectance values", defaultValue = "true")
     private Boolean maskNegativeValues = true;
 
-
     //Processing parameters
     SimpleRegression[] regressions = null;
     double[] slopes = null;
@@ -65,7 +64,22 @@ public class DeglintOp extends PixelOperatorMultisize {
     HashMap<String,Double> referencesMinNIRMap = new HashMap<>();
     HashMap<String,Integer> referencesIndexMap = new HashMap<>();
 
-
+    //Setters
+    public void setMinNIRString(String minNIRString) {
+        this.minNIRString = minNIRString;
+    }
+    public void setReferenceBands(String[] referenceBands) {
+        this.referenceBands = referenceBands;
+    }
+    public void setSourceBandNames(String[] sourceBandNames) {
+        this.sourceBandNames = sourceBandNames;
+    }
+    public void setSunGlintVector(String sunGlintVector) {
+        this.sunGlintVector = sunGlintVector;
+    }
+    public void setMaskNegativeValues(Boolean maskNegativeValues) {
+        this.maskNegativeValues = maskNegativeValues;
+    }
 
 
     @Override

@@ -111,5 +111,47 @@ becomes noise (bottom right hand corner).">
 <p>
 </p>
 <hr>
+
+<h4>Depth Invariant Indices - Implementation in SNAP</h4>
+
+<h5>Depth Invariant Indices parameters</h5>
+<table border="0" cellpadding="1" cellspacing="1">
+    <thead>
+    <tr>
+        <th>Parameter</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td><strong>deepWaterVector</strong></td>
+        <td>The sample area/s of the image over a deep water region. This parameters must be
+            the name of a vector data contained in the source product. If the source product does not contain
+            this kind of data, the user should create it previously by creating a new vector data container and adding
+            some areas by using the available tools (Rectangle, Polygon or Ellipse drawing tools)</td>
+    </tr>
+
+    <tr>
+        <td><strong>sameBottomVectors</strong></td>
+        <td>The set of ROIs over the same bottom type but at different depths. This parameters must be
+            the name of a vector data contained in the source product. If the source product does not contain
+            this kind of data, the user should create it previously by creating a new vector data container and adding
+            some areas by using the available tools (Rectangle, Polygon or Ellipse drawing tools)</td>
+    </tr>
+    <tr>
+        <td><strong>sourceBandNames</strong></td>
+        <td>The bands to be used in the algorithm. The user must select two bands with the same raster size.
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<h5>Depth Invariant Indices User Interface</h5>
+<p>
+    The parameters described above can be set through the graphical user interface designed in the SNAP Desktop component:
+</p>
+<IMG SRC="../images/depthInvariantIndices/depthInvariantIndicesUI.jpg">
+
+
 </body>
 </html>

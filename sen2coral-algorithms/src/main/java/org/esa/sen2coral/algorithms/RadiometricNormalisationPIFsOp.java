@@ -45,13 +45,25 @@ public class RadiometricNormalisationPIFsOp extends PixelOperatorMultisize {
             label = "Pseudo-Invariant Features (PIFs) vector File")
     private String pifVector;
 
-
     //Processing parameters
-    SimpleRegression[] regressions = null;
-    double[] slopes = null;
-    double[] intercepts = null;
+    private SimpleRegression[] regressions = null;
+    private double[] slopes = null;
+    private double[] intercepts = null;
     private double[] noDataValue = null;
 
+    //Setters
+    public void setSlaveProduct(Product slaveProduct) {
+        this.slaveProduct = slaveProduct;
+    }
+    public void setReferenceProduct(Product referenceProduct) {
+        this.referenceProduct = referenceProduct;
+    }
+    public void setSourceBandNames(String[] sourceBandNames) {
+        this.sourceBandNames = sourceBandNames;
+    }
+    public void setPifVector(String pifVector) {
+        this.pifVector = pifVector;
+    }
 
     @Override
     protected Product createTargetProduct() throws OperatorException {
@@ -136,8 +148,6 @@ public class RadiometricNormalisationPIFsOp extends PixelOperatorMultisize {
         }
         setSourceProduct(slaveProduct);
     }
-
-
 
     @Override
     protected void computePixel(int x, int y, Sample[] sourceSamples, WritableSample targetSample) {
@@ -303,7 +313,6 @@ public class RadiometricNormalisationPIFsOp extends PixelOperatorMultisize {
         }
         return regressions[index];
     }
-
 
     /**
      * The SPI is used to register this operator in the graph processing framework

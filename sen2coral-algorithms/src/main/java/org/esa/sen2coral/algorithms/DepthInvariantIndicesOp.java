@@ -46,30 +46,6 @@ public class DepthInvariantIndicesOp extends PixelOperator {
             rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames;
 
-    public String[] getSourceBandNames() {
-        return sourceBandNames;
-    }
-
-    public void setSourceBandNames(String[] sourceBandNames) {
-        this.sourceBandNames = sourceBandNames;
-    }
-
-    public String getDeepWaterVector() {
-        return deepWaterVector;
-    }
-
-    public void setDeepWaterVector(String deepWaterVector) {
-        this.deepWaterVector = deepWaterVector;
-    }
-
-    public String getSameBottomVectors() {
-        return sameBottomVectors;
-    }
-
-    public void setSameBottomVectors(String sameBottomVectors) {
-        this.sameBottomVectors = sameBottomVectors;
-    }
-
     @Parameter(description = "Deep water area", label = "Deep water area")
     private String deepWaterVector;
 
@@ -80,6 +56,17 @@ public class DepthInvariantIndicesOp extends PixelOperator {
     private double[] deepWaterReflectance = null;
     private double attenuationCoeffRatio = 0.0;
     private double[] noDataValue = null;
+
+    //Setters
+    public void setSourceBandNames(String[] sourceBandNames) {
+        this.sourceBandNames = sourceBandNames;
+    }
+    public void setDeepWaterVector(String deepWaterVector) {
+        this.deepWaterVector = deepWaterVector;
+    }
+    public void setSameBottomVectors(String sameBottomVectors) {
+        this.sameBottomVectors = sameBottomVectors;
+    }
 
     @Override
     protected void prepareInputs() throws OperatorException {
@@ -315,7 +302,7 @@ public class DepthInvariantIndicesOp extends PixelOperator {
         return attenuationCoeffRatio;
     }
 
-    // Only used by DepthInvariantIndicesTest
+    // Public to be used by DepthInvariantIndicesTest
     //returns {MeanX, MeanY, SigmaXX, SigmaYY, SigmaXY, r-squared}
     public synchronized double[] getRegressionParameters() {
         double[] parameters = null;
@@ -380,13 +367,12 @@ public class DepthInvariantIndicesOp extends PixelOperator {
             sigmaXY = sumXY / numPixels - meanX * meanY;
             sigmaYY = sumYY / numPixels - meanY * meanY;
 
-            parameters = new double[6];
+            parameters = new double[5];
             parameters[0] = meanX;
             parameters[1] = meanY;
             parameters[2] = sigmaXX;
             parameters[3] = sigmaYY;
             parameters[4] = sigmaXY;
-            parameters[5] = sigmaXY*sigmaXY/(sigmaXX*sigmaYY);
         }
 
         return parameters;
