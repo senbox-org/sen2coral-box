@@ -63,8 +63,10 @@
 <p>
     The Land, cloud and white cap mask algorithm has been implemented into SNAP with the following features:
 <ul>
-    <li>TODO</li>
-    <li>TODO</li>
+    <li>Generation of multi-band products.</li>
+    <li>Support for multi-size input bands.</li>
+    <li>Possibility to mask negative reflectance values.</li>
+    <li>Highly configurable.</li>
 </ul>
 </p>
 
@@ -86,29 +88,33 @@
     </tr>
     <tr>
         <td><strong>sourceBandNames</strong></td>
-        <td>The bands to be corrected. The user can select one or more bands.
+        <td>The bands to apply the mask. The user can select any number of bands (including 0) but it must
+            exist always at least one reference band with the same raster size of each source band.
         </td>
     </tr>
     <tr>
         <td><strong>referenceBands</strong></td>
-        <td>The NIR band to be used as reference. It should have the same raster size than the source bands selected.
-            If the source bands have different raster sizes, it should be selected at least one reference band per each raster size.
-            If they are selected two or more reference bands with the same raster size, only the first of them will be used for the correction.
+        <td>The NIR bands to be used as reference.
         </td>
     </tr>
     <tr>
-        <td><strong>includeReferences</strong></td>
-        <td>If this option is selected, besides the corrected bands, the bands used as reference will be included in the output product.</td>
-    </tr>
-    <tr>
-        <td><strong>minNIRString</strong></td>
-        <td>If the user sets an only value, this value will be used for all reference bands selected. It is possible to use individual values
-            for each reference band by separating them by ';'. If the value is negative, then the minimum in the NIR band over the sample area will
+        <td><strong>thresholdString</strong></td>
+        <td>If the user sets an only value, this value will be used for all reference bands selected. It is possible to set individual values
+            for each reference band by separating them by ';'.
             be used.</td>
     </tr>
     <tr>
         <td><strong>maskNegativeValues</strong></td>
-        <td>If this option is selected, the negative reflectance values generated during the correction will be set to NoDataValue.</td>
+        <td>If the user selects this option, the negative values in the source bands selected will be masked.</td>
+    </tr>
+    <tr>
+        <td><strong>includeReferences</strong></td>
+        <td>If this option is selected, besides the masks and the source bands, the bands used as reference will be included in the output product.</td>
+    </tr>
+    <tr>
+        <td><strong>inverseMask</strong></td>
+        <td>By default the pixels classified as land, cloud or white cap are set to 0 and the other ones are set to 1. If this option
+        is selected, land, cloud and white cap will be set to 1.</td>
     </tr>
     </tbody>
 </table>
@@ -118,8 +124,6 @@
     The parameters described above can be set through the graphical user interface designed in the SNAP Desktop component:
 </p>
 <IMG SRC="../images/landCloudWhiteCapMask/landCloudWhiteCapMaskUI.jpg">
-
-
 
 
 </body>

@@ -1,6 +1,10 @@
 package org.esa.sen2coral.algorithms;
 
 import com.bc.ceres.core.ProgressMonitor;
+import com.bc.ceres.glevel.MultiLevelSource;
+import com.bc.ceres.glevel.support.DefaultMultiLevelImage;
+import com.bc.ceres.glevel.support.GenericMultiLevelSource;
+import com.bc.ceres.jai.operator.ReinterpretDescriptor;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.CrsGeoCoding;
 import org.esa.snap.core.datamodel.Mask;
@@ -32,12 +36,25 @@ import org.esa.snap.core.jexp.Term;
 import org.esa.snap.core.jexp.WritableNamespace;
 import org.esa.snap.core.jexp.impl.ParserImpl;
 import org.esa.snap.core.util.ProductUtils;
+import org.esa.snap.core.util.jai.SingleBandedSampleModel;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
 import org.geotools.referencing.CRS;
 import org.opengis.referencing.FactoryException;
 import org.opengis.referencing.operation.TransformException;
 
+import javax.media.jai.ImageLayout;
+import javax.media.jai.JAI;
+import javax.media.jai.PixelAccessor;
+import javax.media.jai.PointOpImage;
+import javax.media.jai.RasterAccessor;
+import javax.media.jai.RasterFormatTag;
+import javax.media.jai.UnpackedImageData;
 import java.awt.*;
+import java.awt.image.DataBuffer;
+import java.awt.image.Raster;
+import java.awt.image.RenderedImage;
+import java.awt.image.SampleModel;
+import java.awt.image.WritableRaster;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -74,15 +91,34 @@ public class LandCloudWhiteCapMaskOp extends Operator {
     @Parameter(label = "Mask all negative reflectance values", defaultValue = "true")
     private Boolean maskNegativeValues = true;
 
+    @Parameter(label = "Include reference bands", defaultValue = "true")
+    private Boolean includeReferenceBands = true;
+
+    @Parameter(label = "Inverse mask (by default water=1 Land/Cloud...=0)", defaultValue = "false")
+    private Boolean inverseMask = true;
+
     private final String maskName = "LandCloudWhiteCapMask";
     private final String maskDescription = "Land, Cloud and White Cap Mask";
 
     //Setters
+    public void setSourceBandNames(String[] sourceBandNames) {
+        this.sourceBandNames = sourceBandNames;
+    }
     public void setReferenceBandNames(String[] referenceBandNames) {
         this.referenceBandNames = referenceBandNames;
     }
     public void setThresholdString(String thresholdString) {
         this.thresholdString = thresholdString;
+    }
+    public void setInverseMask(Boolean inverseMask) {
+        this.inverseMask = inverseMask;
+    }
+    public void setIncludeReferenceBands(Boolean includeReferenceBands) {
+        this.includeReferenceBands = includeReferenceBands;
+    }
+
+    public void setMaskNegativeValues(Boolean maskNegativeValues) {
+        this.maskNegativeValues = maskNegativeValues;
     }
 
     private Map<String, Double> referenceThresholdMap = new HashMap<>();
@@ -123,7 +159,6 @@ public class LandCloudWhiteCapMaskOp extends Operator {
             throw new OperatorException("Maximum valid value must be one value or as many values as selected reference bands separated by ';'. For example: 0.7;0.3;0.45 if three reference bands have been selected");
         }
 
-
         //Compute maximum sceneRaster in bands
         int width = 0, height = 0;
         Set<Integer> distictWidths = new HashSet<>();
@@ -150,8 +185,6 @@ public class LandCloudWhiteCapMaskOp extends Operator {
             }
         }
 
-
-
         targetProduct = new Product(sourceProduct.getName(),
                                     sourceProduct.getProductType(),
                                     width,
@@ -160,12 +193,13 @@ public class LandCloudWhiteCapMaskOp extends Operator {
 
         ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
-
         if(referenceBandNames != null) {
-            /*for (String srcBandName : referenceBandNames) {
-                ProductUtils.copyBand(srcBandName, sourceProduct, srcBandName, targetProduct, true);
-                ProductUtils.copyGeoCoding(sourceProduct.getRasterDataNode(srcBandName),targetProduct.getRasterDataNode(srcBandName));
-            }*/
+            if(includeReferenceBands) {
+                for (String srcBandName : referenceBandNames) {
+                    ProductUtils.copyBand(srcBandName, sourceProduct, srcBandName, targetProduct, true);
+                    ProductUtils.copyGeoCoding(sourceProduct.getRasterDataNode(srcBandName), targetProduct.getRasterDataNode(srcBandName));
+                }
+            }
 
             //add masks
             for (String referenceBandName : referenceBandNames) {
@@ -173,36 +207,46 @@ public class LandCloudWhiteCapMaskOp extends Operator {
                 String maskName = getMaskName(band);
                 maskReferenceMap.put(maskName,referenceBandName);
 
-                /*Mask mask = new Mask(getMaskName(band), band.getRasterWidth(), band.getRasterHeight(), Mask.RangeType.INSTANCE);
-                mask.setDescription(maskDescription);
-                mask.setImageColor(Color.CYAN);
-                mask.setImageTransparency(0.5);
-                Mask.RangeType.setRasterName(mask, referenceBandName);
-                Mask.RangeType.setMaximum(mask, referenceThresholdMap.get(referenceBandName));
-                if (maskNegativeValues) {
-                    Mask.RangeType.setMinimum(mask, 0.0);
-                } else {
-                    Mask.RangeType.setMinimum(mask, Double.MIN_VALUE);
-                }
+                /*//TODO if I want to add as Range masks, then they must be included the reference bands
+                if(includeReferenceBands) {
+                    Mask mask = new Mask(getMaskName(band), band.getRasterWidth(), band.getRasterHeight(), Mask.RangeType.INSTANCE);
+                    mask.setDescription(maskDescription);
+                    mask.setImageColor(Color.CYAN);
+                    mask.setImageTransparency(0.5);
+                    Mask.RangeType.setRasterName(mask, referenceBandName);
+                    Mask.RangeType.setMaximum(mask, referenceThresholdMap.get(referenceBandName));
+                    if (maskNegativeValues) {
+                        Mask.RangeType.setMinimum(mask, 0.0);
+                    } else {
+                        Mask.RangeType.setMinimum(mask, Double.MIN_VALUE);
+                    }
 
 
-                Rectangle rectangle = new Rectangle(mask.getRasterWidth(), mask.getRasterHeight());
-                try {
-                    CrsGeoCoding geoCoding = new CrsGeoCoding(sourceProduct.getSceneCRS(), rectangle, band.getSourceImage().getModel().getImageToModelTransform(0));
-                    mask.setGeoCoding(geoCoding);
-                } catch (FactoryException e) {
-                    e.printStackTrace();
-                } catch (TransformException e) {
-                    e.printStackTrace();
-                }
-                //ProductUtils.copyGeoCoding(band, mask);
-                targetProduct.addMask(mask);*/
+                    Rectangle rectangle = new Rectangle(mask.getRasterWidth(), mask.getRasterHeight());
+                    try {
+                        CrsGeoCoding geoCoding = new CrsGeoCoding(sourceProduct.getSceneCRS(), rectangle, band.getSourceImage().getModel().getImageToModelTransform(0));
+                        mask.setGeoCoding(geoCoding);
+                    } catch (FactoryException e) {
+                        e.printStackTrace();
+                    } catch (TransformException e) {
+                        e.printStackTrace();
+                    }
+                    targetProduct.addMask(mask);
+                }*/
 
-
-                //Add also a band
+                //Add as a band
                 Band bandMask = new Band(maskName, ProductData.TYPE_INT8, band.getRasterWidth(), band.getRasterHeight());
                 Rectangle rectangle = new Rectangle(bandMask.getRasterWidth(), bandMask.getRasterHeight());
                 bandMask.setDescription(maskDescription);
+                RangeMultiLevelSource multiLevelSource = null;
+                double scale = band.getScalingFactor();
+                double offset = band.getScalingOffset();
+                if(!inverseMask) {
+                    multiLevelSource = new RangeMultiLevelSource(sourceProduct.getBand(referenceBandName).getSourceImage(), Double.MIN_VALUE, (referenceThresholdMap.get(referenceBandName)-offset)/scale);
+                } else {
+                    multiLevelSource = new RangeMultiLevelSource(sourceProduct.getBand(referenceBandName).getSourceImage(), (referenceThresholdMap.get(referenceBandName)-offset)/scale, Double.MAX_VALUE);
+                }
+                bandMask.setSourceImage(new DefaultMultiLevelImage(multiLevelSource));
                 try {
                     CrsGeoCoding geoCoding = new CrsGeoCoding(sourceProduct.getSceneCRS(), rectangle, band.getSourceImage().getModel().getImageToModelTransform(0));
                     bandMask.setGeoCoding(geoCoding);
@@ -236,31 +280,34 @@ public class LandCloudWhiteCapMaskOp extends Operator {
                         validExpression = validExpression + " && " + maskName;
                     }
                 }
+                if(maskNegativeValues) {
+                    validExpression = validExpression + " && " + srcBand.getName() + ".raw > 0";
+                }
                 targetBand.setValidPixelExpression(validExpression);
                 targetBand.setSourceImage(srcBand.getSourceImage());
                 ProductUtils.copyGeoCoding(srcBand, targetBand);
-                //ProductUtils.copyImageGeometry(srcBand, targetBand,true);
                 targetProduct.addBand(targetBand);
             }
         }
     }
 
-    @Override
+    /*@Override
     public void computeTile (Band targetBand, Tile targetTile, ProgressMonitor pm) throws OperatorException {
         try {
             Rectangle rectangle = targetTile.getRectangle();
+            Tile sourceTile = getSourceTile(this.sourceProduct.getBand(maskReferenceMap.get(targetBand.getName())), rectangle);
             Band reference = getSourceProduct().getBand(maskReferenceMap.get(targetBand.getName()));
             String referenceName = reference.getName();
 
             for (int y = rectangle.y; y < rectangle.y + rectangle.height; y++) {
                 for (int x = rectangle.x; x < rectangle.x + rectangle.width; x++) {
-                    targetTile.setSample(x,y,reference.getSampleFloat(x,y)>referenceThresholdMap.get(referenceName));
+                    targetTile.setSample(x,y,sourceTile.getSampleFloat(x,y)>referenceThresholdMap.get(referenceName));
                 }
             }
         } finally {
             pm.done();
         }
-    }
+    }*/
 
 
     private String getMaskName(Band referenceBand) {
@@ -292,4 +339,5 @@ public class LandCloudWhiteCapMaskOp extends Operator {
             super(LandCloudWhiteCapMaskOp.class);
         }
     }
+
 }

@@ -39,6 +39,7 @@ public class LandCloudWhiteCapMaskTest {
         String[] bands = {"band_8"};
         op.setReferenceBandNames(bands);
         op.setThresholdString("0.0274");
+        op.setInverseMask(true);
 
         // get targetProduct gets initialize to be executed
         final Product targetProduct = op.getTargetProduct();
