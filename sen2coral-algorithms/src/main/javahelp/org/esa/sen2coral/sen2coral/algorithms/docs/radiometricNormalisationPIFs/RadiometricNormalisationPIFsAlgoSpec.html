@@ -70,8 +70,7 @@
 <p>
     The Radiometric Normalisation algorithm has been implemented into SNAP with the following features:
 <ul>
-    <li>TODO</li>
-    <li>TODO</li>
+    <li>Support of multiband and multi-size products. </li>dima
 </ul>
 </p>
 
@@ -85,37 +84,23 @@
     </thead>
     <tbody>
     <tr>
-        <td><strong>sunGlintVector</strong></td>
-        <td>The sample area/s of the image displaying a range of sun glint. This parameters must be
-            the name of a vector data contained in the source product. If the source product does not contain
-            this kind of data, the user should create it previously by creating a new vector data container and adding
-            some areas by using the available tools (Rectangle, Polygon or Ellipse drawing tools)</td>
+        <td><strong>slaveProduct</strong></td>
+        <td>The product to be normalised.</td>
+    </tr>
+    <tr>
+        <td><strong>referenceProduct</strong></td>
+        <td>The master/reference product. This product will be not modified.
+        </td>
     </tr>
     <tr>
         <td><strong>sourceBandNames</strong></td>
-        <td>The bands to be corrected. The user can select one or more bands.
-        </td>
+        <td>The bands to be normalised. They must exist in the slave and reference products.</td>
     </tr>
     <tr>
-        <td><strong>referenceBands</strong></td>
-        <td>The NIR band to be used as reference. It should have the same raster size than the source bands selected.
-            If the source bands have different raster sizes, it should be selected at least one reference band per each raster size.
-            If they are selected two or more reference bands with the same raster size, only the first of them will be used for the correction.
-        </td>
-    </tr>
-    <tr>
-        <td><strong>includeReferences</strong></td>
-        <td>If this option is selected, besides the corrected bands, the bands used as reference will be included in the output product.</td>
-    </tr>
-    <tr>
-        <td><strong>minNIRString</strong></td>
-        <td>If the user sets an only value, this value will be used for all reference bands selected. It is possible to use individual values
-            for each reference band by separating them by ';'. If the value is negative, then the minimum in the NIR band over the sample area will
-            be used.</td>
-    </tr>
-    <tr>
-        <td><strong>maskNegativeValues</strong></td>
-        <td>If this option is selected, the negative reflectance values generated during the correction will be set to NoDataValue.</td>
+        <td><strong>pifVector</strong></td>
+        <td>The sample area/s of the reference product considered as pseudo-invariant features. If the reference product does not contain
+            this kind of data, the user should create it previously by creating a new vector data container and adding
+            some areas by using the available tools (Rectangle, Polygon or Ellipse drawing tools)n the output product.</td>
     </tr>
     </tbody>
 </table>

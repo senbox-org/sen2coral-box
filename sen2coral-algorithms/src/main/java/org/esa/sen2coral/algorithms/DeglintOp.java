@@ -135,6 +135,8 @@ public class DeglintOp extends PixelOperatorMultisize {
         if(includeReferences) {
             for (String bandName : referenceBands) {
                 ProductUtils.copyBand(bandName, getSourceProduct(), targetProduct, true);
+                //set geocoding to reference bands
+                targetProduct.getBand(bandName).setGeoCoding(sourceProduct.getBand(bandName).getGeoCoding());
             }
         }
         return targetProduct;
@@ -221,7 +223,14 @@ public class DeglintOp extends PixelOperatorMultisize {
             minNIRAux = calculatedMinNIR[index];
         }
 
-        double correctedValue = sourceSamples[index].getFloat() - slope * (sourceSamples[referenceIndex].getFloat() - minNIRAux);
+        float sourceFloat = sourceSamples[index].getFloat();
+        float referenceFloat = sourceSamples[referenceIndex].getFloat();
+        if(sourceFloat == noDataValue[index] || sourceFloat == Float.NaN || referenceFloat == noDataValue[referenceIndex] || referenceFloat == Float.NaN)
+        {
+            targetSample.set(noDataValue[index]);
+            return;
+        }
+        double correctedValue = sourceFloat - slope * (referenceFloat - minNIRAux);
         correctedValue = (correctedValue < 0 && maskNegativeValues) ? noDataValue[index] : correctedValue;
         targetSample.set(correctedValue);
     }
