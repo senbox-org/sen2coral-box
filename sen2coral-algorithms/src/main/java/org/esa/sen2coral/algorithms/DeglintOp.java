@@ -80,6 +80,9 @@ public class DeglintOp extends PixelOperatorMultisize {
     public void setMaskNegativeValues(Boolean maskNegativeValues) {
         this.maskNegativeValues = maskNegativeValues;
     }
+    public void setIncludeReferences(Boolean includeReferences) {
+        this.includeReferences = includeReferences;
+    }
 
 
     @Override
@@ -248,10 +251,10 @@ public class DeglintOp extends PixelOperatorMultisize {
 
     private void updateBandDescription(int index,double slope,double r) {
         String description = getTargetProduct().getBandAt(index).getDescription();
-        description = description + String.format(" - DeglintInfo-> Reference band:%s  MinNIRComputed:%f  MinNIRUsed:%f  Regression slope = %f    Regression R = %f",
+        description = description + String.format(" - DeglintInfo-> Reference band:%s  MinNIRComputed:%f  MinNIRUsed:%f  Regression slope = %f    Regression R - squared= %f",
                                                   sourcesReferencesMap.get(sourceBandNames[index]),calculatedMinNIR[index],
                                                   referencesMinNIRMap.get(sourcesReferencesMap.get(sourceBandNames[index]))<0?calculatedMinNIR[index]: referencesMinNIRMap.get(sourcesReferencesMap.get(sourceBandNames[index])),
-                                                  slope, r);
+                                                  slope, r*r);
         getTargetProduct().getBandAt(index).setDescription(description);
     }
 

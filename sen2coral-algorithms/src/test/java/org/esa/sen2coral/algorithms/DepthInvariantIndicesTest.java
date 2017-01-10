@@ -26,7 +26,7 @@ public class DepthInvariantIndicesTest {
     private OperatorSpi spi = new DepthInvariantIndicesOp.Spi();
 
     @Test
-    public void testDataSet() throws Exception {
+    public void testDepthInvariantIndicesParameters() throws Exception {
         DimapProductReaderPlugIn readerPlugIn = new DimapProductReaderPlugIn();
         final DimapProductReader productReader = new DimapProductReader(readerPlugIn);
         final Product product = productReader.readProductNodes(Sen2CoralTestUtils.getTestDataPath("DepthInvariant/lizard_2016_07_21_s2_with_geoms.dim").toString(), null);
@@ -72,7 +72,7 @@ public class DepthInvariantIndicesTest {
     }
 
     @Test
-    public void testCompareOutput() throws Exception {
+    public void testDepthInvariantIndices() throws Exception {
         DimapProductReaderPlugIn readerPlugIn = new DimapProductReaderPlugIn();
         final DimapProductReader productReader = new DimapProductReader(readerPlugIn);
         final Product product = productReader.readProductNodes(Sen2CoralTestUtils.getTestDataPath("DepthInvariant/lizard_2016_07_21_s2_with_geoms.dim").toString(), null);

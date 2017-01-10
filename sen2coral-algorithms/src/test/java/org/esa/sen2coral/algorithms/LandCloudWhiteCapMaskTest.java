@@ -23,7 +23,7 @@ public class LandCloudWhiteCapMaskTest {
     private OperatorSpi spi = new LandCloudWhiteCapMaskOp.Spi();
 
     @Test
-    public void testCompareOutput() throws Exception {
+    public void testLandCloudWhiteCapMask() throws Exception {
         GeoTiffProductReaderPlugIn readerPlugIn = new GeoTiffProductReaderPlugIn();
         final GeoTiffProductReader productReader = new GeoTiffProductReader(readerPlugIn);
         final Product product = productReader.readProductNodes(Sen2CoralTestUtils.getTestDataPath("LandCloudWhiteCapMask/lizard_2016_02_22_LEtoa.tif").toString(), null);
