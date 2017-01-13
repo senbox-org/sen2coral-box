@@ -13,6 +13,18 @@
                 <attr name="targetProductNameSuffix" stringvalue="_inversion"/>
                 <attr name="ShortDescription" stringvalue="Generates model inversion from a source product with at least two spectral bands."/>
             </file>
+
+            <file name="org-esa-sen2coral-inversion-InversionWrapperOpAction.instance">
+                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.core.gpf.ui.DefaultOperatorAction.create"/>
+                <attr name="displayName" stringvalue="Inversion2 Processor"/>
+                <attr name="operatorName" stringvalue="InversionWrapperOp"/>
+                <attr name="dialogTitle" stringvalue="Inversion3"/>
+                <attr name="helpId" stringvalue="DeglintOperator"/>
+                <attr name="targetProductNameSuffix" stringvalue="_deglint"/>
+                <attr name="ShortDescription"
+                      stringvalue="Apply deglint"/>
+            </file>
         </folder>
     </folder>
 
@@ -23,6 +35,12 @@
                     <file name="PymodelInversionOpAction.shadow">
                         <attr name="originalFile" stringvalue="Actions/Operators/PymodelInversionOpAction.instance"/>
                         <attr name="position" intvalue="2"/>
+                    </file>
+
+                    <file name="org-esa-sen2coral-algorithms-InversionWrapperOpAction.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/org-esa-sen2coral-inversion-InversionWrapperOpAction.instance"/>
+                        <attr name="position" intvalue="1"/>
                     </file>
                 </folder>
             </folder>
