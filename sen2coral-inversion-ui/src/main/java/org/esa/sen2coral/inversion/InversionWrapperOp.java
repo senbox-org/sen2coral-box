@@ -1,23 +1,15 @@
 package org.esa.sen2coral.inversion;
 
 import org.esa.snap.core.datamodel.Product;
-import org.esa.snap.core.datamodel.ProductData;
 import org.esa.snap.core.gpf.GPF;
 import org.esa.snap.core.gpf.Operator;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
-import org.esa.snap.core.gpf.OperatorSpiRegistry;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
-import org.esa.snap.core.gpf.descriptor.DefaultOperatorDescriptor;
 import org.esa.snap.dataio.geotiff.GeoTiffProductReader;
 import org.esa.snap.dataio.geotiff.GeoTiffProductReaderPlugIn;
-import org.esa.snap.python.gpf.PyOperator;
-import org.esa.snap.python.gpf.PyOperatorSpi;
 
-import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URL;
 
 /**
  * Created by obarrile on 12/01/2017.
