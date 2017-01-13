@@ -58,6 +58,7 @@ public class EmpiricalBathymetryOp extends PixelOperator {
     private int maxSteps = 5;
 
     //processing parameters
+    private int currentStep = 0;
     private double[] noDataValue = null;
     private double[] regressionCoefficients = null; //m0, m1, r-squared
     private ArrayList<BathymetryPoint> bathymetryPointList = null;
@@ -106,6 +107,15 @@ public class EmpiricalBathymetryOp extends PixelOperator {
         noDataValue = new double[sourceBandNames.length];
         for (int i = 0; i < sourceBandNames.length; i++) {
             noDataValue[i] = getSourceProduct().getBand(sourceBandNames[i]).getNoDataValue();
+        }
+
+        //check rSquared
+        while(getRegressionCoefficients()[2] < minRSquared && currentStep < maxSteps) {
+            regressionCoefficients = null;
+            currentStep++;
+            //TODO define a new method to compute the new value of nValue
+            nValue = nValue*1000;
+
         }
     }
 

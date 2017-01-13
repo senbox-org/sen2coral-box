@@ -244,17 +244,17 @@ public class DeglintOp extends PixelOperatorMultisize {
         }
         if(slopes[index] == 0.0d){
             slopes[index] = getRegression(index).getSlope();
-            updateBandDescription(index,slopes[index],getRegression(index).getR());
+            updateBandDescription(index,slopes[index],getRegression(index).getRSquare());
         }
         return slopes[index];
     }
 
-    private void updateBandDescription(int index,double slope,double r) {
+    private void updateBandDescription(int index,double slope,double rSquare) {
         String description = getTargetProduct().getBandAt(index).getDescription();
         description = description + String.format(" - DeglintInfo-> Reference band:%s  MinNIRComputed:%f  MinNIRUsed:%f  Regression slope = %f    Regression R - squared= %f",
                                                   sourcesReferencesMap.get(sourceBandNames[index]),calculatedMinNIR[index],
                                                   referencesMinNIRMap.get(sourcesReferencesMap.get(sourceBandNames[index]))<0?calculatedMinNIR[index]: referencesMinNIRMap.get(sourcesReferencesMap.get(sourceBandNames[index])),
-                                                  slope, r*r);
+                                                  slope, rSquare);
         getTargetProduct().getBandAt(index).setDescription(description);
     }
 
