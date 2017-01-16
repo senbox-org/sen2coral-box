@@ -22,7 +22,7 @@ public class InversionDialog extends SingleTargetProductDialog {
 
     public InversionDialog(AppContext appContext) {
         super(appContext, "Inversion", ID_APPLY_CLOSE, HELP_ID);
-        final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(InversionWrapperOp.Spi.class.getName()/*"py_modelInversion_op"*/);
+        final OperatorSpi operatorSpi = GPF.getDefaultInstance().getOperatorSpiRegistry().getOperatorSpi(/*InversionWrapperOp.Spi.class.getName()*/"py_modelInversion_op");
 
         parameterSupport = new OperatorParameterSupport(operatorSpi.getOperatorDescriptor());
         OperatorMenu operatorMenu = new OperatorMenu(this.getJDialog(),
@@ -44,8 +44,9 @@ public class InversionDialog extends SingleTargetProductDialog {
         final Map<String, Object> test =  parameterSupport.getParameterMap();
         parameterSupport.getParameterMap().put("lowerName", "band_4");
         parameterSupport.getParameterMap().put("upperName", "band_8");
+        parameterSupport.getParameterMap().put("source", form.getMasterProduct());
 
-        return GPF.createProduct(OperatorSpi.getOperatorAlias(InversionWrapperOp.class)/*"py_modelInversion_op"*/, parameterSupport.getParameterMap(),
+        return GPF.createProduct(/*OperatorSpi.getOperatorAlias(InversionWrapperOp.class)*/"py_modelInversion_op", parameterSupport.getParameterMap(),
                                  productMap);
     }
 

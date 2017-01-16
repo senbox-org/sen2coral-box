@@ -38,11 +38,6 @@ public class InversionAction extends AbstractSnapAction {
         final AppContext appContext = SnapApp.getDefault().getAppContext();
         final InversionDialog inversionDialog = new InversionDialog(appContext);
         inversionDialog.show();
-        try {
-            inversionDialog.createTargetProduct();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }
 

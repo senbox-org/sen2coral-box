@@ -1,22 +1,5 @@
 <filesystem>
 
-    <folder name="Actions">
-        <folder name="Operators">
-
-            <file name="org-esa-sen2coral-inversion-InversionWrapperOpAction.instance">
-                <attr name="instanceCreate" methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.core.gpf.ui.DefaultOperatorAction.create"/>
-                <attr name="displayName" stringvalue="Inversion2 Processor"/>
-                <attr name="operatorName" stringvalue="InversionWrapperOp"/>
-                <attr name="dialogTitle" stringvalue="Inversion3"/>
-                <attr name="helpId" stringvalue="DeglintOperator"/>
-                <attr name="targetProductNameSuffix" stringvalue="_deglint"/>
-                <attr name="ShortDescription"
-                      stringvalue="Apply deglint"/>
-            </file>
-        </folder>
-    </folder>
-
     <folder name="Menu">
         <folder name="Optical">
             <folder name="Sen2Coral Processing">
@@ -27,11 +10,24 @@
                               stringvalue="Actions/Operators/org-esa-sen2coral-inversion-InversionWrapperOpAction.instance"/>
                         <attr name="position" intvalue="1"/>
                     </file>
+
+                    <file name="PymodelInversionOpAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/PymodelInversionOpAction.instance"/>
+                        <attr name="position" intvalue="2"/>
+                    </file>
+
                 </folder>
             </folder>
         </folder>
     </folder>
 
+    <folder name="Services">
+        <folder name="JavaHelp">
+            <file name="org-esa-sen2coral-sen2coral-inversion-ui-helpset.xml" url="helpset.xml">
+                <attr name="position" intvalue="3819"/>
+            </file>
+        </folder>
+    </folder>
 
     <folder name="OperatorUIs">
         <file name="org.esa.sen2coral.inversion.InversionOpUI">
