@@ -6,6 +6,7 @@ import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Mask;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.datamodel.ProductNodeGroup;
+import org.esa.snap.core.datamodel.RasterDataNode;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.annotations.OperatorMetadata;
@@ -84,6 +85,11 @@ public class DeglintOp extends PixelOperatorMultisize {
         this.includeReferences = includeReferences;
     }
 
+    //getters
+    public double getCalculatedMinNIR(int index) {
+        getRegression(index);
+        return calculatedMinNIR[index];
+    }
 
     @Override
     protected Product createTargetProduct() throws OperatorException {
@@ -258,7 +264,8 @@ public class DeglintOp extends PixelOperatorMultisize {
         getTargetProduct().getBandAt(index).setDescription(description);
     }
 
-    private synchronized SimpleRegression getRegression(int index) {
+    //public only for the test
+    public synchronized SimpleRegression getRegression(int index) {
 
         if (regressions == null) {
             regressions = new SimpleRegression[sourceBandNames.length];
@@ -353,6 +360,19 @@ public class DeglintOp extends PixelOperatorMultisize {
         }
         return map;
     }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        regressions = null;
+        slopes = null;
+        calculatedMinNIR = null;
+        noDataValue = null;
+        sourcesReferencesMap = null;
+        referencesMinNIRMap = new HashMap<>();
+        referencesIndexMap = new HashMap<>();
+    }
+
 
     private void copyMasks(Product sourceProduct, Product targetProduct, String...bandNames) {
         //TODO revisar de ReflectanceToRadianceOp

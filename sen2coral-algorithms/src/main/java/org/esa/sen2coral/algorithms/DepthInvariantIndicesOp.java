@@ -3,6 +3,7 @@ package org.esa.sen2coral.algorithms;
 import com.bc.ceres.core.ProgressMonitor;
 import org.apache.commons.math3.analysis.function.Log;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
+import org.esa.sen2coral.algorithms.utils.PerpendicularOffsetRegression;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Mask;
 import org.esa.snap.core.datamodel.Product;
@@ -54,6 +55,7 @@ public class DepthInvariantIndicesOp extends PixelOperator {
 
     //Processing parameters
     private double[] deepWaterReflectance = null;
+    PerpendicularOffsetRegression perpOffsetRegression = null;
     private double attenuationCoeffRatio = 0.0;
     private double[] noDataValue = null;
 
@@ -225,15 +227,23 @@ public class DepthInvariantIndicesOp extends PixelOperator {
 
     public synchronized double getAttenuationCoeffRatio() {
         if (attenuationCoeffRatio == 0.0) {
-            double[] parameters = getRegressionParameters();
-            if(parameters != null) {
-                double a = (parameters[2]-parameters[3])/(2.0*parameters[4]);
-                attenuationCoeffRatio = a + Math.sqrt(a*a+1);
-            } else {
+            try {
+                attenuationCoeffRatio = getPerpendicularOffsetRegression().getSlope();
+            } catch (Exception e){
                 throw new OperatorException("Unable to compute the ratio of attenuation coefficients. " +
                                                     "There are no valid pixels inside the \"same bottom\" areas selected.");
             }
-            /*Band srcBand1 = sourceProduct.getBand(sourceBandNames[0]);
+        }
+        return attenuationCoeffRatio;
+    }
+
+    // Public to be used by DepthInvariantIndicesTest
+    public synchronized PerpendicularOffsetRegression getPerpendicularOffsetRegression() {
+
+        if(perpOffsetRegression == null) {
+            perpOffsetRegression = new PerpendicularOffsetRegression();
+
+            Band srcBand1 = sourceProduct.getBand(sourceBandNames[0]);
             Band srcBand2 = sourceProduct.getBand(sourceBandNames[1]);
 
             //create mask
@@ -257,14 +267,7 @@ public class DepthInvariantIndicesOp extends PixelOperator {
                 throw new OperatorException("Unable to load the raster data.");
             }
 
-            //compute statistics
-            int numPixels = 0;
-            double sumX = 0.0;
-            double sumY = 0.0;
-            double sumXX = 0.0;
-            double sumYY = 0.0;
-            double sumXY = 0.0;
-            double meanX, meanY, sigmaXX, sigmaXY, sigmaYY, a;
+            //addData to regression
             for (int i = 0; i < srcBand1.getRasterWidth(); i++) {
                 for (int j = 0; j < srcBand1.getRasterHeight(); j++) {
                     if (mask.getPixelInt(i, j) == 0) {
@@ -272,112 +275,28 @@ public class DepthInvariantIndicesOp extends PixelOperator {
                     }
                     double value1 = srcBand1.getPixelDouble(i, j);
                     double value2 = srcBand2.getPixelDouble(i, j);
+
                     if (value1 != noData1 && value2 != noData2 &&  (value1 - getDeepWaterReflectance()[0])!= 0  && (value2 - getDeepWaterReflectance()[1])!= 0) {
                         double X = Math.log(value1 - getDeepWaterReflectance()[0]);
                         double Y = Math.log(value2 - getDeepWaterReflectance()[1]);
-                        sumX = sumX + X;
-                        sumY = sumY + Y;
-                        sumXX = sumXX + X*X;
-                        sumYY = sumYY + Y*Y;
-                        sumXY = sumXY + X*Y;
-                        numPixels++;
+                        perpOffsetRegression.addData(X, Y);
                     }
                 }
             }
             mask.dispose();
-
-            if (numPixels > 0) {
-                meanX = sumX/numPixels;
-                meanY = sumY/numPixels;
-                sigmaXX = sumXX/numPixels-meanX*meanX;
-                sigmaXY = sumXY/numPixels-meanX*meanY;
-                sigmaYY = sumYY/numPixels-meanY*meanY;
-                a = (sigmaXX-sigmaYY)/(2.0*sigmaXY);
-                attenuationCoeffRatio = a + Math.sqrt(a*a+1);
-            } else {
-                throw new OperatorException("Unable to compute the ratio of attenuation coefficients. " +
-                                                    "There are no valid pixels inside the \"same bottom\" areas selected.");
-            }*/
         }
-        return attenuationCoeffRatio;
+
+        return perpOffsetRegression;
     }
 
-    // Public to be used by DepthInvariantIndicesTest
-    //returns {MeanX, MeanY, SigmaXX, SigmaYY, SigmaXY, r-squared}
-    public synchronized double[] getRegressionParameters() {
-        double[] parameters = null;
-
-        Band srcBand1 = sourceProduct.getBand(sourceBandNames[0]);
-        Band srcBand2 = sourceProduct.getBand(sourceBandNames[1]);
-
-        //create mask
-        final Mask mask = new Mask("tempMask",
-                                   srcBand1.getRasterWidth(),
-                                   srcBand1.getRasterHeight(),
-                                   Mask.VectorDataType.INSTANCE);
-        Mask.VectorDataType.setVectorData(mask, sourceProduct.getVectorDataGroup().get(sameBottomVectors));
-        ProductUtils.copyImageGeometry(srcBand1, mask, false);
-
-        //get noData values to exclude them
-        double noData1 = srcBand1.getNoDataValue();
-        double noData2 = srcBand2.getNoDataValue();
-
-        //load data if it is not loaded
-        try {
-            mask.loadRasterData();
-            srcBand1.loadRasterData();
-            srcBand2.loadRasterData();
-        } catch (IOException e) {
-            throw new OperatorException("Unable to load the raster data.");
-        }
-
-        //compute statistics
-        int numPixels = 0;
-        double sumX = 0.0;
-        double sumY = 0.0;
-        double sumXX = 0.0;
-        double sumYY = 0.0;
-        double sumXY = 0.0;
-        double meanX, meanY, sigmaXX, sigmaXY, sigmaYY, a;
-        for (int i = 0; i < srcBand1.getRasterWidth(); i++) {
-            for (int j = 0; j < srcBand1.getRasterHeight(); j++) {
-                if (mask.getPixelInt(i, j) == 0) {
-                    continue;
-                }
-                double value1 = srcBand1.getPixelDouble(i, j);
-                double value2 = srcBand2.getPixelDouble(i, j);
-                if (value1 != noData1 && value2 != noData2 && (value1 - getDeepWaterReflectance()[0]) != 0 && (value2 - getDeepWaterReflectance()[1]) != 0) {
-                    double X = Math.log(value1 - getDeepWaterReflectance()[0]);
-                    double Y = Math.log(value2 - getDeepWaterReflectance()[1]);
-                    sumX = sumX + X;
-                    sumY = sumY + Y;
-                    sumXX = sumXX + X * X;
-                    sumYY = sumYY + Y * Y;
-                    sumXY = sumXY + X * Y;
-                    numPixels++;
-                }
-            }
-        }
-        mask.dispose();
-
-        if (numPixels > 0) {
-            meanX = sumX / numPixels;
-            meanY = sumY / numPixels;
-            sigmaXX = sumXX / numPixels - meanX * meanX;
-            sigmaXY = sumXY / numPixels - meanX * meanY;
-            sigmaYY = sumYY / numPixels - meanY * meanY;
-
-            parameters = new double[5];
-            parameters[0] = meanX;
-            parameters[1] = meanY;
-            parameters[2] = sigmaXX;
-            parameters[3] = sigmaYY;
-            parameters[4] = sigmaXY;
-        }
-
-        return parameters;
+    @Override
+    public void dispose() {
+        super.dispose();
+        deepWaterReflectance = null;
+        perpOffsetRegression = null;
+        attenuationCoeffRatio = 0.0;
+        noDataValue = null;
     }
-
 
     /**
      * The SPI is used to register this operator in the graph processing framework
