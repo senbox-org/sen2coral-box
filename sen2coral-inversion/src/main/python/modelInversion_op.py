@@ -40,6 +40,8 @@ class modelInversionOp:
         source_product = context.getSourceProduct('source')
         if source_product is None:
             source_product = context.getSourceProduct('sourceProduct')
+        if source_product is None:
+            return
         print('initialize: source product location is', source_product.getFileLocation())
 
         width = source_product.getSceneRasterWidth()

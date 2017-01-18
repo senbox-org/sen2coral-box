@@ -1,0 +1,40 @@
+<filesystem>
+
+    <folder name="Menu">
+        <folder name="Optical">
+            <folder name="Sen2Coral Processing">
+                <folder name="Processing modules">
+
+                    <file name="org-esa-sen2coral-inversion-InversionWrapperOpAction.shadow">
+                        <attr name="originalFile"
+                              stringvalue="Actions/Operators/org-esa-sen2coral-inversion-InversionWrapperOpAction.instance"/>
+                        <attr name="position" intvalue="1"/>
+                    </file>
+
+                    <file name="PymodelInversionOpAction.shadow">
+                        <attr name="originalFile" stringvalue="Actions/Operators/PymodelInversionOpAction.instance"/>
+                        <attr name="position" intvalue="2"/>
+                    </file>
+
+                </folder>
+            </folder>
+        </folder>
+    </folder>
+
+    <folder name="Services">
+        <folder name="JavaHelp">
+            <file name="org-esa-sen2coral-sen2coral-inversion-ui-helpset.xml" url="helpset.xml">
+                <attr name="position" intvalue="3819"/>
+            </file>
+        </folder>
+    </folder>
+
+    <folder name="OperatorUIs">
+        <file name="org.esa.sen2coral.inversion.InversionOpUI">
+            <attr name="operatorUIClass" stringvalue="org.esa.sen2coral.inversion.InversionOpUI"/>
+            <attr name="operatorName" stringvalue="InversionWrapperOp"/>
+        </file>
+    </folder>
+
+
+</filesystem>
