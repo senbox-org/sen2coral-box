@@ -2,6 +2,7 @@ package org.esa.sen2coral.algorithms;
 
 
 import org.apache.commons.math3.stat.regression.SimpleRegression;
+import org.esa.sen2coral.algorithms.utils.PerpendicularOffsetRegression;
 import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.PixelPos;
@@ -51,11 +52,11 @@ public class EmpiricalBathymetryOp extends PixelOperator {
     @Parameter(defaultValue = "10000", description = "'n' default value")
     private Double nValue = 10000.0;
 
-    @Parameter(defaultValue = "0.7", description = "Minimum r-squared value")
-    private Double minRSquared = 0.7;
-
-    @Parameter(defaultValue = "5", description = "Maximum number of steps")
-    private int maxSteps = 5;
+    //TODO future implementation?
+    //@Parameter(defaultValue = "0.7", description = "Minimum r-squared value")
+    //private Double minRSquared = 0.7;
+    //@Parameter(defaultValue = "5", description = "Maximum number of steps")
+    //private int maxSteps = 5;
 
     //processing parameters
     private int currentStep = 0;
@@ -73,8 +74,19 @@ public class EmpiricalBathymetryOp extends PixelOperator {
     public void setnValue(Double nValue) {
         this.nValue = nValue;
     }
-    public void setMinRSquared(Double minRSquared) {
-        this.minRSquared = minRSquared;
+
+    //getters for testing
+    public double getM0() {
+        return getRegressionCoefficients()[0];
+    }
+    public double getM1() {
+        return getRegressionCoefficients()[1];
+    }
+    public double getRSquared() {
+        return getRegressionCoefficients()[2];
+    }
+    public double getRegressionPointCount() {
+        return getRegressionCoefficients()[3];
     }
 
     @Override
@@ -109,14 +121,13 @@ public class EmpiricalBathymetryOp extends PixelOperator {
             noDataValue[i] = getSourceProduct().getBand(sourceBandNames[i]).getNoDataValue();
         }
 
-        //check rSquared
-        while(getRegressionCoefficients()[2] < minRSquared && currentStep < maxSteps) {
-            regressionCoefficients = null;
-            currentStep++;
-            //TODO define a new method to compute the new value of nValue
-            nValue = nValue*1000;
-
-        }
+        //todo in future? check rSquared
+        //while(getRegressionCoefficients()[2] < minRSquared && currentStep < maxSteps) {
+        //    regressionCoefficients = null;
+        //    currentStep++;
+        //    //TODO define a new method to compute the new value of nValue
+        //    nValue = nValue*1000;
+        //}
     }
 
     @Override
@@ -182,8 +193,9 @@ public class EmpiricalBathymetryOp extends PixelOperator {
 
     private synchronized double[] getRegressionCoefficients() {
         if (regressionCoefficients == null) {
-            regressionCoefficients = new double[3];
+            regressionCoefficients = new double[4];
             SimpleRegression regression = new SimpleRegression();
+            PerpendicularOffsetRegression regressionTest = new PerpendicularOffsetRegression();
             Band band1 = sourceProduct.getBand(sourceBandNames[0]);
             Band band2 = sourceProduct.getBand(sourceBandNames[1]);
             try {
@@ -194,29 +206,26 @@ public class EmpiricalBathymetryOp extends PixelOperator {
             }
 
             for(BathymetryPoint bathymetryPoint : bathymetryPointList) {
-                PixelPos pixelPos1 = band1.getGeoCoding().getPixelPos(new GeoPos(bathymetryPoint.getLat(),bathymetryPoint.getLon()),null);
-                PixelPos pixelPos2 = band2.getGeoCoding().getPixelPos(new GeoPos(bathymetryPoint.getLat(),bathymetryPoint.getLon()),null);
+                PixelPos pixelPos = band1.getGeoCoding().getPixelPos(new GeoPos(bathymetryPoint.getLat(),bathymetryPoint.getLon()),null);
+                // It is supposed that the position is the same for both bands
 
                 //check pixel positions obtained
-                if(!pixelPos1.isValid() || !pixelPos2.isValid()) {
+                if(!pixelPos.isValid()) {
                     continue;
                 }
-                int pixelPos1X = (int) Math.round(pixelPos1.x);
-                int pixelPos1Y = (int) Math.round(pixelPos1.y);
-                int pixelPos2X = (int) Math.round(pixelPos2.x);
-                int pixelPos2Y = (int) Math.round(pixelPos2.y);
-                if(pixelPos1X < 0 || pixelPos1Y < 0 || pixelPos1X >= band1.getRasterWidth() || pixelPos1Y >= band1.getRasterHeight()) {
-                    continue;
-                }
-                if(pixelPos2X < 0 || pixelPos2Y < 0 || pixelPos2X >= band2.getRasterWidth() || pixelPos2Y >= band2.getRasterHeight()) {
+                int pixelPosX = (int) Math.floor(pixelPos.x);
+                int pixelPosY = (int) Math.floor(pixelPos.y);
+
+                if(pixelPosX < 0 || pixelPosY < 0 || pixelPosX >= band1.getRasterWidth() || pixelPosY >= band1.getRasterHeight()) {
                     continue;
                 }
 
-                double valueBand1 = band1.getPixelDouble(pixelPos1X,pixelPos1Y);
-                double valueBand2 = band2.getPixelDouble(pixelPos2X,pixelPos2Y);
+                double valueBand1 = band1.getPixelDouble(pixelPosX,pixelPosY);
+                double valueBand2 = band2.getPixelDouble(pixelPosX,pixelPosY);
 
                 if(valueBand1 != band1.getNoDataValue() && valueBand2 != band2.getNoDataValue() && ((nValue * valueBand1) > 1) && ((nValue * valueBand2) > 1)) {
                     regression.addData(Math.log(nValue * valueBand1) / Math.log(nValue * valueBand2), bathymetryPoint.getZ());
+                    regressionTest.addData(Math.log(nValue * valueBand1) / Math.log(nValue * valueBand2), bathymetryPoint.getZ());
                 }
             }
             if(regression.getN() < 2) {
@@ -226,6 +235,7 @@ public class EmpiricalBathymetryOp extends PixelOperator {
             regressionCoefficients[0] = regression.getIntercept();
             regressionCoefficients[1] = regression.getSlope();
             regressionCoefficients[2] = regression.getRSquare();
+            regressionCoefficients[3] = regression.getN();
         }
         return regressionCoefficients;
     }
@@ -233,7 +243,7 @@ public class EmpiricalBathymetryOp extends PixelOperator {
     private ArrayList<BathymetryPoint> getBathymetryPointData(File file) {
         ArrayList<BathymetryPoint> bathymetryPoints = new ArrayList<>();
         String line = "";
-        String separators = ";";
+        String separators = ",";
 
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 
