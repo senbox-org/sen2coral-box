@@ -1,5 +1,25 @@
 <filesystem>
 
+    <!--
+    Remove for using InversionAction
+    -->
+    <folder name="Actions">
+        <folder name="Operators">
+            <file name="PymodelInversionOpAction.instance">
+                <attr name="instanceCreate"
+                      methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
+                <attr name="delegate" methodvalue="org.esa.snap.core.gpf.ui.DefaultOperatorAction.create"/>
+                <attr name="operatorName" stringvalue="py_modelinversion_op"/>
+                <attr name="displayName" stringvalue="py_modelinversion_op"/>
+                <attr name="dialogTitle" stringvalue="py_modelinversion_op"/>
+                <attr name="targetProductNameSuffix" stringvalue="_inversion"/>
+                <attr name="ShortDescription" stringvalue="Generates ...."/>
+            </file>
+        </folder>
+    </folder>
+
+
+
     <folder name="Menu">
         <folder name="Optical">
             <folder name="Sen2Coral Processing">

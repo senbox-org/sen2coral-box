@@ -11,7 +11,7 @@ import org.openide.awt.ActionRegistration;
 import org.openide.util.NbBundle;
 
 import java.awt.event.ActionEvent;
-
+/*
 @ActionID(
         category = "Tools",
         id = "InversionAction"
@@ -39,5 +39,5 @@ public class InversionAction extends AbstractSnapAction {
         final InversionDialog inversionDialog = new InversionDialog(appContext);
         inversionDialog.show();
     }
-}
+}*/
 

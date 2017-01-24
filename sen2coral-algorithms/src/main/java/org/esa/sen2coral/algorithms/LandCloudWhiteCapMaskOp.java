@@ -68,6 +68,7 @@ import java.util.Set;
         category = "Raster",
         authors = "Omar Barrilero",
         version = "1.0",
+        internal = true,
         description = "LandCloudWhiteCapMaskOp algorithm")
 public class LandCloudWhiteCapMaskOp extends Operator {
 

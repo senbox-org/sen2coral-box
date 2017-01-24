@@ -35,6 +35,7 @@ import java.util.ArrayList;
         category = "Raster",
         authors = "Omar Barrilero",
         version = "1.0",
+        internal = true,
         description = "EmpiricalBathymetryOp algorithm")
 public class EmpiricalBathymetryOp extends PixelOperator {
 

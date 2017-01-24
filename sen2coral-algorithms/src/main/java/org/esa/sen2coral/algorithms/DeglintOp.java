@@ -30,6 +30,7 @@ import java.util.Set;
         category = "Raster",
         authors = "Omar Barrilero",
         version = "1.0",
+        internal = true,
         description = "Deglint algorithm")
 public class DeglintOp extends PixelOperatorMultisize {
 

@@ -28,6 +28,7 @@ import java.util.Set;
         category = "Raster",
         authors = "Omar Barrilero",
         version = "1.0",
+        internal = true,
         description = "RadiometricNormalisationPIFsOp algorithm")
 public class RadiometricNormalisationPIFsOp extends PixelOperatorMultisize {
 

@@ -19,16 +19,19 @@
         <module>sen2coral-kit</module>
         <module>sen2coral-algorithms</module>
         <module>sen2coral-algorithms-ui</module>
+
         <module>sen2coral-inversion</module>
         <module>sen2coral-inversion-ui</module>
+        <!--
         <module>sen2coral-processing-chains</module>
+        -->
     </modules>
 
     <packaging>pom</packaging>
 
     <properties>
-        <snap.version>6.0.0-SNAPSHOT</snap.version>
-        <s2tbx.version>6.0.0-SNAPSHOT</s2tbx.version>
+        <snap.version>5.0.1-SNAPSHOT</snap.version>
+        <s2tbx.version>5.0.1</s2tbx.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <user.language>en</user.language>
         <netbeans.version>RELEASE82</netbeans.version>
