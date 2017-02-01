@@ -30,7 +30,7 @@
     <packaging>pom</packaging>
 
     <properties>
-        <snap.version>5.0.1-SNAPSHOT</snap.version>
+        <snap.version>5.0.1</snap.version>
         <s2tbx.version>5.0.1</s2tbx.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <user.language>en</user.language>

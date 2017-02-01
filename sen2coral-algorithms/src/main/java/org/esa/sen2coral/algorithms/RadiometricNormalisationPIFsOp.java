@@ -1,9 +1,17 @@
 package org.esa.sen2coral.algorithms;
 
 
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
+import javafx.geometry.BoundingBox;
 import org.apache.commons.math3.stat.regression.SimpleRegression;
 import org.esa.snap.core.datamodel.Band;
+import org.esa.snap.core.datamodel.GeoCoding;
+import org.esa.snap.core.datamodel.GeoPos;
 import org.esa.snap.core.datamodel.Mask;
+import org.esa.snap.core.datamodel.PixelPos;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.OperatorException;
 import org.esa.snap.core.gpf.OperatorSpi;
@@ -14,12 +22,24 @@ import org.esa.snap.core.gpf.pointop.Sample;
 import org.esa.snap.core.gpf.pointop.SourceSampleConfigurer;
 import org.esa.snap.core.gpf.pointop.TargetSampleConfigurer;
 import org.esa.snap.core.gpf.pointop.WritableSample;
+import org.esa.snap.core.util.FeatureUtils;
 import org.esa.snap.core.util.ProductUtils;
 import org.esa.snap.engine_utilities.gpf.OperatorUtils;
+import org.esa.snap.engine_utilities.util.Maths;
+import org.geotools.feature.FeatureIterator;
+import org.geotools.geometry.jts.JTS;
+import org.geotools.geometry.jts.ReferencedEnvelope;
+import org.geotools.referencing.CRS;
+import org.opengis.feature.simple.SimpleFeature;
+import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.operation.MathTransform;
+import org.opengis.referencing.operation.TransformException;
 
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
+
+import static org.geotools.referencing.CRS.decode;
 
 /**
  * Radiometric Normalisation with PIFs operator
@@ -44,13 +64,14 @@ public class RadiometricNormalisationPIFsOp extends PixelOperatorMultisize {
 
     @Parameter(description = "Pseudo-Invariant Features (PIFs) vector File",
             label = "Pseudo-Invariant Features (PIFs) vector File")
-    private String pifVector;
+    private String pifVector = "";
 
     //Processing parameters
     private SimpleRegression[] regressions = null;
     private double[] slopes = null;
     private double[] intercepts = null;
     private double[] noDataValue = null;
+    private boolean areCoregistered = true;
 
     //Setters
     public void setSlaveProduct(Product slaveProduct) {
@@ -65,6 +86,9 @@ public class RadiometricNormalisationPIFsOp extends PixelOperatorMultisize {
     public void setPifVector(String pifVector) {
         this.pifVector = pifVector;
     }
+
+
+    //getters used by the test
 
     @Override
     protected Product createTargetProduct() throws OperatorException {
@@ -130,17 +154,59 @@ public class RadiometricNormalisationPIFsOp extends PixelOperatorMultisize {
                 throw new OperatorException(String.format("The band %s is not available in the product %s.",
                                                           sourceBandName, referenceProduct.getName()));
             }
-            if(!slaveBand.getRasterSize().equals(referenceBand.getRasterSize())) {
+            /*if(!slaveBand.getRasterSize().equals(referenceBand.getRasterSize())) {
                 throw new OperatorException(String.format("The band %s has a different raster size in slave and master product",
                                                           sourceBandName));
-            }
+            }*/
         }
 
         //Check pifVector
-        if (pifVector != null && !pifVector.isEmpty()) {
+        if (pifVector == null || pifVector.isEmpty() || referenceProduct.getVectorDataGroup().get(pifVector) == null) {
             throw new OperatorException(String.format("Error when reading pseudo-invariant features in %s. It must contain at least one polygon.",
                                                       pifVector));
         }
+
+        //check that products intersects and their intersections intersects the PIF
+        Geometry refGeometry = createGeoBoundaryPolygonLatLon(referenceProduct);
+        Geometry slaveGeometry = createGeoBoundaryPolygonLatLon(slaveProduct);
+        Geometry intersection = refGeometry.intersection(slaveGeometry);
+        MathTransform transform = null;
+        boolean bFoundIntersection = false;
+        try {
+            transform = CRS.findMathTransform(referenceProduct.getSceneCRS(), CRS.decode("EPSG:4326"), true);
+        } catch (FactoryException e) {
+            throw new OperatorException("Unable to transform Pseudo-Invariant Features vector File");
+        }
+        FeatureIterator iterator = referenceProduct.getVectorDataGroup().get(pifVector).getFeatureCollection().features();
+        while(iterator.hasNext() && !bFoundIntersection) {
+            SimpleFeature feature = (SimpleFeature) iterator.next();
+            /*if(feature == null) {
+                continue;
+            }*/
+            for(int i = 0 ; i < feature.getAttributeCount() ; i++) {
+                Geometry vectorGeometry =  (Geometry) feature.getAttribute(i);
+                if(vectorGeometry == null) {
+                    continue;
+                }
+                try {
+                    Geometry geometry2 = JTS.transform(vectorGeometry, transform);
+                    if(intersection.intersects(geometry2)) {
+                        bFoundIntersection = true;
+                        break;
+                    };
+                } catch (TransformException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        if(!bFoundIntersection) {
+            throw new OperatorException("The input files and the Pseudo-Invariant Features vector File do not intersect.");
+        }
+
+
+
+
 
         //get no data values
         noDataValue = new double[sourceBandNames.length];
@@ -148,6 +214,18 @@ public class RadiometricNormalisationPIFsOp extends PixelOperatorMultisize {
             noDataValue[i] = referenceProduct.getBand(sourceBandNames[i]).getNoDataValue();
         }
         setSourceProduct(slaveProduct);
+
+        //check if the products are coregistered (at least the bands selected)
+        for (int i = 0; i < sourceBandNames.length; i++) {
+            GeoCoding slaveGeocoding = slaveProduct.getBand(sourceBandNames[i]).getGeoCoding();
+            GeoCoding referenceGeocoding = referenceProduct.getBand(sourceBandNames[i]).getGeoCoding();
+            if(!equalGeocoding(slaveGeocoding,referenceGeocoding)) {
+                areCoregistered = false;
+                break;
+            }
+        }
+
+
     }
 
     @Override
@@ -177,63 +255,6 @@ public class RadiometricNormalisationPIFsOp extends PixelOperatorMultisize {
         }
     }
 
-
-    private synchronized SimpleRegression[] getRegressions() {
-        if (regressions == null) {
-            regressions = new SimpleRegression[sourceBandNames.length];
-            int iCounter = 0;
-
-            final Band[] sourceBands = OperatorUtils.getSourceBands(slaveProduct, sourceBandNames, false);
-            for (Band srcBand : sourceBands) {
-                Band refBand = referenceProduct.getBand(srcBand.getName());
-                regressions[iCounter] = new SimpleRegression();
-
-                //create mask
-                final Mask mask = new Mask("tempMask",
-                                           srcBand.getRasterWidth(),
-                                           srcBand.getRasterHeight(),
-                                           Mask.VectorDataType.INSTANCE);
-                Mask.VectorDataType.setVectorData(mask, referenceProduct.getVectorDataGroup().get(pifVector));
-                ProductUtils.copyImageGeometry(srcBand, mask, false);
-
-                //get noData values to exclude them
-                double noData = srcBand.getNoDataValue();
-                double referenceNoData = refBand.getNoDataValue();
-
-                //load data if it is not loaded
-                try {
-                    mask.loadRasterData();
-                    srcBand.loadRasterData();
-                    refBand.loadRasterData();
-                } catch (IOException e) {
-                    throw new OperatorException("Unable to load the raster data.");
-                }
-
-                //add data to regressions
-                for (int i = 0; i < srcBand.getRasterWidth(); i++) {
-                    for (int j = 0; j < srcBand.getRasterHeight(); j++) {
-                        if (mask.getPixelInt(i, j) == 0) {
-                            continue;
-                        }
-                        double value = srcBand.getPixelDouble(i, j);
-                        if (value != noData) {
-                            double referenceValue = refBand.getPixelDouble(i, j);
-                            if (referenceValue == referenceNoData) {
-                                continue;
-                            }
-                            regressions[iCounter].addData(value, referenceValue);
-                        }
-                    }
-                }
-                iCounter++;
-                mask.dispose();
-                srcBand.unloadRasterData();
-                refBand.unloadRasterData();
-            }
-        }
-        return regressions;
-    }
-
     private synchronized double getSlope(int index) {
         if(slopes == null) {
             slopes = new double[sourceBandNames.length];
@@ -254,7 +275,8 @@ public class RadiometricNormalisationPIFsOp extends PixelOperatorMultisize {
         return intercepts[index];
     }
 
-    private synchronized SimpleRegression getRegression(int index) {
+    //public only to be used by the test
+    public synchronized SimpleRegression getRegression(int index) {
         if (index >= sourceBandNames.length) {
             return null;
         }
@@ -271,11 +293,11 @@ public class RadiometricNormalisationPIFsOp extends PixelOperatorMultisize {
 
             //create temporary mask
             final Mask mask = new Mask("tempMask",
-                                       srcBand.getRasterWidth(),
-                                       srcBand.getRasterHeight(),
+                                       refBand.getRasterWidth(),
+                                       refBand.getRasterHeight(),
                                        Mask.VectorDataType.INSTANCE);
             Mask.VectorDataType.setVectorData(mask, referenceProduct.getVectorDataGroup().get(pifVector));
-            ProductUtils.copyImageGeometry(srcBand, mask, false);
+            ProductUtils.copyImageGeometry(refBand, mask, false);
 
             //get noData values to exclude them
             double noData = srcBand.getNoDataValue();
@@ -292,18 +314,37 @@ public class RadiometricNormalisationPIFsOp extends PixelOperatorMultisize {
             }
 
             //add data to regressions
-            for (int i = 0; i < srcBand.getRasterWidth(); i++) {
-                for (int j = 0; j < srcBand.getRasterHeight(); j++) {
+            for (int i = 0; i < refBand.getRasterWidth(); i++) {
+                for (int j = 0; j < refBand.getRasterHeight(); j++) {
                     if (mask.getPixelInt(i, j) == 0) {
                         continue;
                     }
-                    double value = srcBand.getPixelDouble(i, j);
-                    if (value != noData) {
-                        double referenceValue = refBand.getPixelDouble(i, j);
-                        if (referenceValue == referenceNoData) {
-                            continue;
+
+                    if(areCoregistered) {
+                        double value = srcBand.getPixelDouble(i, j);
+                        if (value != noData) {
+                            double referenceValue = refBand.getPixelDouble(i, j);
+                            if (referenceValue == referenceNoData) {
+                                continue;
+                            }
+                            regressions[index].addData(value, referenceValue);
                         }
-                        regressions[index].addData(value, referenceValue);
+                    } else {
+                        double refValue = refBand.getPixelDouble(i, j);
+                        if (refValue != referenceNoData) {
+                            GeoPos geoPos = refBand.getGeoCoding().getGeoPos(new PixelPos((float) i, (float) j), null);
+                            PixelPos pixelPos = srcBand.getGeoCoding().getPixelPos(geoPos, null);
+                            int i1 = (int) Math.floor(pixelPos.x);
+                            int j1 = (int) Math.floor(pixelPos.y);
+                            if (i1 < 0 || j1 < 0 || i1 >= srcBand.getRasterWidth() || j1 >= srcBand.getRasterHeight()) {
+                                continue;
+                            }
+                            double value = srcBand.getPixelDouble(i1, j1);
+                            if (value == noData) {
+                                continue;
+                            }
+                            regressions[index].addData(value, refValue);
+                        }
                     }
                 }
             }
@@ -311,8 +352,54 @@ public class RadiometricNormalisationPIFsOp extends PixelOperatorMultisize {
             srcBand.unloadRasterData();
             refBand.unloadRasterData();
 
+            updateBandDescription(index,getSlope(index), getIntercept(index), regressions[index].getRSquare());
         }
         return regressions[index];
+    }
+
+    private void updateBandDescription(int index,double slope, double intercept, double rSquare) {
+        String description = getTargetProduct().getBandAt(index).getDescription();
+        description = description + String.format(" - NormalisationInfo-> Regression slope = %f  Regression intercept = %f  Regression R - squared= %f",
+                                                  slope, intercept, rSquare);
+        getTargetProduct().getBandAt(index).setDescription(description);
+    }
+
+
+    private boolean equalGeocoding(GeoCoding slaveGeocoding, GeoCoding referenceGeocoding) {
+
+        if(!slaveGeocoding.canGetGeoPos() || !slaveGeocoding.canGetPixelPos() || !referenceGeocoding.canGetGeoPos() || !referenceGeocoding.canGetPixelPos()) {
+            return false;
+        }
+        PixelPos pixelPos0 = new PixelPos(0.0,0.0);
+        PixelPos pixelPos1 = new PixelPos(10000,10000);
+        PixelPos pixelPos0ref = referenceGeocoding.getPixelPos(slaveGeocoding.getGeoPos(pixelPos0, null),null);
+        PixelPos pixelPos1ref = referenceGeocoding.getPixelPos(slaveGeocoding.getGeoPos(pixelPos1, null),null);
+        if(Math.abs(pixelPos0.x - pixelPos0ref.x) > 0.01 || Math.abs(pixelPos0.y - pixelPos0ref.y) > 0.01 || Math.abs(pixelPos1.x - pixelPos1ref.x) > 0.01 || Math.abs(pixelPos1.y - pixelPos1ref.y) > 0.01) {
+            return false;
+        }
+
+        return true;
+    }
+
+
+    private static Geometry createGeoBoundaryPolygonLatLon(Product product) {
+        GeometryFactory gf = new GeometryFactory();
+        GeoPos[] geoPositions = ProductUtils.createGeoBoundary(product, 100);
+        Coordinate[] coordinates;
+        if(geoPositions.length >= 0 && geoPositions.length <= 3) {
+            coordinates = new Coordinate[0];
+        } else {
+            coordinates = new Coordinate[geoPositions.length + 1];
+
+            for(int i = 0; i < geoPositions.length; ++i) {
+                GeoPos geoPos = geoPositions[i];
+                coordinates[i] = new Coordinate(geoPos.lat, geoPos.lon);
+            }
+
+            coordinates[coordinates.length - 1] = coordinates[0];
+        }
+
+        return gf.createPolygon(gf.createLinearRing(coordinates), (LinearRing[])null);
     }
 
     /**
