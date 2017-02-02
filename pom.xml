@@ -6,7 +6,7 @@
 
     <groupId>org.esa.sen2coral</groupId>
     <artifactId>sen2coral</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.2.0-SNAPSHOT</version>
 
     <name>Sen2Coral Toolbox</name>
     <description>Tools for mapping (habitat, bathymetry, and water quality) and detection change for coral reef health assessment and monitoring</description>
