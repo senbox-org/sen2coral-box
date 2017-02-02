@@ -114,7 +114,7 @@ public class RadiometricNormalisationPIFsTest {
 
 
     @Test
-    public void testCompareOutput() throws Exception {
+    public void testRadiometricNormalisationComparison() throws Exception {
         DimapProductReaderPlugIn readerPlugIn = new DimapProductReaderPlugIn();
         final DimapProductReader productReader = new DimapProductReader(readerPlugIn);
         final Product referenceProduct = productReader.readProductNodes(Sen2CoralTestUtils.getTestDataPath("RadiometricNormalisation/wistari_subset_2016_01_31.dim").toString(), null);
