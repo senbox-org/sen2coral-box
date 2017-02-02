@@ -24,7 +24,7 @@
                  AXIS["Geodetic longitude", EAST], 
                  AXIS["Geodetic latitude", NORTH], 
                  AUTHORITY["EPSG","4326"]], 
-               PROJECTION["Transverse_Mercator"], 
+               PROJECTION["Transverse_Mercator", AUTHORITY["EPSG","9807"]], 
                PARAMETER["central_meridian", 153.0], 
                PARAMETER["latitude_of_origin", 0.0], 
                PARAMETER["scale_factor", 0.9996], 
@@ -440,8 +440,10 @@
                 <MDATTR name="BitsPerSample" type="ascii">32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32, 32</MDATTR>
                 <MDATTR name="Compression" type="ascii">Uncompressed</MDATTR>
                 <MDATTR name="PhotometricInterpretation" type="ascii">BlackIsZero</MDATTR>
+                <MDATTR name="StripOffsets" type="ascii" />
                 <MDATTR name="SamplesPerPixel" type="ascii">13</MDATTR>
                 <MDATTR name="RowsPerStrip" type="ascii">1</MDATTR>
+                <MDATTR name="StripByteCounts" type="ascii" />
                 <MDATTR name="PlanarConfiguration" type="ascii">Chunky</MDATTR>
                 <MDATTR name="ExtraSamples" type="ascii">Unspecified, Unspecified, Unspecified, Unspecified, Unspecified, Unspecified, Unspecified, Unspecified, Unspecified, Unspecified, Unspecified, Unspecified</MDATTR>
                 <MDATTR name="SampleFormat" type="ascii">Floating Point, Floating Point, Floating Point, Floating Point, Floating Point, Floating Point, Floating Point, Floating Point, Floating Point, Floating Point, Floating Point, Floating Point, Floating Point</MDATTR>

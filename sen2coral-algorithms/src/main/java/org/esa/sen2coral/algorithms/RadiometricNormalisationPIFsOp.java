@@ -62,8 +62,8 @@ public class RadiometricNormalisationPIFsOp extends PixelOperatorMultisize {
             rasterDataNodeType = Band.class, label = "Source Bands")
     private String[] sourceBandNames;
 
-    @Parameter(description = "Pseudo-Invariant Features (PIFs) vector File",
-            label = "Pseudo-Invariant Features (PIFs) vector File")
+    @Parameter(description = "Pseudo-Invariant Features (PIFs) vector",
+            label = "Pseudo-Invariant Features (PIFs) vector")
     private String pifVector = "";
 
     //Processing parameters
@@ -184,6 +184,9 @@ public class RadiometricNormalisationPIFsOp extends PixelOperatorMultisize {
                 continue;
             }*/
             for(int i = 0 ; i < feature.getAttributeCount() ; i++) {
+                if(!(feature.getAttribute(i) instanceof Geometry)) {
+                    continue;
+                }
                 Geometry vectorGeometry =  (Geometry) feature.getAttribute(i);
                 if(vectorGeometry == null) {
                     continue;
