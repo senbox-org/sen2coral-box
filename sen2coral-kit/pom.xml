@@ -61,33 +61,33 @@
             <artifactId>sen2coral-algorithms</artifactId>
             <version>${project.version}</version>
         </dependency>
-
-        <dependency>
-            <groupId>org.esa.sen2coral</groupId>
-            <artifactId>sen2coral-algorithms-ui</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-
-        <dependency>
-            <groupId>org.esa.sen2coral</groupId>
-            <artifactId>sen2coral-inversion</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.esa.sen2coral</groupId>
-            <artifactId>sen2coral-inversion-ui</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
         <!--
-                <dependency>
-                    <groupId>org.esa.sen2coral</groupId>
-                    <artifactId>sen2coral-processing-chains</artifactId>
-                    <version>${project.version}</version>
-                </dependency>
-                -->
+               <dependency>
+                   <groupId>org.esa.sen2coral</groupId>
+                   <artifactId>sen2coral-algorithms-ui</artifactId>
+                   <version>${project.version}</version>
+               </dependency>
+
+
+               <dependency>
+                   <groupId>org.esa.sen2coral</groupId>
+                   <artifactId>sen2coral-inversion</artifactId>
+                   <version>${project.version}</version>
+               </dependency>
+
+               <dependency>
+                   <groupId>org.esa.sen2coral</groupId>
+                   <artifactId>sen2coral-inversion-ui</artifactId>
+                   <version>${project.version}</version>
+               </dependency>
+
+
+                       <dependency>
+                           <groupId>org.esa.sen2coral</groupId>
+                           <artifactId>sen2coral-processing-chains</artifactId>
+                           <version>${project.version}</version>
+                       </dependency>
+                       -->
 
         <dependency>
             <groupId>org.esa.snap</groupId>
