@@ -1,0 +1,85 @@
+<operator>
+    <name>org.esa.snap.python.sambuca_snap_op</name>
+    <alias>py_sambuca_snap_op</alias>
+    <operatorClass>org.esa.snap.python.gpf.PyOperator</operatorClass>
+    <version>1.0</version>
+    <authors>ACME Guys</authors>
+    <copyright>(C) 2016 ACME</copyright>
+    <description>
+        Sambuca model
+    </description>
+    <namedSourceProducts>
+        <sourceProduct>
+            <name>source</name>
+        </sourceProduct>
+    </namedSourceProducts>
+    <parameters>
+	<parameter>
+            <name>firstBand</name>
+            <description>The name of first spectral band.</description>
+            <label>First band name</label>
+            <dataType>java.lang.String</dataType>
+            <defaultValue>Resize__Mask__Band_1_WL_ALAV2A050604260_subse_R_0_9_img__WL_ALOS_R_0_9_water_img</defaultValue>
+            <!-- An empty parameter is not allowed -->
+            <notEmpty>true</notEmpty>
+        </parameter>
+	<parameter>
+            <name>secondBand</name>
+            <description>The name of second spectral band.</description>
+            <label>Second band name</label>
+            <dataType>java.lang.String</dataType>
+            <defaultValue>Resize__Mask__Band_2_WL_ALAV2A050604260_subse_R_0_9_img__WL_ALOS_R_0_9_water_img</defaultValue>
+            <!-- An empty parameter is not allowed -->
+            <notEmpty>true</notEmpty>
+        </parameter>
+	<parameter>
+            <name>thirdBand</name>
+            <description>The name of third spectral band.</description>
+            <label>third band name</label>
+            <dataType>java.lang.String</dataType>
+            <defaultValue>Resize__Mask__Band_3_WL_ALAV2A050604260_subse_R_0_9_img__WL_ALOS_R_0_9_water_img</defaultValue>
+            <!-- An empty parameter is not allowed -->
+            <notEmpty>true</notEmpty>
+        </parameter>
+	<parameter>
+            <name>fourthBand</name>
+            <description>The name of fourth spectral band.</description>
+            <label>fourth band name</label>
+            <dataType>java.lang.String</dataType>
+            <defaultValue>Resize__Mask__Band_4_WL_ALAV2A050604260_subse_R_0_9_img__WL_ALOS_R_0_9_water_img</defaultValue>
+            <!-- An empty parameter is not allowed -->
+            <notEmpty>true</notEmpty>
+        </parameter>
+	<!--
+	<parameter>
+            <name>lower_chl</name>
+            <description>The chl lower threshold.</description>
+            <dataType>double</dataType>
+            <defaultValue>0.0</defaultValue>
+        </parameter>
+            <name>xstart</name>
+            <description>x start</description>
+            <dataType>int</dataType>
+            <defaultValue>0.0</defaultValue>
+        </parameter>
+	<parameter>
+            <name>substrates_path</name>
+            <description>substrates_path</description>
+            <dataType>String</dataType>
+            <defaultValue>C:</defaultValue>
+        </parameter>
+	<parameter>
+            <name>filters_path</name>
+            <description>filters_path</description>
+            <dataType>String</dataType>
+            <defaultValue>C:</defaultValue>
+        </parameter>
+	<parameter>
+            <name>parameters_path</name>
+            <description>parameters_path</description>
+            <dataType>String</dataType>
+            <defaultValue>C:</defaultValue>
+        </parameter>
+	-->
+    </parameters>
+</operator>

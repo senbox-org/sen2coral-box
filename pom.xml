@@ -18,14 +18,14 @@
         -->
         <module>sen2coral-kit</module>
         <module>sen2coral-algorithms</module>
-        <!--
+
         <module>sen2coral-algorithms-ui</module>
 
         <module>sen2coral-inversion</module>
         <module>sen2coral-inversion-ui</module>
 
         <module>sen2coral-processing-chains</module>
-        -->
+
     </modules>
 
     <packaging>pom</packaging>
