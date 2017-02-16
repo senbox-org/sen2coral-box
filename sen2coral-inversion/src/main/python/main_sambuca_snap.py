@@ -4,8 +4,7 @@ Created on Mon Feb  6 14:54:34 2017
 
 @author: Marco
 """
-import sys
-sys.path.append('C:\\Progetti\\sambuca_project\\called_modules\\')
+
 import input_sensor_filter
 import input_parameters
 import input_prepare

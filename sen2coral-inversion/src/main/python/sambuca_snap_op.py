@@ -5,7 +5,6 @@ Created on Mon Feb  6 11:27:48 2017
 @author: Marco
 """
 
-import sambuca
 """import obs
 import par
 import com
@@ -17,13 +16,19 @@ from snappy import jpy
 Float = jpy.get_type('java.lang.Float')
 Color = jpy.get_type('java.awt.Color')
 from snappy import jpy
+import sambuca
 import main_sambuca_snap
 
-class modelSambuca:
+class sambuca_snap_op:
     
     def __init__(self):
-        pass #maybe here we must initialize the input/output variables=None 
-    
+        self.rrs_0 = None
+        self.rrs_1 = None
+        self.rrs_2 = None
+        self.rrs_3 = None
+        self.algo = None
+        self.depth_band = None
+
     def initialize(self, context):
         source_product = context.getSourceProduct('source')
         if source_product is None:
@@ -57,7 +62,9 @@ class modelSambuca:
         #and if we want substrates and sensor_filters to be user definied? I think that we must choose the substrates path and the provide this is as input for the model 
         
         self.algo=main_sambuca_snap.main_sambuca()
-        sambuca_product=snappy.Product('sambuca')
+
+        sambuca_product=snappy.Product('sambuca', 'sambuca', width, height)
+
         snappy.ProductUtils.copyGeoCoding(source_product, sambuca_product)
         snappy.ProductUtils.copyMetadata(source_product, sambuca_product)   
         #we have to add the different bands(depth, chl, cdom..); for the now only depth
@@ -78,10 +85,25 @@ class modelSambuca:
         samples_1 = tile_1.getSamplesFloat()
         samples_2 = tile_2.getSamplesFloat()
         samples_3 = tile_3.getSamplesFloat()
-        rrs=np.array([np.array(tile_0,dtype=np.float32), np.array(tile_1, dtype=np.float32), np.array(tile_2,dtype=np.float32), np.array(tile_3,dtype=np.float32)])
-        depth=self.algo.main_sambuca_func(rrs, width, height)
+
+        samples_0 = np.resize(samples_0,(target_rectangle.width, target_rectangle.height))
+        samples_1 = np.resize(samples_1,(target_rectangle.width, target_rectangle.height))
+        samples_2 = np.resize(samples_2,(target_rectangle.width, target_rectangle.height))
+        samples_3 = np.resize(samples_3,(target_rectangle.width, target_rectangle.height))
+        rrs=np.array([np.array(samples_0,dtype=np.float32), np.array(samples_1, dtype=np.float32), np.array(samples_2,dtype=np.float32), np.array(samples_3,dtype=np.float32)])
+
+
+
+        depth=self.algo.main_sambuca_func(rrs, target_rectangle.width, target_rectangle.height)
         depth_tile=target_tiles.get(self.depth_band)
-        depth_tile.setSamples(depth)
+        #depth_tile.setSamples(depth)
+        depth_tile.setSamples(depth.flatten())
+
+    def doExecute(self, pm):
+        pass
+
+    def dispose(self, context):
+        pass
         
     def _get_band(self, product, name):
         band = product.getBandGroup().get(name)
