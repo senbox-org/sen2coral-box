@@ -16,19 +16,48 @@ import os.path
 
 
 
-def input_prepare(awater, aphy_star, substrates,  substrate_names, sensor_filter, observed_rrs_width, observed_rrs_height, nedr):
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Feb  1 10:54:41 2017
 
-    wavelengths = sbc.spectra_find_common_wavelengths(awater, aphy_star, *substrates)
+@author: Marco
+"""
+
+
+import sambuca as sb
+import sambuca_core as sbc
+#from os.path import join
+#import os.path
+
+
+
+
+
+def input_prepare(siop, envmeta, image_info, error_name):
+
+    a_water=siop['a_water']
+    a_ph_star=siop['a_ph_star']
+    substrates=siop['substrates']
+    substrate_names=siop['substrate_names']
+    sensor_filter=image_info['sensor_filter']
+    observed_rrs_width=image_info['observed_rrs_width']
+    observed_rrs_height=image_info['observed_rrs_height']
+    nedr=image_info['nedr']
+    
+    
+    
+    
+    wavelengths = sbc.spectra_find_common_wavelengths(a_water, a_ph_star, *substrates)
     print('Common wavelength range: {0} - {1}'.format(min(wavelengths), max(wavelengths)))
     
     #Use the common wavelengths to mask the inputs:
-    awater = sbc.spectra_apply_wavelength_mask(awater, wavelengths)
-    aphy_star = sbc.spectra_apply_wavelength_mask(aphy_star, wavelengths)
+    a_water = sbc.spectra_apply_wavelength_mask(a_water, wavelengths)
+    a_ph_star = sbc.spectra_apply_wavelength_mask(a_ph_star, wavelengths)
     for i, substrate in enumerate(substrates):
         substrates[i] = sbc.spectra_apply_wavelength_mask(substrate, wavelengths)
         
-    print('awater: min: {0}  max: {1}'.format(min(awater[0]), max(awater[0])))
-    print('aphy_star: min: {0}  max: {1}'.format(min(aphy_star[0]), max(aphy_star[0])))
+    print('awater: min: {0}  max: {1}'.format(min(a_water[0]), max(a_water[0])))
+    print('a_ph_star: min: {0}  max: {1}'.format(min(a_ph_star[0]), max(a_ph_star[0])))
     for substrate_name, substrate in zip(substrate_names, substrates):
         print('{0}: min: {1}  max: {2}'.format(substrate_name, min(substrate[0]), max(substrate[0])))
     
@@ -40,41 +69,55 @@ def input_prepare(awater, aphy_star, substrates,  substrate_names, sensor_filter
     filter_mask = (sensor_filter[0] >= wavelengths.min()) & (sensor_filter[0] <= wavelengths.max())
     sensor_filter = sensor_filter[0][filter_mask], sensor_filter[1][:,filter_mask]
     
+
+    
     
     fixed_parameters = sb.create_fixed_parameter_set(
                 wavelengths=wavelengths,
-                a_water=awater,
-                a_ph_star=aphy_star,
+                a_water=a_water,
+                a_ph_star=a_ph_star,
                 substrates=substrates,
-                substrate_fraction=1,
-                a_cdom_slope=0.0168052,
-                a_nap_slope=0.00977262,
-                bb_ph_slope=0.878138,
-                bb_nap_slope=None,
-                lambda0cdom=550.0,
-                lambda0nap=550.0,
-                lambda0x=546.0,
-                x_ph_lambda0x=0.00157747,
-                x_nap_lambda0x=0.0225353,
-                a_cdom_lambda0cdom=1.0,
-                a_nap_lambda0nap=0.00433,
-                bb_lambda_ref=550,
-                water_refractive_index=1.33784,
-                theta_air=30.0,
-                off_nadir=0.0,
-                q_factor=np.pi,
-                chl=0.01,
-                cdom=0.0005,
-                nap=0.2,
-                depth=0.1)
-
-
+                sub1_frac=None,
+                sub2_frac=None,
+                sub3_frac=None,
+                chl=None,
+                cdom=None,
+                nap=None,
+                depth=None,
+                a_cdom_slope=siop['a_cdom_slope'],
+                a_nap_slope=siop['a_nap_slope'],
+                bb_ph_slope=siop['bb_ph_slope'],
+                bb_nap_slope=siop['bb_nap_slope'],
+                lambda0cdom=siop['lambda0cdom'],
+                lambda0nap=siop['lambda0nap'],
+                lambda0x=siop['lambda0x'],
+                x_ph_lambda0x=siop['x_ph_lambda0x'],
+                x_nap_lambda0x=siop['x_nap_lambda0x'],
+                a_cdom_lambda0cdom=siop['a_cdom_lambda0cdom'],
+                a_nap_lambda0nap=siop['a_nap_lambda0nap'],
+                bb_lambda_ref=siop['bb_lambda_ref'],
+                water_refractive_index=siop['water_refractive_index'],
+                theta_air=envmeta['theta_air'],
+                off_nadir=envmeta['off_nadir'],
+                q_factor=envmeta['q_factor']
+                )
     result_recorder = sb.ArrayResultWriter(
-            observed_rrs_width,
             observed_rrs_height,
+            observed_rrs_width,
             sensor_filter,  
             nedr,
             fixed_parameters)
-    objective = sb.SciPyObjective(sensor_filter, fixed_parameters, error_function=sb.distance_f, nedr=nedr)
+    error_dict={'alpha':sb.distance_alpha, 'alpha_f': sb.distance_alpha_f, 'lsq':sb.distance_lsq, 'f':sb.distance_f}
+    objective = sb.SciPyObjective(sensor_filter, fixed_parameters, error_function=error_dict[error_name.lower()], nedr=nedr)
+    siop['a_water']=a_water
+    siop['a_ph_star']=a_ph_star
+    siop['substrates']=substrates
+    siop['substrate_names']=substrate_names
+    image_info['sensor_filter']=sensor_filter
+    image_info['observed_rrs_width']=observed_rrs_width
+    image_info['observed_rrs_height']=observed_rrs_height
+    image_info['nedr']=nedr
     
-    return wavelengths, awater, aphy_star, substrates, sensor_filter, fixed_parameters, result_recorder, objective
+    print ('EXIT PREPARE')
+    
+    return wavelengths, siop, image_info, fixed_parameters, result_recorder, objective

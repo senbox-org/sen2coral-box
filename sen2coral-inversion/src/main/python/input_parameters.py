@@ -18,90 +18,121 @@ import time
 import multiprocessing as mp
 import sambuca as sb
 import sambuca_core as sbc
+import xmltodict
 #from sambuca_obs import sam_obs
 #from sambuca_par import sam_par
 
 
 
 
-def sam_par():
+def sam_par(siop_xml_path, par_xml_path):
     if __name__=='input_parameters':
         
-        base_path = 'D:\\Users\\obarrile\\Documents\\sen2coral\\Omar_Sambuca\\bioopti_data'
+        #we read and parse the .xml file chosen by the user
+        xml=open(siop_xml_path, 'rb')
+        siop_dict=xmltodict.parse(xml.read())
+        a0=siop_dict['root']['a_water']['item'][0]['item']
+        a1=siop_dict['root']['a_water']['item'][1]['item']
+        #we map the strings into float
+        a0m=np.array(list(map(float, a0)))
+        a1m=np.array(list(map(float, a1)))
+        #we create the tuple
+        awater=tuple([a0m, a1m])
         
-        substrate_path='D:\\Users\\obarrile\\Documents\\sen2coral\\Omar_Sambuca\\bioopti_data\\Substrates'
-        substrate1_name = 'moreton_bay_speclib:white Sand'
-        substrate2_name = 'moreton_bay_speclib:brown Mud'
-        substrate3_name = 'moreton_bay_speclib:Syringodium isoetifolium'
-        substrate4_name = 'moreton_bay_speclib:brown algae'
-        substrate5_name = 'moreton_bay_speclib:green algae'
-        #substrate_names= ( substrate1_name, substrate2_name)
-        #substrate_names= ( substrate1_name, substrate2_name, substrate3_name)
-        #substrate_names= ( substrate1_name, substrate2_name, substrate3_name, substrate4_name)
-        substrate_names= ( substrate1_name, substrate2_name, substrate3_name, substrate4_name, substrate5_name)
+        #same steps for aphy_star
+        ap0=siop_dict['root']['a_ph_star']['item'][0]['item']
+        ap1=siop_dict['root']['a_ph_star']['item'][1]['item']
+        ap0m=np.array(list(map(float, ap0)))
+        ap1m=np.array(list(map(float, ap1)))
+        aphy_star=tuple([ap0m, ap1m])
         
-        aphy_star_path = join(base_path, 'SIOP/WL08_aphy_1nm.hdr')
-        aphy_star_name = 'wl08_aphy_1nm:WL08_aphy_star_mean_correct.csv:C2'
-        
-        awater_path = join(base_path, 'SIOP/aw_350_900_lw2002_1nm.csv')
-        awater_name = 'aw_350_900_lw2002_1nm:a_water'
-        
-        all_substrates = sbc.load_all_spectral_libraries(substrate_path)
-        substrates = []
-        for substrate_name in substrate_names:
-            substrates.append(all_substrates[substrate_name])
-        # load all filters from the given directory
+        #we initialize bb_nap_slope       
+        bb_nap_slope=None       
+        #if in the .xml bb_nap_slop is not None, we allocate the value in the variable
+        if type(siop_dict['root']['bb_nap_slope'])==str:
+            bb_nap_slope=float(siop_dict['root']['bb_nap_slope'])
+        #same steps for the first subtrate
+        sw1=siop_dict['root']['substrates']['item'][0]['item'][0]['item']
+        ss1=siop_dict['root']['substrates']['item'][0]['item'][1]['item']
+        sw1m=np.array(list(map(float, sw1)))
+        ss1m=np.array(list(map(float, ss1)))
+        sub_1=tuple([sw1m,ss1m])
+        #same steps for the second subtrate
+        sw2=siop_dict['root']['substrates']['item'][1]['item'][0]['item']
+        ss2=siop_dict['root']['substrates']['item'][1]['item'][1]['item']
+        sw2m=np.array(list(map(float, sw2)))
+        ss2m=np.array(list(map(float, ss2)))
+        sub_2=tuple([sw2m,ss2m])
+        #same steps for the third subtrate
+        sw3=siop_dict['root']['substrates']['item'][2]['item'][0]['item']
+        ss3=siop_dict['root']['substrates']['item'][2]['item'][1]['item']
+        sw3m=np.array(list(map(float, sw3)))
+        ss3m=np.array(list(map(float, ss3)))
+        sub_3=tuple([sw3m,ss3m])
+        #we create a list with the three substrates
+        substrates=[sub_1, sub_2, sub_3]
+        #we create the lists with the parameters values
 
         
-        aphy_star = sbc.load_spectral_library(aphy_star_path)[aphy_star_name]
-        awater = sbc.load_spectral_library(awater_path)[awater_name]
+        xml_2=open(par_xml_path, 'rb')
+        par_dict=xmltodict.parse(xml_2.read())
+
+        p_min_list=list(map(float,par_dict['root']['p_min']['item']))
+        p_max_list=list(map(float,par_dict['root']['p_max']['item']))
+
+
         
-        
+        # the values of the free_parameters are taken for the lists created from the .xml file
         p_min = sb.FreeParameters(
-            chl=0.01,               # Concentration of chlorophyll (algal organic particulates)
-            cdom=0.0005,            # Concentration of coloured dissolved organic particulates
-            nap=0.2,                # Concentration of non-algal particulates
-            depth=0.1,              # Water column depth
-            substrate_fraction=0)   # relative proportion of substrate1 and substrate2
+            chl=p_min_list[0],               # Concentration of chlorophyll (algal organic particulates)
+            cdom=p_min_list[1],            # Concentration of coloured dissolved organic particulates
+            nap=p_min_list[2],                # Concentration of non-algal particulates
+            depth=p_min_list[3],              # Water column depth
+            sub1_frac=p_min_list[4],
+            sub2_frac=p_min_list[5],
+            sub3_frac=p_min_list[6])   
         
         
-        #p_max = sen.FreeParameters(
-        #    chl=0.22, 
-        #    cdom=0.015, 
-        #    nap=2.4,
-        #    depth=17.4,
-        #    substrate_fraction=1)
+
         p_max = sb.FreeParameters(
-            chl=0.16,
-            cdom=0.01,
-            nap=1.5,
-            depth=7,
-            substrate_fraction=1)
-        
-        #Create some initial parameters, one random and one as the mid point of each parameter range:
-             
-        pmin = np.array(p_min)
+            chl=p_max_list[0], 
+            cdom=p_max_list[1], 
+            nap=p_max_list[2],
+            depth=p_max_list[3],
+            sub1_frac=p_max_list[4],
+            sub2_frac=p_max_list[5],
+            sub3_frac=p_max_list[6]) 
+       
 
-        pmax = np.array(p_max)
 
-        num_params = len(pmin)
-        p0_rand = np.random.random(num_params) * (pmax - pmin) + pmin
-        p0_mid = (pmax - pmin) / 2
-        
-        print('p0_rand: ', p0_rand)
-        print('p0_mid: ', p0_mid)
-        
+
+
         
         # repackage p_min and p_max into the tuple of (min,max) pairs expected by our objective function,
         # and by the minimisation methods that support bounds
         p_bounds = tuple(zip(p_min, p_max))
-        print('p_bounds', p_bounds)
+        #we allocate the constant values from the .xml files
+        siop = {'a_water': awater, 'a_ph_star': aphy_star, 'substrates': substrates, 'substrate_names': siop_dict['root']['substrate_names']['item'],\
+                'a_cdom_slope': float(siop_dict['root']['a_cdom_slope']),\
+                'a_nap_slope': float(siop_dict['root']['a_nap_slope']),\
+                'bb_ph_slope': float(siop_dict['root']['bb_ph_slope']),\
+                'bb_nap_slope': bb_nap_slope,\
+                'lambda0cdom': float(siop_dict['root']['lambda0cdom']),\
+                'lambda0nap': float(siop_dict['root']['lambda0nap']),\
+                'lambda0x': float(siop_dict['root']['lambda0x']),\
+                'x_ph_lambda0x': float(siop_dict['root']['x_ph_lambda0x']),\
+                'x_nap_lambda0x': float(siop_dict['root']['x_nap_lambda0x']),\
+                'a_cdom_lambda0cdom': float(siop_dict['root']['a_cdom_lambda0cdom']),\
+                'a_nap_lambda0nap': float(siop_dict['root']['a_nap_lambda0nap']),\
+                'bb_lambda_ref': float(siop_dict['root']['bb_lambda_ref']),\
+                'water_refractive_index': float(siop_dict['root']['water_refractive_index']),\
+                'p_min': p_min, 'p_max': p_max, 'p_bounds': p_bounds}
+        #we allocate the constant values from the .xml files
+        envmeta = {'theta_air': float(par_dict['root']['theta_air']),\
+                   'off_nadir': float(par_dict['root']['off_nadir']), 'q_factor': np.pi}
         
-        xstart = 0
-        xend = 53
-        xspan = xend - xstart
-        ystart = 0
-        yend = 21
-        num_pixels = xspan * (yend - ystart)
         
-        return xstart, xend, ystart, yend, p0_rand, p0_mid, num_params,pmin, pmax, p_bounds, awater,  aphy_star, substrates,  substrate_names
+                  
+        print ('EXIT PARAMETERS')
+        
+        return siop, envmeta

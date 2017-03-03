@@ -1,85 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
 <operator>
-    <name>org.esa.snap.python.sambuca_snap_op</name>
-    <alias>py_sambuca_snap_op</alias>
-    <operatorClass>org.esa.snap.python.gpf.PyOperator</operatorClass>
-    <version>1.0</version>
-    <authors>ACME Guys</authors>
-    <copyright>(C) 2016 ACME</copyright>
-    <description>
+  <name>org.esa.snap.python.sambuca_snap_op</name>
+  <alias>py_sambuca_snap_op</alias>
+  <operatorClass>org.esa.snap.python.gpf.PyOperator</operatorClass>
+  <version>1.0</version>
+  <authors>ACME Guys</authors>
+  <copyright>(C) 2016 ACME</copyright>
+  <description>
         Sambuca model
     </description>
-    <namedSourceProducts>
-        <sourceProduct>
-            <name>source</name>
-        </sourceProduct>
-    </namedSourceProducts>
-    <parameters>
-	<parameter>
-            <name>firstBand</name>
-            <description>The name of first spectral band.</description>
-            <label>First band name</label>
-            <dataType>java.lang.String</dataType>
-            <defaultValue>Resize__Mask__Band_1_WL_ALAV2A050604260_subse_R_0_9_img__WL_ALOS_R_0_9_water_img</defaultValue>
-            <!-- An empty parameter is not allowed -->
-            <notEmpty>true</notEmpty>
-        </parameter>
-	<parameter>
-            <name>secondBand</name>
-            <description>The name of second spectral band.</description>
-            <label>Second band name</label>
-            <dataType>java.lang.String</dataType>
-            <defaultValue>Resize__Mask__Band_2_WL_ALAV2A050604260_subse_R_0_9_img__WL_ALOS_R_0_9_water_img</defaultValue>
-            <!-- An empty parameter is not allowed -->
-            <notEmpty>true</notEmpty>
-        </parameter>
-	<parameter>
-            <name>thirdBand</name>
-            <description>The name of third spectral band.</description>
-            <label>third band name</label>
-            <dataType>java.lang.String</dataType>
-            <defaultValue>Resize__Mask__Band_3_WL_ALAV2A050604260_subse_R_0_9_img__WL_ALOS_R_0_9_water_img</defaultValue>
-            <!-- An empty parameter is not allowed -->
-            <notEmpty>true</notEmpty>
-        </parameter>
-	<parameter>
-            <name>fourthBand</name>
-            <description>The name of fourth spectral band.</description>
-            <label>fourth band name</label>
-            <dataType>java.lang.String</dataType>
-            <defaultValue>Resize__Mask__Band_4_WL_ALAV2A050604260_subse_R_0_9_img__WL_ALOS_R_0_9_water_img</defaultValue>
-            <!-- An empty parameter is not allowed -->
-            <notEmpty>true</notEmpty>
-        </parameter>
-	<!--
-	<parameter>
-            <name>lower_chl</name>
-            <description>The chl lower threshold.</description>
-            <dataType>double</dataType>
-            <defaultValue>0.0</defaultValue>
-        </parameter>
-            <name>xstart</name>
-            <description>x start</description>
-            <dataType>int</dataType>
-            <defaultValue>0.0</defaultValue>
-        </parameter>
-	<parameter>
-            <name>substrates_path</name>
-            <description>substrates_path</description>
-            <dataType>String</dataType>
-            <defaultValue>C:</defaultValue>
-        </parameter>
-	<parameter>
-            <name>filters_path</name>
-            <description>filters_path</description>
-            <dataType>String</dataType>
-            <defaultValue>C:</defaultValue>
-        </parameter>
-	<parameter>
-            <name>parameters_path</name>
-            <description>parameters_path</description>
-            <dataType>String</dataType>
-            <defaultValue>C:</defaultValue>
-        </parameter>
-	-->
-    </parameters>
+  <namedSourceProducts>
+    <sourceProduct>
+      <name>source</name>
+    </sourceProduct>
+  </namedSourceProducts>
+  <parameters>
+
+
+    <parameter>
+      <name>xmlpath_sensor</name>
+      <description>The path of the sensor filters and nedr xml configuration file.</description>
+      <label>path of the sensor xml file</label>
+      <dataType>java.io.File</dataType>
+      <defaultValue></defaultValue>
+      <notEmpty>true</notEmpty>
+    </parameter>
+
+
+    <parameter>
+      <name>xmlpath_parameters</name>
+      <description>The path of the parameters xml configuration file.</description>
+      <label>path of the parameters xml file</label>
+      <dataType>java.io.File</dataType>
+      <defaultValue></defaultValue>
+      <notEmpty>true</notEmpty>
+    </parameter>
+
+    <parameter>
+      <name>xmlpath_siop</name>
+      <description>The path of the siop and substrates xml configuration file.</description>
+      <label>path of the siop and substrates xml file</label>
+      <dataType>java.io.File</dataType>
+      <defaultValue></defaultValue>
+      <notEmpty>true</notEmpty>
+    </parameter>
+
+    <parameter>
+      <name>error_name</name>
+      <description>The error used in the closure.</description>
+      <label>Error</label>
+      <dataType>String</dataType>
+      <defaultValue>alpha_f</defaultValue>
+      <notEmpty>False</notEmpty>
+    </parameter>
+
+    <parameter>
+      <name>opt_method</name>
+      <description>The optimization method used in the clouser</description>
+      <label>Optimization method</label>
+      <dataType>String</dataType>
+      <defaultValue>SLSQP</defaultValue>
+      <notEmpty>False</notEmpty>
+    </parameter>
+
+    <parameter>
+      <name>min_wlen</name>
+      <description>The shorter wavelenght</description>
+      <label>Shorter wavelenght</label>
+      <dataType>Float</dataType>
+      <defaultValue>400.0</defaultValue>
+      <notEmpty>False</notEmpty>
+    </parameter>
+
+    <parameter>
+      <name>max_wlen</name>
+      <description>The longer wavelenght</description>
+      <label>Longer wavelenght</label>
+      <dataType>Float</dataType>
+      <defaultValue>750.0</defaultValue>
+      <notEmpty>False</notEmpty>
+    </parameter>
+
+    <parameter>
+       <name>above_rrs_flag</name>
+       <description>Is it above water rrs?</description>
+       <label>Above water rrs</label>
+       <dataType>Boolean</dataType>
+       <defaultValue>True</defaultValue>
+       <notEmpty>true</notEmpty>
+    </parameter>
+
+    <parameter>
+       <name>shallow_flag</name>
+       <description>Is it shallow?</description>
+       <label>Shallow water</label>
+       <dataType>Boolean</dataType>
+       <defaultValue>True</defaultValue>
+       <notEmpty>true</notEmpty>
+    </parameter>
+
+  </parameters>
 </operator>
