@@ -7,8 +7,8 @@
   <authors>ACME Guys</authors>
   <copyright>(C) 2016 ACME</copyright>
   <description>
-        Sambuca model
-    </description>
+    Sambuca model
+  </description>
   <namedSourceProducts>
     <sourceProduct>
       <name>source</name>
@@ -82,21 +82,31 @@
     </parameter>
 
     <parameter>
-       <name>above_rrs_flag</name>
-       <description>Is it above water rrs?</description>
-       <label>Above water rrs</label>
-       <dataType>Boolean</dataType>
-       <defaultValue>True</defaultValue>
-       <notEmpty>true</notEmpty>
+      <name>above_rrs_flag</name>
+      <description>Is it above water rrs?</description>
+      <label>Above water rrs</label>
+      <dataType>Boolean</dataType>
+      <defaultValue>True</defaultValue>
+      <notEmpty>true</notEmpty>
     </parameter>
 
     <parameter>
-       <name>shallow_flag</name>
-       <description>Is it shallow?</description>
-       <label>Shallow water</label>
-       <dataType>Boolean</dataType>
-       <defaultValue>True</defaultValue>
-       <notEmpty>true</notEmpty>
+      <name>shallow_flag</name>
+      <description>Is it shallow?</description>
+      <label>Shallow water</label>
+      <dataType>Boolean</dataType>
+      <defaultValue>True</defaultValue>
+      <notEmpty>true</notEmpty>
+    </parameter>
+
+
+    <parameter>
+      <name>relaxed_cons</name>
+      <description>Do you want relaxed constraints?</description>
+      <label>Relaxed Constraints</label>
+      <dataType>Boolean</dataType>
+      <defaultValue>True</defaultValue>
+      <notEmpty>true</notEmpty>
     </parameter>
 
   </parameters>

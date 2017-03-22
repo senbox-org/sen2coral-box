@@ -10,18 +10,18 @@ import sambuca as sb
 import time
 import multiprocessing as mp
 import numpy as np
+import math
 
 
 
 
-
-def output_calculation(observed_rrs, objective, siop, result_recorder, image_info, opt_met, shallow = False):
+def output_calculation(observed_rrs, objective, siop, result_recorder, image_info, opt_met, relaxed, shallow = False):
     pool = None #for serial processing of substrates
     n = 0
     skip_count = 0
-    
+
     #Define a region to process in the image input
-    
+
     #*****Observed data is in band, row(height, x), column(width, y)******
     xstart = 0
     #xend=50
@@ -34,38 +34,44 @@ def output_calculation(observed_rrs, objective, siop, result_recorder, image_inf
     num_pixels = xspan * (yend - ystart)
     assert xend <= image_info['observed_rrs_height']
     assert yend <= image_info['observed_rrs_width']
-    
-    # set current starting points as the midpoints of the parameters   
+
+    # set current starting points as the midpoints of the parameters
+    #bases=np.array([10.]*7)
+    #exponents=np.array(np.log10(np.array(siop['p_max']))+np.log10(np.array(siop['p_min']))/2)
     p0 = (np.array(siop['p_max'])+np.array(siop['p_min']))/2
+    p0[3]=10**((math.log10(np.array(siop['p_max'][3]))+math.log10(np.array(siop['p_min'][3])))/2)
+    #p0[3]=5.
+    #p0=np.power(bases, exponents)
     t0 = time.time()
-    
+
     # set some relaxed abundance constraints (RASC) after Petit et. al.(2017)******
-    
+
     low_relax = 0.5
     high_relax = 2.0
-    
-    #cons=({'type':'ineq','fun':lambda x:high_relax -(x[4]+x[5]+x[6])},
-    #      {'type':'ineq','fun':lambda x:(x[4]+x[5]+x[6])- low_relax})
-    
-    #******************************************************************************
-    # Return to sum to one constraint
-    
-    cons=({'type':'eq','fun':lambda x:1-(x[4]+x[5]+x[6])})
-    
-    #******************************************************************************
-    
+
+    if relaxed==True:
+        cons=({'type':'ineq','fun':lambda x:high_relax -(x[4]+x[5]+x[6])},
+              {'type':'ineq','fun':lambda x:(x[4]+x[5]+x[6])- low_relax})
+    else:
+        #******************************************************************************
+        # Return to sum to one constraint
+
+        cons=({'type':'eq','fun':lambda x:1-(x[4]+x[5]+x[6])})
+
+        #******************************************************************************
+
     for x in range(xstart, xend):
         for y in range(ystart, yend):
             print ([x,y])
             obs_rrs = observed_rrs[:,x,y]
-            
+
             # Quick and dirty check because we are not masking out the no-data pixels
             if not np.allclose(obs_rrs, 0):
-                
+
                 # we need to set the observed rrs for this pixel into the objective, as there is no
                 # direct way to get the scipy.minimise function to do it (although there are other ways
                 # such as using a closure)
-    
+
                 #print("sono qui")
                 result = sb.minimize(
                             objective,
@@ -75,19 +81,19 @@ def output_calculation(observed_rrs, objective, siop, result_recorder, image_inf
                             constraints=cons,
                             options={'disp':False, 'maxiter':10000},
                             obs_rrs=obs_rrs)
-                   
+
                 #%time result = minimize(objective, p0, method='SLSQP', bounds=p_bounds, options={'disp':False, 'maxiter':500})
-    
+
                 # todo: check if the minimiser converged!
-                
+
                 # we need to repack the parameter tuple used by scipy.minimize into the sambuca.FreeParameter tuple
-                # expected by the pixel result handlers. As the p0 tuple was generated from a FreeParameter tuple in the 
-                # first place, we know that the order of the values match, so we can simply unpack the result tuple into 
+                # expected by the pixel result handlers. As the p0 tuple was generated from a FreeParameter tuple in the
+                # first place, we know that the order of the values match, so we can simply unpack the result tuple into
                 # the FreeParameters constructor.
                 #print(result.nit,result.success,*result['x'])
                 result_recorder(x, y, obs_rrs, parameters=sb.FreeParameters(*result.x), nit=result.nit, success=result.success)
                 #result_recorder(x, y, obs_rrs, parameters=sb.FreeParameters(*result['x']))
-                print ([result_recorder.sdi[x,y],  result.x[3]])
+                print (result_recorder.nit[x,y])
                 
                 # ******GO SHALLOW*****retrieves shallow as possible while SDI remains below 1
                 if shallow == True:

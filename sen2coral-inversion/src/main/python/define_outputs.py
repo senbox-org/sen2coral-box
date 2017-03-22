@@ -28,6 +28,7 @@ def output_suite(result_recorder, image_info):
     nap = ma.masked_array(result_recorder.nap[xs:xe,ys:ye],mask=skip_mask)
     depth = ma.masked_array(result_recorder.depth[xs:xe,ys:ye],mask=skip_mask)
     nit = ma.masked_array(result_recorder.nit[xs:xe,ys:ye],mask=skip_mask)
+    #nit=ma.masked_array(map(float, result_recorder.nit), mask=skip_mask)
     kd = ma.masked_array(result_recorder.kd[xs:xe,ys:ye],mask=skip_mask)
     sdi = ma.masked_array(result_recorder.sdi[xs:xe,ys:ye],mask=skip_mask)
     sub1_frac = ma.masked_array(result_recorder.sub1_frac[xs:xe,ys:ye],mask=skip_mask)
@@ -65,6 +66,3 @@ def output_suite(result_recorder, image_info):
 #    
 #    # write out a single band from multi-band array
 #    sambuca_outputs.writeout('7_rr_closedrrs_1band.tif',result_recorder.closed_rrs[:,:,0],src.affine,src.crs,dtype=np.float32)
-    
-    
-

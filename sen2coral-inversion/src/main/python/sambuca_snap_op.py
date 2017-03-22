@@ -14,6 +14,7 @@ import snappy
 import numpy as np
 from snappy import jpy
 Float = jpy.get_type('java.lang.Float')
+Int = jpy.get_type('java.lang.Integer')
 Color = jpy.get_type('java.awt.Color')
 FileIO= jpy.get_type ('java.io.File')
 from snappy import jpy
@@ -24,7 +25,7 @@ import os
 
 
 class sambuca_snap_op:
-    
+
     def __init__(self):
         self.algo = None
         self.depth_band = None
@@ -35,6 +36,8 @@ class sambuca_snap_op:
         self.sub1_frac=None
         self.sub2_frac=None
         self.sub3_frac=None
+        self.nit=None
+        self.relaxed=None
 
     def initialize(self, context):
         #read the source_product
@@ -47,11 +50,11 @@ class sambuca_snap_op:
         #get width and height of the image
         width = source_product.getSceneRasterWidth()
         height = source_product.getSceneRasterHeight()
-        
+
         #get the names of the bands
         band_names = source_product.getBandNames()
         band_n=list(band_names)
-        
+
         #choose the band with wavelenght between 420 and 750 nm
         self.min_w=context.getParameter('min_wlen')
         self.max_w=context.getParameter('max_wlen')
@@ -65,13 +68,13 @@ class sambuca_snap_op:
                 y.append(w)
         #we order the band_list
         self.band_list=[band_l for (y,band_l) in sorted(zip(y,band_l))]
-        
-        
-            
-                
-                
-                
-                
+
+
+
+
+
+
+
         #read the .xml file with nedr, sensor filters, parameters, SIOP and substrates
         self.sensor_xml_path=str(context.getParameter('xmlpath_sensor'))
         self.siop_xml_path=str(context.getParameter('xmlpath_siop'))
@@ -82,13 +85,14 @@ class sambuca_snap_op:
         #read the flag for rrs and shallow (True or False)
         self.above_rrs_flag=context.getParameter('above_rrs_flag')
         self.shallow_flag=context.getParameter('shallow_flag')
+        self.relaxed=context.getParameter('relaxed_cons')
         #define the sambuca algorithm
         self.algo=main_sambuca_snap.main_sambuca()
         #create the target product
         sambuca_product=snappy.Product('sambuca', 'sambuca', width, height)
         #import metadata and geocoding from the source_product
         snappy.ProductUtils.copyGeoCoding(source_product, sambuca_product)
-        snappy.ProductUtils.copyMetadata(source_product, sambuca_product)   
+        snappy.ProductUtils.copyMetadata(source_product, sambuca_product)
         #create two ouput bands
         self.depth_band = sambuca_product.addBand('depth', snappy.ProductData.TYPE_FLOAT32)
         self.depth_band.setDescription('The depth computed by SAMBUCA')
@@ -122,12 +126,16 @@ class sambuca_snap_op:
         self.sub3_frac_band.setDescription('The sub_3 % computed by SAMBUCA')
         self.sub3_frac_band.setNoDataValue(Float.NaN)
         self.sub3_frac_band.setNoDataValueUsed(True)
+        #self.nit_band = sambuca_product.addBand('nit', snappy.ProductData.TYPE_FLOAT64)
+        #self.nit_band.setDescription('The number of iterations computed by SAMBUCA')
+        #self.nit_band.setNoDataValue(Float.NaN)
+        #self.nit_band.setNoDataValueUsed(True)
 
-        
+
         context.setTargetProduct(sambuca_product)
-        
+
     def computeTileStack(self, context, target_tiles, target_rectangle):
-        
+
         #read the tiles
         tiles_list=[]
         for band in self.band_list:
@@ -146,23 +154,23 @@ class sambuca_snap_op:
         #create the rrs matrix (wavelenghtsz x height x width)
         rrs=np.array(rrs_list)
         print (rrs.shape)
-        
+
 
 
         #call the algorithm
-        [depth, sdi, kd, error_f, r_sub, sub1_frac, sub2_frac, sub3_frac]=self.algo.main_sambuca_func(rrs, target_rectangle.width,\
+        [depth, sdi, kd, error_f, r_sub, sub1_frac, sub2_frac, sub3_frac, nit]=self.algo.main_sambuca_func(rrs, target_rectangle.width,\
                                           target_rectangle.height, self.sensor_xml_path,self.siop_xml_path, self.par_xml_path,\
-                                          self.above_rrs_flag, self.shallow_flag, self.error_name, self.opt_met)
+                                          self.above_rrs_flag, self.shallow_flag, self.error_name, self.opt_met, self.relaxed)
         #allocate the outputs in the output bands
         depth_tile=target_tiles.get(self.depth_band)
         depth_tile.setSamples(depth.flatten())
-        
+
         sdi_tile=target_tiles.get(self.sdi_band)
         sdi_tile.setSamples(sdi.flatten())
-        
+
         kd_tile=target_tiles.get(self.kd_band)
         kd_tile.setSamples(kd.flatten())
-        
+
         error_f_tile=target_tiles.get(self.error_f_band)
         error_f_tile.setSamples(error_f.flatten())
         r_sub_tile=target_tiles.get(self.r_sub_band)
@@ -173,6 +181,9 @@ class sambuca_snap_op:
         sub2_frac_tile.setSamples(sub2_frac.flatten())
         sub3_frac_tile=target_tiles.get(self.sub3_frac_band)
         sub3_frac_tile.setSamples(sub3_frac.flatten())
+
+        #nit_tile=target_tiles.get(self.nit_band)
+        #nit_tile.setSamples(nit.flatten())
         
 
     def doExecute(self, pm):
