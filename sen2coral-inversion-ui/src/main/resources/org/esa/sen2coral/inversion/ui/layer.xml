@@ -23,8 +23,8 @@
                       methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
                 <attr name="delegate" methodvalue="org.esa.snap.core.gpf.ui.DefaultOperatorAction.create"/>
                 <attr name="operatorName" stringvalue="py_sambuca_snap_op"/>
-                <attr name="displayName" stringvalue="py_sambuca_snap_op"/>
-                <attr name="dialogTitle" stringvalue="py_sambuca_snap_op"/>
+                <attr name="displayName" stringvalue="Shallow Water Analytical Model"/>
+                <attr name="dialogTitle" stringvalue="Shallow Water Analytical Model"/>
                 <attr name="targetProductNameSuffix" stringvalue="_inversion"/>
                 <attr name="ShortDescription" stringvalue="Generates ...."/>
             </file>
