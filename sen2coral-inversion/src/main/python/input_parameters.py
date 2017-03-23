@@ -36,12 +36,17 @@ def sam_par(siop_xml_path, par_xml_path):
         #we map the strings into float
         a0m=np.array(list(map(float, a0)))
         a1m=np.array(list(map(float, a1)))
+        #TODO check length
+        #if a0m.shape != a1m.shape:
+        #    return None, None
         #we create the tuple
         awater=tuple([a0m, a1m])
         
         #same steps for aphy_star
         ap0=siop_dict['root']['a_ph_star']['item'][0]['item']
         ap1=siop_dict['root']['a_ph_star']['item'][1]['item']
+        #TODO check length
+
         ap0m=np.array(list(map(float, ap0)))
         ap1m=np.array(list(map(float, ap1)))
         aphy_star=tuple([ap0m, ap1m])
@@ -52,20 +57,24 @@ def sam_par(siop_xml_path, par_xml_path):
         if type(siop_dict['root']['bb_nap_slope'])==str:
             bb_nap_slope=float(siop_dict['root']['bb_nap_slope'])
         #same steps for the first subtrate
+        #TODO check number of substrates
         sw1=siop_dict['root']['substrates']['item'][0]['item'][0]['item']
         ss1=siop_dict['root']['substrates']['item'][0]['item'][1]['item']
+        #TODO check length
         sw1m=np.array(list(map(float, sw1)))
         ss1m=np.array(list(map(float, ss1)))
         sub_1=tuple([sw1m,ss1m])
         #same steps for the second subtrate
         sw2=siop_dict['root']['substrates']['item'][1]['item'][0]['item']
         ss2=siop_dict['root']['substrates']['item'][1]['item'][1]['item']
+        #TODO check length
         sw2m=np.array(list(map(float, sw2)))
         ss2m=np.array(list(map(float, ss2)))
         sub_2=tuple([sw2m,ss2m])
         #same steps for the third subtrate
         sw3=siop_dict['root']['substrates']['item'][2]['item'][0]['item']
         ss3=siop_dict['root']['substrates']['item'][2]['item'][1]['item']
+        #TODO check length
         sw3m=np.array(list(map(float, sw3)))
         ss3m=np.array(list(map(float, ss3)))
         sub_3=tuple([sw3m,ss3m])
@@ -79,6 +88,7 @@ def sam_par(siop_xml_path, par_xml_path):
 
         p_min_list=list(map(float,par_dict['root']['p_min']['item']))
         p_max_list=list(map(float,par_dict['root']['p_max']['item']))
+        #TODO check length
 
 
         

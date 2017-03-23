@@ -20,6 +20,9 @@ FileIO= jpy.get_type ('java.io.File')
 from snappy import jpy
 import sambuca
 import main_sambuca_snap
+import input_sensor_filter
+import input_parameters
+import input_prepare
 import os
 #import snappy
 
@@ -77,8 +80,14 @@ class sambuca_snap_op:
 
         #read the .xml file with nedr, sensor filters, parameters, SIOP and substrates
         self.sensor_xml_path=str(context.getParameter('xmlpath_sensor'))
+        [self.sensor_filter, self.nedr]=input_sensor_filter.read_sensor_filter(self.sensor_xml_path)
+
+        #read the .xml file with parameters, SIOP and substrates
         self.siop_xml_path=str(context.getParameter('xmlpath_siop'))
         self.par_xml_path=str(context.getParameter('xmlpath_parameters'))
+        [self.siop, self.envmeta]=input_parameters.sam_par(self.siop_xml_path, self.par_xml_path)
+
+        #read parameters
         self.error_name=context.getParameter('error_name')
         self.opt_met=context.getParameter('opt_method')
 
@@ -86,6 +95,14 @@ class sambuca_snap_op:
         self.above_rrs_flag=context.getParameter('above_rrs_flag')
         self.shallow_flag=context.getParameter('shallow_flag')
         self.relaxed=context.getParameter('relaxed_cons')
+
+        self.image_info={}
+        self.image_info['sensor_filter']=self.sensor_filter
+        self.image_info['nedr']=self.nedr
+        [self.wavelengths, self.siop, self.image_info, self.fixed_parameters, self.objective]=input_prepare.input_prepare_2(self.siop, self.envmeta, self.image_info, self.error_name)
+
+
+
         #define the sambuca algorithm
         self.algo=main_sambuca_snap.main_sambuca()
         #create the target product
@@ -93,7 +110,8 @@ class sambuca_snap_op:
         #import metadata and geocoding from the source_product
         snappy.ProductUtils.copyGeoCoding(source_product, sambuca_product)
         snappy.ProductUtils.copyMetadata(source_product, sambuca_product)
-        #create two ouput bands
+
+        #create the ouput bands and add them to the output product
         self.depth_band = sambuca_product.addBand('depth', snappy.ProductData.TYPE_FLOAT32)
         self.depth_band.setDescription('The depth computed by SAMBUCA')
         self.depth_band.setNoDataValue(Float.NaN)
@@ -131,7 +149,7 @@ class sambuca_snap_op:
         #self.nit_band.setNoDataValue(Float.NaN)
         #self.nit_band.setNoDataValueUsed(True)
 
-
+        #set the target product
         context.setTargetProduct(sambuca_product)
 
     def computeTileStack(self, context, target_tiles, target_rectangle):
@@ -153,14 +171,24 @@ class sambuca_snap_op:
             rrs_list.append(sample)
         #create the rrs matrix (wavelenghtsz x height x width)
         rrs=np.array(rrs_list)
+
+        #
+        if self.above_rrs_flag == True:
+            rrs = (2*rrs)/((3*rrs)+1)
+
         print (rrs.shape)
 
 
 
         #call the algorithm
-        [depth, sdi, kd, error_f, r_sub, sub1_frac, sub2_frac, sub3_frac, nit]=self.algo.main_sambuca_func(rrs, target_rectangle.width,\
-                                          target_rectangle.height, self.sensor_xml_path,self.siop_xml_path, self.par_xml_path,\
-                                          self.above_rrs_flag, self.shallow_flag, self.error_name, self.opt_met, self.relaxed)
+        #[depth, sdi, kd, error_f, r_sub, sub1_frac, sub2_frac, sub3_frac, nit]=self.algo.main_sambuca_func(rrs, target_rectangle.width,\
+        #                                  target_rectangle.height, self.sensor_xml_path,self.siop_xml_path, self.par_xml_path,\
+        #                                  self.above_rrs_flag, self.shallow_flag, self.error_name, self.opt_met, self.relaxed)
+
+        [depth, sdi, kd, error_f, r_sub, sub1_frac, sub2_frac, sub3_frac, nit]=self.algo.main_sambuca_func_simpl(rrs, self.objective, target_rectangle.width, \
+                                        target_rectangle.height, self.image_info['sensor_filter'],self.image_info['nedr'], self.siop, self.fixed_parameters, \
+                                        self.shallow_flag, self.error_name, self.opt_met, self.relaxed)
+
         #allocate the outputs in the output bands
         depth_tile=target_tiles.get(self.depth_band)
         depth_tile.setSamples(depth.flatten())

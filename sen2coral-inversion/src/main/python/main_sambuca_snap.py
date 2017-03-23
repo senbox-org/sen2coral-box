@@ -10,6 +10,7 @@ import input_parameters
 import input_prepare
 import output_calculation
 import define_outputs
+import sambuca as sb
 
 
 
@@ -45,4 +46,25 @@ class main_sambuca:
                                                                         result_recorder, image_info, opt_met, relaxed, shallow = shallow_flag)
         [chl, cdom, nap, depth, nit, kd, sdi, sub1_frac, sub2_frac, sub3_frac, \
          error_f, total_abun, sub1_norm, sub2_norm, sub3_norm, rgbimg, r_sub]=define_outputs.output_suite(result_recorder, image_info)
+        return depth, sdi, kd, error_f, r_sub, sub1_frac, sub2_frac, sub3_frac, nit
+
+    def main_sambuca_func_simpl(self,observed_rrs, objective, observed_rrs_width, observed_rrs_height, sensor_filter, nedr, siop, fixed_parameters, shallow_flag, error_name, opt_met, relaxed):
+        image_info={}
+        image_info['observed_rrs_width']=observed_rrs_width
+        image_info['observed_rrs_height']=observed_rrs_height
+        image_info['sensor_filter']=sensor_filter
+        image_info['nedr']=nedr
+
+        result_recorder = sb.ArrayResultWriter(
+            observed_rrs_height,
+            observed_rrs_width,
+            sensor_filter,
+            nedr,
+            fixed_parameters)
+
+        result_recorder=output_calculation.output_calculation(observed_rrs, objective, siop,
+                                                              result_recorder, image_info, opt_met, relaxed, shallow = shallow_flag)
+        [chl, cdom, nap, depth, nit, kd, sdi, sub1_frac, sub2_frac, sub3_frac, \
+         error_f, total_abun, sub1_norm, sub2_norm, sub3_norm, rgbimg, r_sub]=define_outputs.output_suite(result_recorder, image_info)
+
         return depth, sdi, kd, error_f, r_sub, sub1_frac, sub2_frac, sub3_frac, nit
