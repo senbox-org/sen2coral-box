@@ -1,64 +1,5 @@
 <filesystem>
 
-    <!--
-    Remove for using InversionAction
-    -->
-    <folder name="Actions">
-        <folder name="Operators">
-            <file name="PymodelInversionOpAction.instance">
-                <attr name="instanceCreate"
-                      methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.core.gpf.ui.DefaultOperatorAction.create"/>
-                <attr name="operatorName" stringvalue="py_modelinversion_op"/>
-                <attr name="displayName" stringvalue="py_modelinversion_op"/>
-                <attr name="dialogTitle" stringvalue="py_modelinversion_op"/>
-                <attr name="targetProductNameSuffix" stringvalue="_inversion"/>
-                <attr name="ShortDescription" stringvalue="Generates ...."/>
-            </file>
-        </folder>
-
-        <folder name="Operators">
-            <file name="sambuca_snap_opAction.instance">
-                <attr name="instanceCreate"
-                      methodvalue="org.openide.awt.Actions.alwaysEnabled"/>
-                <attr name="delegate" methodvalue="org.esa.snap.core.gpf.ui.DefaultOperatorAction.create"/>
-                <attr name="operatorName" stringvalue="py_sambuca_snap_op"/>
-                <attr name="displayName" stringvalue="Shallow Water Analytical Model"/>
-                <attr name="dialogTitle" stringvalue="Shallow Water Analytical Model"/>
-                <attr name="targetProductNameSuffix" stringvalue="_inversion"/>
-                <attr name="ShortDescription" stringvalue="Generates ...."/>
-            </file>
-        </folder>
-    </folder>
-
-
-
-    <folder name="Menu">
-        <folder name="Optical">
-            <folder name="Sen2Coral Processing">
-                <folder name="Processing modules">
-
-                    <file name="org-esa-sen2coral-inversion-InversionWrapperOpAction.shadow">
-                        <attr name="originalFile"
-                              stringvalue="Actions/Operators/org-esa-sen2coral-inversion-InversionWrapperOpAction.instance"/>
-                        <attr name="position" intvalue="1"/>
-                    </file>
-
-                    <file name="PymodelInversionOpAction.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Operators/PymodelInversionOpAction.instance"/>
-                        <attr name="position" intvalue="2"/>
-                    </file>
-
-                    <file name="sambuca_snap_opAction.shadow">
-                        <attr name="originalFile" stringvalue="Actions/Operators/sambuca_snap_opAction.instance"/>
-                        <attr name="position" intvalue="3"/>
-                    </file>
-
-                </folder>
-            </folder>
-        </folder>
-    </folder>
-
     <folder name="Services">
         <folder name="JavaHelp">
             <file name="org-esa-sen2coral-sen2coral-inversion-ui-helpset.xml" url="helpset.xml">
@@ -66,13 +7,5 @@
             </file>
         </folder>
     </folder>
-
-    <folder name="OperatorUIs">
-        <file name="org.esa.sen2coral.inversion.InversionOpUI">
-            <attr name="operatorUIClass" stringvalue="org.esa.sen2coral.inversion.InversionOpUI"/>
-            <attr name="operatorName" stringvalue="InversionWrapperOp"/>
-        </file>
-    </folder>
-
 
 </filesystem>
