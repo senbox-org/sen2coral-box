@@ -69,6 +69,11 @@
             <artifactId>org-openide-util-lookup</artifactId>
             <version>${netbeans.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.esa.sen2coral</groupId>
+            <artifactId>sen2coral-inversion</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
