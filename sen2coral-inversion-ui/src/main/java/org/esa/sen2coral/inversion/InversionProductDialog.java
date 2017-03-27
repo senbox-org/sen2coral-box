@@ -19,7 +19,7 @@ public class InversionProductDialog extends DefaultSingleTargetProductDialog {
     private static final float TIME_THRESHOLD_WARNING = 3; //in minutes
     private static final float TIME_PER_PIXEL = 0.1f; //in seconds
     List<String> methods = Arrays.asList("L-BFGS-B", "TNC", "COBYLA", "SLSQP");
-    List<String> errors = Arrays.asList("alpha_f");
+    List<String> errors = Arrays.asList("alpha", "alpha_f", "lsq", "f");
 
     public InversionProductDialog(String operatorName, AppContext appContext, String title, String helpID) {
         super(operatorName, appContext, title, helpID);
@@ -52,7 +52,7 @@ public class InversionProductDialog extends DefaultSingleTargetProductDialog {
         float valueMin = (float) this.getBindingContext().getBinding("min_wlen").getPropertyValue();
 
         //Check parameters
-        if(valueMin <= valueMax) {
+        if(valueMin >= valueMax) {
             this.showErrorDialog("Max value must be higher than Min value.");
             return false;
         }
@@ -76,7 +76,20 @@ public class InversionProductDialog extends DefaultSingleTargetProductDialog {
             this.showErrorDialog("Error not supported. Try with 'alpha_f'.");
             return false;
         }
-        //TODO check content of xml files? If not Python will launch an exception
+        //Check content of xml files? If not Python will throw an exception
+        if(!XmlFilesUtils.isValidSensorXmlFile(valueSensor)) {
+            this.showErrorDialog("Invalid sensor xml file.");
+            return false;
+        }
+        if(!XmlFilesUtils.isValidParametersXmlFile(valueParam)) {
+            this.showErrorDialog("Invalid parameter xml file.");
+            return false;
+        }
+        if(!XmlFilesUtils.isValidSiopXmlFile(valueSiop)) {
+            this.showErrorDialog("Invalid siop xml file.");
+            return false;
+        }
+
 
         int width = sourceProduct.getSceneRasterWidth();
         int height = sourceProduct.getSceneRasterHeight();
