@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class SensorXmlHandler extends DefaultHandler {
 
     private int nNumberOfWavelengths;
-    private ArrayList<Integer> nFilterHeights;
+    private ArrayList<Integer> nFilterWeights;
     private int nNumberOfNedrWavelengths;
     private int nNumberOfNedrValues;
     private int itemDepth;
@@ -24,7 +24,7 @@ public class SensorXmlHandler extends DefaultHandler {
     @Override
     public void startDocument () throws SAXException {
         nNumberOfWavelengths = 0;
-        nFilterHeights = new ArrayList<>(13);
+        nFilterWeights = new ArrayList<>(13);
         nNumberOfNedrWavelengths = 0;
         nNumberOfNedrValues = 0;
         itemDepth = 0;
@@ -89,7 +89,7 @@ public class SensorXmlHandler extends DefaultHandler {
                 finishedWL = true;
             }
             if(itemDepth == 2 && insideSensorFilter && finishedWL) {
-                nFilterHeights.add(count);
+                nFilterWeights.add(count);
                 count = 0;
             }
             itemDepth--;
@@ -98,15 +98,15 @@ public class SensorXmlHandler extends DefaultHandler {
 
     @Override
     public void endDocument () throws SAXException {
-        if(nFilterHeights.size() == 0) {
+        if(nFilterWeights.size() == 0) {
             throw new SAXException("No band data.");
         }
-        for(int nFilterHeight : nFilterHeights) {
-            if(nFilterHeight != nNumberOfWavelengths) {
+        for(int nFilterWeight : nFilterWeights) {
+            if(nFilterWeight != nNumberOfWavelengths) {
                 throw new SAXException("Filter not compatible with wavelengths.");
             }
         }
-        if((nFilterHeights.size() != nNumberOfNedrValues) || (nNumberOfNedrValues != nNumberOfNedrWavelengths)) {
+        if((nFilterWeights.size() != nNumberOfNedrValues) || (nNumberOfNedrValues != nNumberOfNedrWavelengths)) {
             throw new SAXException("No compatible NEDR values.");
         }
     }
