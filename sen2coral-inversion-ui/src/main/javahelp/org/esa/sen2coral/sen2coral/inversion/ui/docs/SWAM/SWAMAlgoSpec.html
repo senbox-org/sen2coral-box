@@ -1,0 +1,163 @@
+<!--
+  ~ Copyright (C) 2016 by CS ROMANIA
+  ~
+  ~ This program is free software; you can redistribute it and/or modify it
+  ~ under the terms of the GNU General Public License as published by the Free
+  ~ Software Foundation; either version 3 of the License, or (at your option)
+  ~ any later version.
+  ~ This program is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+  ~ FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+  ~ more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this program; if not, see http://www.gnu.org/licenses/
+  -->
+
+<html>
+<head>
+    <title>Model Inversion SWAM - Algorithm Specification</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            Model Inversion SWAM Algorithm Specification</td>
+        <td class="header" align="right"><a href="nbdocs://org.esa.snap.snap.help/org/esa/snap/snap/help/docs/general/overview/SnapOverview.html"><img src="../images/snap_header.jpg" border=0></a></td>
+    </tr>
+</table>
+
+<h3>SWAM Processor</h3>
+
+<p>
+    The <u><b>S</b></u>hallow <u><b>W</b></u>ater <u><b>A</b></u>nalytical <u><b>M</b></u>odel has been
+    developed by CNR-IREA. This processor computes the mapping habitats and depth
+    by inversion of bio-optical models. It is based in a modified version of Sambuca
+    (<a href="https://sourceforge.net/projects/winpython/files/WinPython_3.4/3.4.4.5">Semi-Analytical Model for Bathymetry, Un-mixing and Concentration Assessment</a>,
+    M.Wettle & V. Brando, CSIRO Land and Water, 2006) and has been developed in Python. <br>
+</p>
+
+
+<p>
+    'SAMBUCA is optimization-driven analytical model for estimating water column constituent
+    concentrations, water column depth, and benthic substrate composition from remote sensing data.
+    Based on an approach conceptualized by Lee et al. (1998, 1999, 2001), SAMBUCA was implemented
+    in an IDL/ENVI environment. Following extensive testing and application of the approach to
+    different data sets, several important modifications and improvements were made to the
+    original Lee et al. (1998, 1999, 2001) approach. Notably, the optical parameterization of both
+    the water column and the benthic substratum - fundamental properties of the model - were
+    re-defined. Furthermore, features such as accessing spectral libraries of optical properties,
+    allowing for more than one substratum to contribute to the remote sensing signal, and tracking
+    the optical depth of a given system, were added.'
+</p>
+
+<h5>Output product</h5><br>
+<table>
+    <tr><th>Band</th><th>Description</th></tr>
+    <tr><td>depth</td><td>Depth in meters.</td></tr>
+    <tr><td>sdi</td><td>Substratum detectability index?</td></tr>
+    <tr><td>kd(550)</td><td> </td></tr>
+    <tr><td>error_f</td><td>The error selected in the parameters.</td></tr>
+    <tr><td>R_sub(550)</td><td> </td></tr>
+    <tr><td>sub_1</td><td>Fraction of substrate 1.</td></tr>
+    <tr><td>sub_2</td><td>Fraction of substrate 2.</td></tr>
+    <tr><td>sub_3</td><td>Fraction of substrate 3.</td></tr>
+</table><br>
+<hr>
+<h4>SWAM implementation in SNAP</h4><br>
+<p>
+    The SWAM algorithm has been implemented into SNAP with the following features:
+<ul>
+    <li>Developed in python.</li>
+    <li>Requires Sambuca </li>
+    <li>Highly configurable: input bands, relaxed constraints, error methods,
+        shallow/not shallow...</li>
+</ul>
+</p><br>
+<h5>Pre-requirements</h5>
+<ul>
+    <li>Python 3.4</li>
+    <li>Sambuca </li>
+    <li>Python configuration in SNAP</li>
+</ul>
+<p>See Installation <a href="../SWAMInstallationWindows.html">on Windows</a> for the recommended installation steps.</p>
+
+<h5>SWAM parameters</h5><br>
+<table border="0" cellpadding="1" cellspacing="1">
+    <thead>
+    <tr>
+        <th>Parameter</th>
+        <th>Description</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td><strong>xmlpath_sensor</strong></td>
+        <td>The path of the sensor filters and nedr xml configuration file.
+            <br><IMG SRC="../images/SWAM/sensorXmlFormat.jpg"></td>
+    </tr>
+    <tr>
+        <td><strong>xmlpath_parameters</strong></td>
+        <td>The path of the parameters xml configuration file.
+            <br><IMG SRC="../images/SWAM/parametersXmlFormat.jpg"></td>
+    </tr>
+    <tr>
+        <td><strong>xmlpath_siop</strong></td>
+        <td>The path of the siop and substrates xml configuration file.
+            <br><IMG SRC="../images/SWAM/siopXmlFormat.jpg"></td>
+    </tr>
+    <tr>
+        <td><strong>error_name</strong></td>
+        <td>The error used in the closure. Should be one of: 'alpha', 'alpha_f', 'lsq', 'f'.</td>
+    </tr>
+    <tr>
+        <td><strong>opt_method</strong></td>
+        <td>The optimization method used in the closure. Currently, it should be 'SLSQP'.</td>
+    </tr>
+    <tr>
+        <td><strong>min_wlen, max_wlen</strong></td>
+        <td>The shortest and longest wavelengths. The algorithm will select only the rrs bands
+            with central wavelengths inside this range (remember to choose wisely this range:
+            it must be coherent with the chosen sensor filters).</td>
+    </tr>
+    <tr>
+        <td><strong>above_rrs_flag</strong></td>
+        <td>If the Above Water rrs flag is active the rrs will be corrected to the in-water rrs.</td>
+    </tr>
+    <tr>
+        <td><strong>shallow_flag</strong></td>
+        <td>If the go-shallow flag is active the go-shallow routine will be used to retrieve
+            the depth and the sdi of the shallow waters. </td>
+    </tr>
+    <tr>
+        <td><strong>relaxed_cons</strong></td>
+        <td>If the relaxed constraints flag is active, the constraint on the substrates sum
+            will be relaxed from 1 to the range of 0.5-2.</td>
+    </tr>
+    </tbody>
+</table>
+
+<h5>SWAM User Interface</h5><br>
+<p>
+    The parameters described above can be set through the graphical user interface designed in the SNAP Desktop component:
+</p>
+<IMG SRC="../images/SWAM/SWAMUI.jpg">
+
+<h5>Recommendations</h5>
+<ul>
+    <li>In each rrs (reflectance remote sensing) bands, needed in the computation,
+        the spectral wavelength must be specified;
+        to add the correct spectral wavelength right click on the
+        band-->properties and modify the spectral wavelength fields,
+        inserting the value of the central spectral wavelength of the band</li>
+    <li>Delete all the spectral wavelengths values from bands that are not rrs
+        (for example radiance or irradiance bands). Indeed the algorithm selects
+        the bands, used in the computation, reading the spectral wavelength values. </li>
+</ul>
+<br>
+<hr>
+</body>
+</html>

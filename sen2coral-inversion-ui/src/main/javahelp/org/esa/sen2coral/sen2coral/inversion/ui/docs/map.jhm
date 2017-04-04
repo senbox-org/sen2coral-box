@@ -5,8 +5,9 @@
 
 <map version="2.0">
 
-    <mapID target="ModelInversionMethod1Operator" url="inversionMethod1/Method1Tool.html"/>
-    <mapID target="ModelInversionMethod1Algorithm" url="inversionMethod1/Method1AlgoSpec.html"/>
+    <mapID target="ModelInversionSWAMOperator" url="SWAM/SWAMTool.html"/>
+    <mapID target="ModelInversionSWAMAlgorithm" url="SWAM/SWAMAlgoSpec.html"/>
+    <mapID target="ModelInversionSWAMInstallationWindows" url="SWAM/SWAMInstallationWindows.html"/>
 
     <mapID target="Sen2CoralModelInversionIndexList" url="Sen2CoralModelInversionIndexList.html"/>
 

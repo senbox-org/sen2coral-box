@@ -42,7 +42,7 @@ public class InversionAction extends AbstractSnapAction {
 
     private ModelessDialog dialog;
     public static final String OPERATOR_NAME = "py_sambuca_snap_op";
-    public static final String DIALOG_TITLE = "Analytical";
+    public static final String DIALOG_TITLE = "Shallow Water Analytical Model";
     public static final String TARGET_PRODUCT_NAME_SUFFIX = "_inversion";
 
     public static InversionAction create(Map<String, Object> properties) {

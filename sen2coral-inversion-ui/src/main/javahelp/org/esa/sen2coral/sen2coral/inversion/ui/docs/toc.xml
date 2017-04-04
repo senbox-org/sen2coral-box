@@ -15,8 +15,9 @@
                 <tocitem text="Sen2Coral Model Inversion Algorithms Complete List" target="Sen2CoralModelInversionIndexList"/>
 
 
-                    <tocitem text="Model Inversion Method 1 Operator" target="ModelInversionMethod1Operator">
-                        <tocitem text="Model Inversion Method 1 Algorithm Specification" target="ModelInversionMethod1Algorithm"/>
+                    <tocitem text="SWAM Operator" target="ModelInversionSWAMOperator">
+                        <tocitem text="SWAM Algorithm Specification" target="ModelInversionSWAMAlgorithm"/>
+                        <tocitem text="SWAM Installation on Windows" target="ModelInversionSWAMInstallationWindows"/>
                     </tocitem>
                 </tocitem>
             </tocitem>
