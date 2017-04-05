@@ -41,6 +41,7 @@ public class EmpiricalBathymetryOp extends PixelOperator {
 
     @SourceProduct
     private Product sourceProduct;
+    private Band targetBand;
 
 
     @Parameter(description = "The list of source bands.", alias = "sourceBands",
@@ -144,8 +145,8 @@ public class EmpiricalBathymetryOp extends PixelOperator {
             ProductUtils.copyProductNodes(sourceProduct, targetProduct);
 
             //Add band
-            Band targetBand = new Band("EmpiricalBathymetry_" + sourceBandNames[0] + sourceBandNames[1], ProductData.TYPE_FLOAT32, sceneWidth, sceneHeight);
-            targetBand.setDescription("EmpiricalBathymetry " + sourceBandNames[0] + " and " + sourceBandNames[1]);
+            targetBand = new Band("EmpiricalBathymetry_" + sourceBandNames[0] + "_" +sourceBandNames[1], ProductData.TYPE_FLOAT32, sceneWidth, sceneHeight);
+            updateTargetBandDescriptionWithRSquared("Not computed yet.");
             targetBand.setUnit(" ");
             targetBand.setScalingFactor(1.0);
             targetBand.setScalingOffset(0);
@@ -237,6 +238,8 @@ public class EmpiricalBathymetryOp extends PixelOperator {
             regressionCoefficients[1] = regression.getSlope();
             regressionCoefficients[2] = regression.getRSquare();
             regressionCoefficients[3] = regression.getN();
+            updateTargetBandDescriptionWithRSquared(String.valueOf(regressionCoefficients[2]));
+
         }
         return regressionCoefficients;
     }
@@ -329,6 +332,11 @@ public class EmpiricalBathymetryOp extends PixelOperator {
             }
         }
         return rasterSize;
+    }
+
+    private void updateTargetBandDescriptionWithRSquared(String rSquared) {
+        String description = String.format("Source Bands: %s and %s. R-squared: %s",sourceBandNames[0], sourceBandNames[1], rSquared);
+        targetBand.setDescription(description);
     }
 }
 
