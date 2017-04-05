@@ -1,5 +1,6 @@
 package org.esa.sen2coral.inversion;
 
+import org.esa.snap.core.datamodel.Band;
 import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.ui.DefaultSingleTargetProductDialog;
 import org.esa.snap.core.gpf.ui.SourceProductSelector;
@@ -18,7 +19,8 @@ public class InversionProductDialog extends DefaultSingleTargetProductDialog {
 
     private static final float TIME_THRESHOLD_WARNING = 3; //in minutes
     private static final float TIME_PER_PIXEL = 0.1f; //in seconds
-    List<String> methods = Arrays.asList("L-BFGS-B", "TNC", "COBYLA", "SLSQP");
+    private static final float MINIMUM_BANDS = 4; //in seconds
+    List<String> methods = Arrays.asList("SLSQP");
     List<String> errors = Arrays.asList("alpha", "alpha_f", "lsq", "f");
 
     public InversionProductDialog(String operatorName, AppContext appContext, String title, String helpID) {
@@ -40,6 +42,8 @@ public class InversionProductDialog extends DefaultSingleTargetProductDialog {
         }
 
 
+
+
         String valueError = (String) this.getBindingContext().getBinding("error_name").getPropertyValue();
         //boolean valueShallow = (boolean) this.getBindingContext().getBinding("shallow_flag").getPropertyValue();
         //boolean valueRelaxed = (boolean) this.getBindingContext().getBinding("relaxed_cons").getPropertyValue();
@@ -50,6 +54,21 @@ public class InversionProductDialog extends DefaultSingleTargetProductDialog {
         File valueSensor = (File) this.getBindingContext().getBinding("xmlpath_sensor").getPropertyValue();
         float valueMax = (float) this.getBindingContext().getBinding("max_wlen").getPropertyValue();
         float valueMin = (float) this.getBindingContext().getBinding("min_wlen").getPropertyValue();
+
+        //TODO check at least MINIMUM_BANDS
+        int validBandCount = 0;
+        for(int i = 0; i<sourceProduct.getNumBands() ; i++) {
+            Band band = sourceProduct.getBandAt(i);
+            float spectralWavelength = band.getSpectralWavelength();
+            if (spectralWavelength >= valueMin  && spectralWavelength <= valueMax) {
+                validBandCount ++;
+            }
+        }
+        if(validBandCount < MINIMUM_BANDS) {
+            this.showErrorDialog("Not enough valid spectral bands in the source product." +
+                                         "Try to change wavelength range or to add spectral information to the bands.");
+            return false;
+        }
 
         //Check parameters
         if(valueMin >= valueMax) {
@@ -69,11 +88,11 @@ public class InversionProductDialog extends DefaultSingleTargetProductDialog {
             return false;
         }
         if(!methods.contains(valueOptMethod)) {
-            this.showErrorDialog("Method not supported. Try with 'L-BFGS-B', 'TNC', 'COBYLA' or 'SLSQP'.");
+            this.showErrorDialog("Method not supported. Try with 'SLSQP'.");
             return false;
         }
         if(!errors.contains(valueError)) {
-            this.showErrorDialog("Error not supported. Try with 'alpha_f'.");
+            this.showErrorDialog("Error not supported. Try with 'alpha', 'alpha_f', 'lsq' or 'f'");
             return false;
         }
         //Check content of xml files? If not Python will throw an exception
