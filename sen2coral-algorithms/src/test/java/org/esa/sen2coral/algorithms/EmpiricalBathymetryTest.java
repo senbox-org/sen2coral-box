@@ -50,7 +50,7 @@ public class EmpiricalBathymetryTest {
         // get targetProduct gets initialize to be executed
         final Product targetProduct = op.getTargetProduct();
 
-        final Band band = targetProduct.getBand("EmpiricalBathymetry_band_2band_3");
+        final Band band = targetProduct.getBand("EmpiricalBathymetry_band_2_band_3");
         final Band validationBand = validationProduct.getBandAt(0);
 
         //compareBands
