@@ -1,0 +1,60 @@
+<html>
+<head>
+    <title>Physics based model inversion Operator - SWAM</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            SWAM Operator - Installation on Linux - Anaconda</td>
+        <td class="header" align="right"><a href="nbdocs://org.esa.snap.snap.help/org/esa/snap/snap/help/docs/general/overview/SnapOverview.html"><img src="../images/snap_header.jpg" border=0></a></td>
+    </tr>
+</table>
+
+<p><br/></p>
+
+<p>
+    <ol>
+        <li>Install Anaconda 3:
+<p>See <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
+    <param name="content" value="https://www.continuum.io/downloads">
+    <param name="text" value="<html><u>https://www.continuum.io/downloads</u></html>">
+</object></p>
+</li>
+<li>Configure Anaconda to use python 3.4: conda install python=3.4.0</li>
+<li>Install matplotlib: conda install matplotlib</li>
+<li>Install xmltodict from the command prompt : conda install xmltodict</li>
+<li>Install rasterio: conda install rasterio</li>
+<li>Install future : pip install future</li>
+<li>pip install spectral</li>
+<li>Install Sambuca & Sambuca_core:
+    <ol>
+        <li>Create a directory called "sambuca_project" </li>
+        <li>Download Sambuca and Sambuca_core (link?) and copy them in "Sambuca_project"</li>
+        <li>Open an Anaconda command prompt</li>
+        <li>Using the Command Prompt, go into the directory Sambuca_project/Sambuca_core and type "python setup.py develop"</li>
+        <li>Using the Command Prompt, go into the directory Sambuca_project/Sambuca and type "python setup.py develop".</li>
+    </ol>
+</li>
+<li>Configure python in SNAP via command line:
+    <p>snappy-conf [PathToAnacondaInstallationFolder]/python.exe</p>
+</li>
+<li>Set enviroment variables on the .bashrc file:
+    <ol>
+        <li>export <b>PYTHONPATH</b>=[sambuca_folder]: [snap-python folder]: [sambuca_core folder]:[anaconda3 folder]/lib/python3.4:[anaconda3 folder]/lib/python3.4/site-packages:[anaconda3 folder]/lib:$PYTHONPATH</li>
+        <li>export <b>PATH</b>=[anaconda3 folder]/bin:$PATH</li>
+        <li>export <b>PYTHONHOME</b>=[anaconda3 folder]/lib/python3.4/</li>
+    </ol>
+</li>
+</ol>
+</p>
+
+<br>
+<p>Back to <a href="SWAMAlgoSpec.html">SWAM Algorithm Specification</a> </p>
+
+<hr>
+</body>
+</html>

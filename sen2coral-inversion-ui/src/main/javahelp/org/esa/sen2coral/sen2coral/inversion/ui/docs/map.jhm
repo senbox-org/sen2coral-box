@@ -7,8 +7,9 @@
 
     <mapID target="ModelInversionSWAMOperator" url="SWAM/SWAMTool.html"/>
     <mapID target="ModelInversionSWAMAlgorithm" url="SWAM/SWAMAlgoSpec.html"/>
-    <mapID target="ModelInversionSWAMInstallationWindows" url="SWAM/SWAMInstallationWindows.html"/>
-
+    <mapID target="ModelInversionSWAMInstallationWindowsWinPython" url="SWAM/SWAMInstallationWindowsWinPython.html"/>
+    <mapID target="ModelInversionSWAMInstallationWindowsAnaconda" url="SWAM/SWAMInstallationWindowsAnaconda.html"/>
+    <mapID target="ModelInversionSWAMInstallationLinuxAnaconda" url="SWAM/SWAMInstallationLinuxAnaconda.html"/>
     <mapID target="Sen2CoralModelInversionIndexList" url="Sen2CoralModelInversionIndexList.html"/>
 
 </map>

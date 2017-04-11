@@ -1,0 +1,67 @@
+<html>
+<head>
+    <title>Physics based model inversion Operator - SWAM</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+    <link rel="stylesheet" href="../style.css">
+</head>
+
+<body>
+<table class="header">
+    <tr class="header">
+        <td class="header">&nbsp;
+            SWAM Operator - Installation on Windows - WinPython</td>
+        <td class="header" align="right"><a href="nbdocs://org.esa.snap.snap.help/org/esa/snap/snap/help/docs/general/overview/SnapOverview.html"><img src="../images/snap_header.jpg" border=0></a></td>
+    </tr>
+</table>
+
+<p><br/></p>
+
+
+<p>
+<ol>
+    <li>Install WinPython3.4:
+        <p>See <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
+        <param name="content" value="https://sourceforge.net/projects/winpython/files/WinPython_3.4/3.4.4.5">
+        <param name="text" value="<html><u>https://sourceforge.net/projects/winpython/files/WinPython_3.4/3.4.4.5</u></html>">
+        </object></p>
+    </li>
+    <li>Install rasterio (rasterio-1.0a5-cp34-cp34m):
+        <object classid="java:org.netbeans.modules.javahelp.BrowserDisplayer">
+            <param name="content" value="http://www.lfd.uci.edu/~gohlke/pythonlibs/">
+            <param name="text" value="<html><u>http://www.lfd.uci.edu/~gohlke/pythonlibs/</u></html>">
+        </object>
+        <p>Download the whl file and from a WinPython Command Prompt navigate to the folder containing the downloaded file and:</p>
+        <p>pip install "rasterio-1.0a5-cp34-cp34m...".whl</p>
+    </li>
+    <li>Install xmltodict : pip install xmltodict</li>
+    <li>Install spectral : pip install spectral</li>
+    <li>Install future : pip install future</li>
+    <li>Install Sambuca & Sambuca_core see "Sambuca and Bioopti on Windows - WinPython.docx":
+        <ol>
+            <li>Create a directory called "sambuca_project" </li>
+            <li>Download Sambuca and Sambuca_core (link?) and copy them in "Sambuca_project"</li>
+            <li>In the WinPython directory, execute "WinPython Command Prompt.exe"</li>
+            <li>Using the Command Prompt, go into the directory Sambuca_project/Sambuca_core and type "python setup.py develop"</li>
+            <li>Using the Command Prompt, go into the directory Sambuca_project/Sambuca and type "python setup.py develop".</li>
+        </ol>
+    </li>
+    <li>Configure python in SNAP via command line:
+        <p>snappy-conf [PathToWinPythonInstallationFolder]/[pythonFolder]/python.exe</p>
+        <p>For example: D:\Tools\WinPython-64bit-3.4.4.6Qt5\python-3.4.4.amd64\python.exe</p>
+    </li>
+    <li>Set environment variables :
+        <ol>
+            <li><b>PATH</b> = [PathToWinPythonInstallationFolder]/[pythonFolder];%PATH%</li>
+            <li><b>PYTHONPATH </b> = [sambucaFolder] ;[sambucaCoreFolder] ; [snap-pythonFolder];  [PathToWinPythonInastallationFolder]/[pythonFolder]/DLLs;[PathToWinPythonInastallationFolder]/[pythonFolder]/Lib;[PathToWinPythonInastallationFolder]/[pythonFolder]/Lib/site-packages</li>
+            <li><b>PYTHONHOME </b> = [PathToWinPythonInastallationFolder]/[pythonFolder]</li>
+        </ol>
+    </li>
+</ol>
+</p>
+
+<br>
+<p>Back to <a href="SWAMAlgoSpec.html">SWAM Algorithm Specification</a> </p>
+
+<hr>
+</body>
+</html>

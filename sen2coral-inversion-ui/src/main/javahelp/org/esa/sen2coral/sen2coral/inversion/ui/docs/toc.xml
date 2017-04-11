@@ -17,7 +17,9 @@
 
                     <tocitem text="SWAM Operator" target="ModelInversionSWAMOperator">
                         <tocitem text="SWAM Algorithm Specification" target="ModelInversionSWAMAlgorithm"/>
-                        <tocitem text="SWAM Installation on Windows" target="ModelInversionSWAMInstallationWindows"/>
+                        <tocitem text="SWAM Installation on Windows - WinPython" target="ModelInversionSWAMInstallationWindowsWinPython"/>
+                        <tocitem text="SWAM Installation on Windows - Anaconda" target="ModelInversionSWAMInstallationWindowsAnaconda"/>
+                        <tocitem text="SWAM Installation on Linux - Anaconda" target="ModelInversionSWAMInstallationLinuxAnaconda"/>
                     </tocitem>
                 </tocitem>
             </tocitem>
