@@ -64,7 +64,7 @@ def input_sensor_filter(sensor_xml_path,observed_rrs,image_info, Rrs = False):
             
         image_info['sensor_filter']=sensor_filter
         image_info['nedr']=nedr
-        print ('EXIT SENSOR FILTER')
+        #print ('EXIT SENSOR FILTER')
     
         return observed_rrs, image_info
 
@@ -100,6 +100,6 @@ def read_sensor_filter(sensor_xml_path):
         #we create the tuple for the sensor filter
         sensor_filter=tuple([sfwm, sfs])
 
-        print ('EXIT SENSOR FILTER')
+        #print ('EXIT SENSOR FILTER')
 
         return sensor_filter, nedr

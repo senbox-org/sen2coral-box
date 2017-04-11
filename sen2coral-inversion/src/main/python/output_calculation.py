@@ -62,7 +62,7 @@ def output_calculation(observed_rrs, objective, siop, result_recorder, image_inf
 
     for x in range(xstart, xend):
         for y in range(ystart, yend):
-            print ([x,y])
+            #print ([x,y])
             obs_rrs = observed_rrs[:,x,y]
 
             # Quick and dirty check because we are not masking out the no-data pixels
@@ -93,7 +93,7 @@ def output_calculation(observed_rrs, objective, siop, result_recorder, image_inf
                 #print(result.nit,result.success,*result['x'])
                 result_recorder(x, y, obs_rrs, parameters=sb.FreeParameters(*result.x), nit=result.nit, success=result.success)
                 #result_recorder(x, y, obs_rrs, parameters=sb.FreeParameters(*result['x']))
-                print (result_recorder.nit[x,y])
+                #print (result_recorder.nit[x,y])
                 
                 # ******GO SHALLOW*****retrieves shallow as possible while SDI remains below 1
                 if shallow == True:

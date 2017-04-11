@@ -176,7 +176,7 @@ class sambuca_snap_op:
         if self.above_rrs_flag == True:
             rrs = (2*rrs)/((3*rrs)+1)
 
-        print (rrs.shape)
+        #print (rrs.shape)
 
 
 

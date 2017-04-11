@@ -49,7 +49,7 @@ def input_prepare(siop, envmeta, image_info, error_name):
     
     wavelengths = sbc.spectra_find_common_wavelengths(a_water, a_ph_star, *substrates)
     #TODO check not empty
-    print('Common wavelength range: {0} - {1}'.format(min(wavelengths), max(wavelengths)))
+    #print('Common wavelength range: {0} - {1}'.format(min(wavelengths), max(wavelengths)))
     
     #Use the common wavelengths to mask the inputs:
     a_water = sbc.spectra_apply_wavelength_mask(a_water, wavelengths)
@@ -119,7 +119,7 @@ def input_prepare(siop, envmeta, image_info, error_name):
     image_info['observed_rrs_height']=observed_rrs_height
     image_info['nedr']=nedr
     
-    print ('EXIT PREPARE')
+    #print ('EXIT PREPARE')
     
     return wavelengths, siop, image_info, fixed_parameters, result_recorder, objective
 
@@ -201,6 +201,6 @@ def input_prepare_2(siop, envmeta, image_info, error_name):
     image_info['sensor_filter']=sensor_filter
     image_info['nedr']=nedr
 
-    print ('EXIT PREPARE')
+    #print ('EXIT PREPARE')
 
     return wavelengths, siop, image_info, fixed_parameters, objective

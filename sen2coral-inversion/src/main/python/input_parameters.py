@@ -143,6 +143,6 @@ def sam_par(siop_xml_path, par_xml_path):
         
         
                   
-        print ('EXIT PARAMETERS')
+        #print ('EXIT PARAMETERS')
         
         return siop, envmeta
