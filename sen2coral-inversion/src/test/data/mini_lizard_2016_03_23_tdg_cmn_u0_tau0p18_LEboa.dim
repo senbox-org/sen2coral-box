@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<Dimap_Document name="mini_lizard_2016_03_23_tdg_cmn_u0_tau0p18_LEboa.dim">
+    <Metadata_Id>
+        <METADATA_FORMAT version="2.12.1">DIMAP</METADATA_FORMAT>
+        <METADATA_PROFILE>BEAM-DATAMODEL-V1</METADATA_PROFILE>
+    </Metadata_Id>
+    <Dataset_Id>
+        <DATASET_SERIES>BEAM-PRODUCT</DATASET_SERIES>
+        <DATASET_NAME>mini_lizard_2016_03_23_tdg_cmn_u0_tau0p18_LEboa</DATASET_NAME>
+    </Dataset_Id>
+    <Production>
+        <DATASET_PRODUCER_NAME />
+        <PRODUCT_TYPE>GeoTIFF-BigTIFF</PRODUCT_TYPE>
+    </Production>
+    <Coordinate_Reference_System>
+        <WKT>
+             PROJCS["WGS 84 / UTM zone 55S", 
+               GEOGCS["WGS 84", 
+                 DATUM["World Geodetic System 1984", 
+                   SPHEROID["WGS 84", 6378137.0, 298.257223563, AUTHORITY["EPSG","7030"]], 
+                   AUTHORITY["EPSG","6326"]], 
+                 PRIMEM["Greenwich", 0.0, AUTHORITY["EPSG","8901"]], 
+                 UNIT["degree", 0.017453292519943295], 
+                 AXIS["Geodetic longitude", EAST], 
+                 AXIS["Geodetic latitude", NORTH], 
+                 AUTHORITY["EPSG","4326"]], 
+               PROJECTION["Transverse_Mercator"], 
+               PARAMETER["central_meridian", 147.0], 
+               PARAMETER["latitude_of_origin", 0.0], 
+               PARAMETER["scale_factor", 0.9996], 
+               PARAMETER["false_easting", 500000.0], 
+               PARAMETER["false_northing", 10000000.0], 
+               UNIT["m", 1.0], 
+               AXIS["Easting", EAST], 
+               AXIS["Northing", NORTH], 
+               AUTHORITY["EPSG","32755"]]
+        </WKT>
+    </Coordinate_Reference_System>
+    <Geoposition>
+        <IMAGE_TO_MODEL_TRANSFORM>10.0,0.0,0.0,-10.0,333390.0,8376050.0</IMAGE_TO_MODEL_TRANSFORM>
+    </Geoposition>
+    <Raster_Dimensions>
+        <NCOLS>16</NCOLS>
+        <NROWS>11</NROWS>
+        <NBANDS>5</NBANDS>
+    </Raster_Dimensions>
+    <Data_Access>
+        <DATA_FILE_FORMAT>ENVI</DATA_FILE_FORMAT>
+        <DATA_FILE_FORMAT_DESC>ENVI File Format</DATA_FILE_FORMAT_DESC>
+        <DATA_FILE_ORGANISATION>BAND_SEPARATE</DATA_FILE_ORGANISATION>
+        <Data_File>
+            <DATA_FILE_PATH href="mini_lizard_2016_03_23_tdg_cmn_u0_tau0p18_LEboa.data/band_1.hdr" />
+            <BAND_INDEX>0</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="mini_lizard_2016_03_23_tdg_cmn_u0_tau0p18_LEboa.data/band_2.hdr" />
+            <BAND_INDEX>1</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="mini_lizard_2016_03_23_tdg_cmn_u0_tau0p18_LEboa.data/band_3.hdr" />
+            <BAND_INDEX>2</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="mini_lizard_2016_03_23_tdg_cmn_u0_tau0p18_LEboa.data/band_4.hdr" />
+            <BAND_INDEX>3</BAND_INDEX>
+        </Data_File>
+        <Data_File>
+            <DATA_FILE_PATH href="mini_lizard_2016_03_23_tdg_cmn_u0_tau0p18_LEboa.data/band_5.hdr" />
+            <BAND_INDEX>4</BAND_INDEX>
+        </Data_File>
+    </Data_Access>
+    <Image_Display>
+        <Band_Statistics>
+            <BAND_INDEX>0</BAND_INDEX>
+            <STX_MIN>0.024658869951963425</STX_MIN>
+            <STX_MAX>0.029694154858589172</STX_MAX>
+            <STX_MEAN>0.026320877559059718</STX_MEAN>
+            <STX_STD_DEV>0.0010660793093849946</STX_STD_DEV>
+            <STX_RES_LEVEL>0</STX_RES_LEVEL>
+            <HISTOGRAM>2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,3,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,36,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,6,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,36,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,12,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,9</HISTOGRAM>
+            <NUM_COLORS>256</NUM_COLORS>
+            <Color_Palette_Point>
+                <SAMPLE>-0.00813821669362369</SAMPLE>
+                <COLOR red="0" green="0" blue="0" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>0.02807080201273493</SAMPLE>
+                <COLOR red="128" green="128" blue="128" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>0.06427982071909355</SAMPLE>
+                <COLOR red="255" green="255" blue="255" alpha="255" />
+            </Color_Palette_Point>
+            <NO_DATA_COLOR red="0" green="0" blue="0" alpha="0" />
+            <HISTOGRAM_MATCHING>None</HISTOGRAM_MATCHING>
+        </Band_Statistics>
+        <Band_Statistics>
+            <BAND_INDEX>1</BAND_INDEX>
+            <STX_MIN>0.026119057089090347</STX_MIN>
+            <STX_MAX>0.033077139407396317</STX_MAX>
+            <STX_MEAN>0.029062966403382066</STX_MEAN>
+            <STX_STD_DEV>0.0015009397085605173</STX_STD_DEV>
+            <STX_RES_LEVEL>0</STX_RES_LEVEL>
+            <HISTOGRAM>1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1,0,1,0,0,0,0,0,1,0,0,0,0,1,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,2,0,1,0,0,1,0,0,1,1,0,2,1,0,0,0,1,0,0,1,2,0,2,0,0,1,1,1,0,2,1,0,1,1,1,2,0,0,0,0,0,1,1,1,0,0,0,3,0,1,0,0,5,0,1,0,1,1,1,0,1,1,0,0,0,0,0,2,1,2,1,1,2,0,0,2,0,1,0,0,1,0,1,3,0,0,2,2,1,0,0,0,1,0,1,1,0,0,0,0,2,1,2,2,2,1,0,0,1,0,1,0,0,0,1,0,1,0,0,0,0,0,3,0,0,2,1,1,1,2,1,0,0,0,2,0,2,0,1,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,1,2,0,0,0,0,0,0,0,0,1,0,1,0,1,0,1,0,0,0,0,2,1,0,0,0,0,1,0,0,1,0,1,0,1,0,1,0,0,1,0,0,1,0,0,2,0,0,0,1,0,0,0,0,0,0,1,1,1,0,0,0,0,0,1,0,0,0,1,0,0,1,0,0,0,0,1,0,0,0,1,0,0,0,0,1,0,0,0,0,1,1,0,1,0,2,0,0,1,1,0,0,1,0,0,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0,0,2,0,0,0,0,0,1,0,0,0,1,0,0,1,2,1,0,0,0,1,0,1,0,1,0,0,0,0,0,0,1,0,1,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,1,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1</HISTOGRAM>
+            <NUM_COLORS>256</NUM_COLORS>
+            <Color_Palette_Point>
+                <SAMPLE>0.010526525024033617</SAMPLE>
+                <COLOR red="0" green="0" blue="0" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>0.02198845531711413</SAMPLE>
+                <COLOR red="128" green="128" blue="128" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>0.033450385610194644</SAMPLE>
+                <COLOR red="255" green="255" blue="255" alpha="255" />
+            </Color_Palette_Point>
+            <NO_DATA_COLOR red="0" green="0" blue="0" alpha="0" />
+            <HISTOGRAM_MATCHING>None</HISTOGRAM_MATCHING>
+        </Band_Statistics>
+        <Band_Statistics>
+            <BAND_INDEX>2</BAND_INDEX>
+            <NUM_COLORS>256</NUM_COLORS>
+            <Color_Palette_Point>
+                <SAMPLE>0.005860630784809473</SAMPLE>
+                <COLOR red="0" green="0" blue="0" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>0.018627852945428458</SAMPLE>
+                <COLOR red="128" green="128" blue="128" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>0.03139507510604744</SAMPLE>
+                <COLOR red="255" green="255" blue="255" alpha="255" />
+            </Color_Palette_Point>
+            <NO_DATA_COLOR red="0" green="0" blue="0" alpha="0" />
+            <HISTOGRAM_MATCHING>None</HISTOGRAM_MATCHING>
+        </Band_Statistics>
+        <Band_Statistics>
+            <BAND_INDEX>3</BAND_INDEX>
+            <NUM_COLORS>256</NUM_COLORS>
+            <Color_Palette_Point>
+                <SAMPLE>-4.482472154450079E-4</SAMPLE>
+                <COLOR red="0" green="0" blue="0" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>0.003361339240882444</SAMPLE>
+                <COLOR red="128" green="128" blue="128" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>0.007170925697209896</SAMPLE>
+                <COLOR red="255" green="255" blue="255" alpha="255" />
+            </Color_Palette_Point>
+            <NO_DATA_COLOR red="0" green="0" blue="0" alpha="0" />
+            <HISTOGRAM_MATCHING>None</HISTOGRAM_MATCHING>
+        </Band_Statistics>
+        <Band_Statistics>
+            <BAND_INDEX>4</BAND_INDEX>
+            <NUM_COLORS>256</NUM_COLORS>
+            <Color_Palette_Point>
+                <SAMPLE>-0.00928809680044651</SAMPLE>
+                <COLOR red="0" green="0" blue="0" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>-0.0012585063013830222</SAMPLE>
+                <COLOR red="128" green="128" blue="128" alpha="255" />
+            </Color_Palette_Point>
+            <Color_Palette_Point>
+                <SAMPLE>0.006771084197680466</SAMPLE>
+                <COLOR red="255" green="255" blue="255" alpha="255" />
+            </Color_Palette_Point>
+            <NO_DATA_COLOR red="0" green="0" blue="0" alpha="0" />
+            <HISTOGRAM_MATCHING>None</HISTOGRAM_MATCHING>
+        </Band_Statistics>
+    </Image_Display>
+    <Image_Interpretation>
+        <Spectral_Band_Info>
+            <BAND_INDEX>0</BAND_INDEX>
+            <BAND_DESCRIPTION />
+            <BAND_NAME>band_1</BAND_NAME>
+            <BAND_RASTER_WIDTH>16</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>11</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>443.0</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>10.0,0.0,0.0,-10.0,333390.0,8376050.0</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>1</BAND_INDEX>
+            <BAND_DESCRIPTION />
+            <BAND_NAME>band_2</BAND_NAME>
+            <BAND_RASTER_WIDTH>16</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>11</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>491.5</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>10.0,0.0,0.0,-10.0,333390.0,8376050.0</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>2</BAND_INDEX>
+            <BAND_DESCRIPTION />
+            <BAND_NAME>band_3</BAND_NAME>
+            <BAND_RASTER_WIDTH>16</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>11</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>560.8</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>10.0,0.0,0.0,-10.0,333390.0,8376050.0</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>3</BAND_INDEX>
+            <BAND_DESCRIPTION />
+            <BAND_NAME>band_4</BAND_NAME>
+            <BAND_RASTER_WIDTH>16</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>11</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>665.5</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>10.0,0.0,0.0,-10.0,333390.0,8376050.0</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+        <Spectral_Band_Info>
+            <BAND_INDEX>4</BAND_INDEX>
+            <BAND_DESCRIPTION />
+            <BAND_NAME>band_5</BAND_NAME>
+            <BAND_RASTER_WIDTH>16</BAND_RASTER_WIDTH>
+            <BAND_RASTER_HEIGHT>11</BAND_RASTER_HEIGHT>
+            <DATA_TYPE>float32</DATA_TYPE>
+            <SOLAR_FLUX>0.0</SOLAR_FLUX>
+            <BAND_WAVELEN>704.3</BAND_WAVELEN>
+            <BANDWIDTH>0.0</BANDWIDTH>
+            <SCALING_FACTOR>1.0</SCALING_FACTOR>
+            <SCALING_OFFSET>0.0</SCALING_OFFSET>
+            <LOG10_SCALED>false</LOG10_SCALED>
+            <NO_DATA_VALUE_USED>false</NO_DATA_VALUE_USED>
+            <NO_DATA_VALUE>0.0</NO_DATA_VALUE>
+            <IMAGE_TO_MODEL_TRANSFORM>10.0,0.0,0.0,-10.0,333390.0,8376050.0</IMAGE_TO_MODEL_TRANSFORM>
+        </Spectral_Band_Info>
+    </Image_Interpretation>
+    <Dataset_Sources>
+        <MDElem name="metadata">
+            <MDElem name="Abstracted_Metadata">
+                <MDATTR name="PRODUCT" desc="Product name" unit="" type="ascii" mode="rw">lizard_2016_03_23_tdg_cmn_u0_tau0p18_LEboa</MDATTR>
+                <MDATTR name="PRODUCT_TYPE" desc="Product type" unit="" type="ascii" mode="rw">GeoTIFF-BigTIFF</MDATTR>
+                <MDATTR name="SPH_DESCRIPTOR" desc="Description" unit="" type="ascii" mode="rw">-</MDATTR>
+                <MDATTR name="MISSION" desc="Satellite mission" unit="" type="ascii" mode="rw">GeoTIFF-BigTIFF</MDATTR>
+                <MDATTR name="ACQUISITION_MODE" desc="Acquisition mode" unit="" type="ascii" mode="rw">-</MDATTR>
+                <MDATTR name="antenna_pointing" desc="Right or left facing" unit="" type="ascii" mode="rw">-</MDATTR>
+                <MDATTR name="BEAMS" desc="Beams used" unit="" type="ascii" mode="rw">-</MDATTR>
+                <MDATTR name="SWATH" desc="Swath name" unit="" type="ascii" mode="rw">-</MDATTR>
+                <MDATTR name="PROC_TIME" desc="Processed time" unit="utc" type="utc" mode="rw">01-JAN-2000 00:00:00.000000</MDATTR>
+                <MDATTR name="Processing_system_identifier" desc="Processing system identifier" unit="" type="ascii" mode="rw">-</MDATTR>
+                <MDATTR name="orbit_cycle" desc="Cycle" unit="" type="int32" mode="rw">99999</MDATTR>
+                <MDATTR name="REL_ORBIT" desc="Track" unit="" type="int32" mode="rw">99999</MDATTR>
+                <MDATTR name="ABS_ORBIT" desc="Orbit" unit="" type="int32" mode="rw">99999</MDATTR>
+                <MDATTR name="STATE_VECTOR_TIME" desc="Time of orbit state vector" unit="utc" type="utc" mode="rw">01-JAN-2000 00:00:00.000000</MDATTR>
+                <MDATTR name="VECTOR_SOURCE" desc="State vector source" unit="" type="ascii" mode="rw">-</MDATTR>
+                <MDATTR name="incidence_near" desc="" unit="deg" type="float64" mode="rw">99999.0</MDATTR>
+                <MDATTR name="incidence_far" desc="" unit="deg" type="float64" mode="rw">99999.0</MDATTR>
+                <MDATTR name="slice_num" desc="Slice number" unit="" type="int32" mode="rw">99999</MDATTR>
+                <MDATTR name="data_take_id" desc="Data take identifier" unit="" type="int32" mode="rw">99999</MDATTR>
+                <MDATTR name="first_line_time" desc="First zero doppler azimuth time" unit="utc" type="utc" mode="rw">01-JAN-2000 00:00:00.000000</MDATTR>
+                <MDATTR name="last_line_time" desc="Last zero doppler azimuth time" unit="utc" type="utc" mode="rw">01-JAN-2000 00:00:00.000000</MDATTR>
+                <MDATTR name="first_near_lat" desc="" unit="deg" type="float64" mode="rw">-14.684082943558128</MDATTR>
+                <MDATTR name="first_near_long" desc="" unit="deg" type="float64" mode="rw">145.45270728069562</MDATTR>
+                <MDATTR name="first_far_lat" desc="" unit="deg" type="float64" mode="rw">-14.68409222237941</MDATTR>
+                <MDATTR name="first_far_long" desc="" unit="deg" type="float64" mode="rw">145.45409999765664</MDATTR>
+                <MDATTR name="last_near_lat" desc="" unit="deg" type="float64" mode="rw">-14.68498675956787</MDATTR>
+                <MDATTR name="last_near_long" desc="" unit="deg" type="float64" mode="rw">145.45270092295027</MDATTR>
+                <MDATTR name="last_far_lat" desc="" unit="deg" type="float64" mode="rw">-14.684996038985108</MDATTR>
+                <MDATTR name="last_far_long" desc="" unit="deg" type="float64" mode="rw">145.45409364562835</MDATTR>
+                <MDATTR name="PASS" desc="ASCENDING or DESCENDING" unit="" type="ascii" mode="rw">-</MDATTR>
+                <MDATTR name="SAMPLE_TYPE" desc="DETECTED or COMPLEX" unit="" type="ascii" mode="rw">-</MDATTR>
+                <MDATTR name="mds1_tx_rx_polar" desc="Polarization" unit="" type="ascii" mode="rw">-</MDATTR>
+                <MDATTR name="mds2_tx_rx_polar" desc="Polarization" unit="" type="ascii" mode="rw">-</MDATTR>
+                <MDATTR name="mds3_tx_rx_polar" desc="Polarization" unit="" type="ascii" mode="rw">-</MDATTR>
+                <MDATTR name="mds4_tx_rx_polar" desc="Polarization" unit="" type="ascii" mode="rw">-</MDATTR>
+                <MDATTR name="polsar_data" desc="Polarimetric Matrix" unit="flag" type="uint8" mode="rw">0</MDATTR>
+                <MDATTR name="algorithm" desc="Processing algorithm" unit="" type="ascii" mode="rw">-</MDATTR>
+                <MDATTR name="azimuth_looks" desc="" unit="" type="float64" mode="rw">99999.0</MDATTR>
+                <MDATTR name="range_looks" desc="" unit="" type="float64" mode="rw">99999.0</MDATTR>
+                <MDATTR name="range_spacing" desc="Range sample spacing" unit="m" type="float64" mode="rw">99999.0</MDATTR>
+                <MDATTR name="azimuth_spacing" desc="Azimuth sample spacing" unit="m" type="float64" mode="rw">99999.0</MDATTR>
+                <MDATTR name="pulse_repetition_frequency" desc="PRF" unit="Hz" type="float64" mode="rw">99999.0</MDATTR>
+                <MDATTR name="radar_frequency" desc="Radar frequency" unit="MHz" type="float64" mode="rw">99999.0</MDATTR>
+                <MDATTR name="line_time_interval" desc="" unit="s" type="float64" mode="rw">99999.0</MDATTR>
+                <MDATTR name="total_size" desc="Total product size" unit="MB" type="uint32" mode="rw">39385</MDATTR>
+                <MDATTR name="num_output_lines" desc="Raster height" unit="lines" type="uint32" mode="rw">11</MDATTR>
+                <MDATTR name="num_samples_per_line" desc="Raster width" unit="samples" type="uint32" mode="rw">16</MDATTR>
+                <MDATTR name="subset_offset_x" desc="X coordinate of UL corner of subset in original image" unit="samples" type="uint32" mode="rw">0</MDATTR>
+                <MDATTR name="subset_offset_y" desc="Y coordinate of UL corner of subset in original image" unit="samples" type="uint32" mode="rw">0</MDATTR>
+                <MDATTR name="srgr_flag" desc="SRGR applied" unit="flag" type="uint8" mode="rw">0</MDATTR>
+                <MDATTR name="avg_scene_height" desc="Average scene height ellipsoid" unit="m" type="float64" mode="rw">0.0</MDATTR>
+                <MDATTR name="map_projection" desc="Map projection applied" unit="" type="ascii" mode="rw">-</MDATTR>
+                <MDATTR name="is_terrain_corrected" desc="orthorectification applied" unit="flag" type="uint8" mode="rw">0</MDATTR>
+                <MDATTR name="DEM" desc="Digital Elevation Model used" unit="" type="ascii" mode="rw">-</MDATTR>
+                <MDATTR name="geo_ref_system" desc="geographic reference system" unit="" type="ascii" mode="rw">-</MDATTR>
+                <MDATTR name="lat_pixel_res" desc="pixel resolution in geocoded image" unit="deg" type="float64" mode="rw">99999.0</MDATTR>
+                <MDATTR name="lon_pixel_res" desc="pixel resolution in geocoded image" unit="deg" type="float64" mode="rw">99999.0</MDATTR>
+                <MDATTR name="slant_range_to_first_pixel" desc="Slant range to 1st data sample" unit="m" type="float64" mode="rw">99999.0</MDATTR>
+                <MDATTR name="ant_elev_corr_flag" desc="Antenna elevation applied" unit="flag" type="uint8" mode="rw">0</MDATTR>
+                <MDATTR name="range_spread_comp_flag" desc="range spread compensation applied" unit="flag" type="uint8" mode="rw">0</MDATTR>
+                <MDATTR name="replica_power_corr_flag" desc="Replica pulse power correction applied" unit="flag" type="uint8" mode="rw">0</MDATTR>
+                <MDATTR name="abs_calibration_flag" desc="Product calibrated" unit="flag" type="uint8" mode="rw">0</MDATTR>
+                <MDATTR name="calibration_factor" desc="Calibration constant" unit="dB" type="float64" mode="rw">99999.0</MDATTR>
+                <MDATTR name="chirp_power" desc="Chirp power" unit="" type="float64" mode="rw">99999.0</MDATTR>
+                <MDATTR name="inc_angle_comp_flag" desc="incidence angle compensation applied" unit="flag" type="uint8" mode="rw">0</MDATTR>
+                <MDATTR name="ref_inc_angle" desc="Reference incidence angle" unit="" type="float64" mode="rw">99999.0</MDATTR>
+                <MDATTR name="ref_slant_range" desc="Reference slant range" unit="" type="float64" mode="rw">99999.0</MDATTR>
+                <MDATTR name="ref_slant_range_exp" desc="Reference slant range exponent" unit="" type="float64" mode="rw">99999.0</MDATTR>
+                <MDATTR name="rescaling_factor" desc="Rescaling factor" unit="" type="float64" mode="rw">99999.0</MDATTR>
+                <MDATTR name="range_sampling_rate" desc="Range Sampling Rate" unit="MHz" type="float64" mode="rw">99999.0</MDATTR>
+                <MDATTR name="range_bandwidth" desc="Bandwidth total in range" unit="MHz" type="float64" mode="rw">99999.0</MDATTR>
+                <MDATTR name="azimuth_bandwidth" desc="Bandwidth total in azimuth" unit="Hz" type="float64" mode="rw">99999.0</MDATTR>
+                <MDATTR name="multilook_flag" desc="Multilook applied" unit="flag" type="uint8" mode="rw">0</MDATTR>
+                <MDATTR name="coregistered_stack" desc="Coregistration applied" unit="flag" type="uint8" mode="rw">0</MDATTR>
+                <MDATTR name="external_calibration_file" desc="External calibration file used" unit="" type="ascii" mode="rw">-</MDATTR>
+                <MDATTR name="orbit_state_vector_file" desc="Orbit file used" unit="" type="ascii" mode="rw">-</MDATTR>
+                <MDATTR name="metadata_version" desc="AbsMetadata version" unit="" type="ascii" mode="rw">6.0</MDATTR>
+                <MDElem name="Orbit_State_Vectors" />
+                <MDElem name="SRGR_Coefficients" />
+                <MDElem name="Doppler_Centroid_Coefficients" />
+            </MDElem>
+            <MDElem name="TIFF Metadata">
+                <MDATTR name="ImageWidth" type="ascii">1039</MDATTR>
+                <MDATTR name="ImageLength" type="ascii">1057</MDATTR>
+                <MDATTR name="BitsPerSample" type="ascii">32, 32, 32, 32, 32</MDATTR>
+                <MDATTR name="Compression" type="ascii">Uncompressed</MDATTR>
+                <MDATTR name="PhotometricInterpretation" type="ascii">BlackIsZero</MDATTR>
+                <MDATTR name="SamplesPerPixel" type="ascii">5</MDATTR>
+                <MDATTR name="RowsPerStrip" type="ascii">1</MDATTR>
+                <MDATTR name="PlanarConfiguration" type="ascii">Chunky</MDATTR>
+                <MDATTR name="ExtraSamples" type="ascii">Unspecified, Unspecified, Unspecified, Unspecified</MDATTR>
+                <MDATTR name="SampleFormat" type="ascii">Floating Point, Floating Point, Floating Point, Floating Point, Floating Point</MDATTR>
+                <MDATTR name="unknown" type="ascii">&lt;GDALMetadata&gt;
+  &lt;Item name="JUDE_AUTHORISATION_CODE"&gt;E00FA32FDB50F8FF&lt;/Item&gt;
+  &lt;Item name="JUDE_BOX_LAMBDA_MAX" sample="0"&gt;453&lt;/Item&gt;
+  &lt;Item name="JUDE_BOX_LAMBDA_MIN" sample="0"&gt;433&lt;/Item&gt;
+  &lt;Item name="JUDE_DESCRIPTION" sample="0"&gt;B01&lt;/Item&gt;
+  &lt;Item name="DESCRIPTION" sample="0" role="description"&gt;B01&lt;/Item&gt;
+  &lt;Item name="JUDE_BOX_LAMBDA_MAX" sample="1"&gt;523&lt;/Item&gt;
+  &lt;Item name="JUDE_BOX_LAMBDA_MIN" sample="1"&gt;457&lt;/Item&gt;
+  &lt;Item name="JUDE_DESCRIPTION" sample="1"&gt;B02&lt;/Item&gt;
+  &lt;Item name="DESCRIPTION" sample="1" role="description"&gt;B02&lt;/Item&gt;
+  &lt;Item name="JUDE_BOX_LAMBDA_MAX" sample="2"&gt;578&lt;/Item&gt;
+  &lt;Item name="JUDE_BOX_LAMBDA_MIN" sample="2"&gt;542&lt;/Item&gt;
+  &lt;Item name="JUDE_DESCRIPTION" sample="2"&gt;B03&lt;/Item&gt;
+  &lt;Item name="DESCRIPTION" sample="2" role="description"&gt;B03&lt;/Item&gt;
+  &lt;Item name="JUDE_BOX_LAMBDA_MAX" sample="3"&gt;680&lt;/Item&gt;
+  &lt;Item name="JUDE_BOX_LAMBDA_MIN" sample="3"&gt;650&lt;/Item&gt;
+  &lt;Item name="JUDE_DESCRIPTION" sample="3"&gt;B04&lt;/Item&gt;
+  &lt;Item name="DESCRIPTION" sample="3" role="description"&gt;B04&lt;/Item&gt;
+  &lt;Item name="JUDE_BOX_LAMBDA_MAX" sample="4"&gt;713&lt;/Item&gt;
+  &lt;Item name="JUDE_BOX_LAMBDA_MIN" sample="4"&gt;697&lt;/Item&gt;
+  &lt;Item name="JUDE_DESCRIPTION" sample="4"&gt;B05&lt;/Item&gt;
+  &lt;Item name="DESCRIPTION" sample="4" role="description"&gt;B05&lt;/Item&gt;
+&lt;/GDALMetadata&gt;</MDATTR>
+                <MDElem name="GeoTIFF Metadata">
+                    <MDATTR name="ModelPixelScaleTag" type="ascii">10.0, 10.0, 0.0</MDATTR>
+                    <MDATTR name="ModelTiePointTag" type="ascii">0.0, 0.0, 0.0, 329120.0, 8382280.0, 0.0</MDATTR>
+                    <MDElem name="GeoKeyDirectory">
+                        <MDATTR name="GTModelTypeGeoKey" type="ascii">ModelTypeProjected</MDATTR>
+                        <MDATTR name="GTRasterTypeGeoKey" type="ascii">RasterPixelIsArea</MDATTR>
+                        <MDATTR name="GTCitationGeoKey" type="ascii">WGS 84 / UTM zone 55S</MDATTR>
+                        <MDATTR name="GeogCitationGeoKey" type="ascii">WGS 84</MDATTR>
+                        <MDATTR name="GeogAngularUnitsGeoKey" type="ascii">Angular_Degree</MDATTR>
+                        <MDATTR name="ProjectedCSTypeGeoKey" type="ascii">PCS_WGS84_UTM_zone_55S</MDATTR>
+                        <MDATTR name="ProjLinearUnitsGeoKey" type="ascii">Linear_Meter</MDATTR>
+                    </MDElem>
+                </MDElem>
+            </MDElem>
+            <MDElem name="history">
+                <MDElem name="SubsetInfo">
+                    <MDATTR name="SourceProduct.name" type="ascii">subset_0_of_lizard_2016_03_23_tdg_cmn_u0_tau0p18_LEboa</MDATTR>
+                    <MDATTR name="SubSampling.x" type="int32" mode="rw">1</MDATTR>
+                    <MDATTR name="SubSampling.y" type="int32" mode="rw">1</MDATTR>
+                    <MDATTR name="SubRegion.x" type="int32" mode="rw">0</MDATTR>
+                    <MDATTR name="SubRegion.y" type="int32" mode="rw">0</MDATTR>
+                    <MDATTR name="SubRegion.width" type="int32" mode="rw">16</MDATTR>
+                    <MDATTR name="SubRegion.height" type="int32" mode="rw">11</MDATTR>
+                    <MDATTR name="ProductNodeName.1" type="ascii">band_1</MDATTR>
+                    <MDATTR name="ProductNodeName.2" type="ascii">band_2</MDATTR>
+                    <MDATTR name="ProductNodeName.3" type="ascii">band_3</MDATTR>
+                    <MDATTR name="ProductNodeName.4" type="ascii">band_4</MDATTR>
+                    <MDATTR name="ProductNodeName.5" type="ascii">band_5</MDATTR>
+                    <MDATTR name="ProductNodeName.6" type="ascii">Abstracted_Metadata</MDATTR>
+                    <MDATTR name="ProductNodeName.7" type="ascii">TIFF Metadata</MDATTR>
+                    <MDATTR name="ProductNodeName.8" type="ascii">history</MDATTR>
+                    <MDElem name="SubsetInfo">
+                        <MDATTR name="SourceProduct.name" type="ascii">lizard_2016_03_23_tdg_cmn_u0_tau0p18_LEboa</MDATTR>
+                        <MDATTR name="SubSampling.x" type="int32" mode="rw">1</MDATTR>
+                        <MDATTR name="SubSampling.y" type="int32" mode="rw">1</MDATTR>
+                        <MDATTR name="SubRegion.x" type="int32" mode="rw">427</MDATTR>
+                        <MDATTR name="SubRegion.y" type="int32" mode="rw">623</MDATTR>
+                        <MDATTR name="SubRegion.width" type="int32" mode="rw">106</MDATTR>
+                        <MDATTR name="SubRegion.height" type="int32" mode="rw">57</MDATTR>
+                        <MDATTR name="ProductNodeName.1" type="ascii">band_1</MDATTR>
+                        <MDATTR name="ProductNodeName.2" type="ascii">band_2</MDATTR>
+                        <MDATTR name="ProductNodeName.3" type="ascii">band_3</MDATTR>
+                        <MDATTR name="ProductNodeName.4" type="ascii">band_4</MDATTR>
+                        <MDATTR name="ProductNodeName.5" type="ascii">band_5</MDATTR>
+                        <MDATTR name="ProductNodeName.6" type="ascii">Abstracted_Metadata</MDATTR>
+                        <MDATTR name="ProductNodeName.7" type="ascii">TIFF Metadata</MDATTR>
+                    </MDElem>
+                </MDElem>
+            </MDElem>
+        </MDElem>
+    </Dataset_Sources>
+</Dimap_Document>
