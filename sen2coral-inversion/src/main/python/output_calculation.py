@@ -40,6 +40,7 @@ def output_calculation(observed_rrs, objective, siop, result_recorder, image_inf
     #exponents=np.array(np.log10(np.array(siop['p_max']))+np.log10(np.array(siop['p_min']))/2)
     p0 = (np.array(siop['p_max'])+np.array(siop['p_min']))/2
     p0[3]=10**((math.log10(np.array(siop['p_max'][3]))+math.log10(np.array(siop['p_min'][3])))/2)
+
     #p0[3]=5.
     #p0=np.power(bases, exponents)
     t0 = time.time()
@@ -50,13 +51,13 @@ def output_calculation(observed_rrs, objective, siop, result_recorder, image_inf
     high_relax = 2.0
 
     if relaxed==True:
-        cons=({'type':'ineq','fun':lambda x:high_relax -(x[4]+x[5]+x[6])},
-              {'type':'ineq','fun':lambda x:(x[4]+x[5]+x[6])- low_relax})
+        cons=({'type':'ineq','fun':lambda x:high_relax -(x[4]+x[5]+x[6]),'jac' : lambda x: np.array([0.0,0.0,0.0,0.0,-1.0,-1.0,-1.0])},
+              {'type':'ineq','fun':lambda x:(x[4]+x[5]+x[6])- low_relax,'jac' : lambda x: np.array([0.0,0.0,0.0,0.0,1.0,1.0,1.0])})
     else:
         #******************************************************************************
         # Return to sum to one constraint
 
-        cons=({'type':'eq','fun':lambda x:1-(x[4]+x[5]+x[6])})
+        cons=({'type':'eq','fun':lambda x:1-(x[4]+x[5]+x[6]),'jac' : lambda x: np.array([0.0,0.0,0.0,0.0,-1.0,-1.0,-1.0])})
 
         #******************************************************************************
 
@@ -79,8 +80,9 @@ def output_calculation(observed_rrs, objective, siop, result_recorder, image_inf
                             method=opt_met,
                             bounds=siop['p_bounds'],
                             constraints=cons,
-                            options={'disp':False, 'maxiter':10000},
+                            options={'disp':True, 'maxiter':10000},
                             obs_rrs=obs_rrs)
+
 
                 #%time result = minimize(objective, p0, method='SLSQP', bounds=p_bounds, options={'disp':False, 'maxiter':500})
 
@@ -94,7 +96,7 @@ def output_calculation(observed_rrs, objective, siop, result_recorder, image_inf
                 result_recorder(x, y, obs_rrs, parameters=sb.FreeParameters(*result.x), nit=result.nit, success=result.success)
                 #result_recorder(x, y, obs_rrs, parameters=sb.FreeParameters(*result['x']))
                 #print (result_recorder.nit[x,y])
-                
+
                 # ******GO SHALLOW*****retrieves shallow as possible while SDI remains below 1
                 if shallow == True:
                     #parameters=sb.FreeParameters(*result.x)

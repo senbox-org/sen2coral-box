@@ -10,6 +10,8 @@ import par
 import com
 import out
 import prep"""
+import os, sys
+sys.path.insert(0, os.getcwd())
 import snappy
 import numpy as np
 from snappy import jpy
@@ -23,7 +25,7 @@ import main_sambuca_snap
 import input_sensor_filter
 import input_parameters
 import input_prepare
-import os
+#import os
 #import snappy
 
 
