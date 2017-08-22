@@ -205,7 +205,8 @@ def input_prepare_2(siop, envmeta, image_info, error_name):
     )
 
     error_dict={'alpha':sb.distance_alpha, 'alpha_f': sb.distance_alpha_f, 'lsq':sb.distance_lsq, 'f':sb.distance_f}
-    objective = sb.SciPyObjective(sensor_filter, fixed_parameters, error_function=error_dict[error_name.lower()], nedr=nedr)
+    #objective = sb.SciPyObjective(sensor_filter, fixed_parameters, error_function=error_dict[error_name.lower()], nedr=nedr)
+    objective = sb.SciPyObjective(sensor_filter, fixed_parameters, error_name.lower(), nedr=nedr)
     siop['a_water']=a_water
     siop['a_ph_star']=a_ph_star
     siop['substrates']=substrates
