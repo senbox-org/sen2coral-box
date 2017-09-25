@@ -70,13 +70,13 @@ def input_prepare(siop, envmeta, image_info, error_name):
     filter_mask = (sensor_filter[0] >= wavelengths.min()) & (sensor_filter[0] <= wavelengths.max())
     sensor_filter = sensor_filter[0][filter_mask], sensor_filter[1][:,filter_mask]
 
-    filter_mask2 = (sensor_filter[1] > 0)
-    sensor_filter = sensor_filter[0][filter_mask2], sensor_filter[1][:,filter_mask2]
-    wavelengths = wavelengths[filter_mask2]
-    a_water = a_water[filter_mask2]
-    a_ph_star = a_ph_star[filter_mask2]
-    for i, substrate in enumerate(substrates):
-        substrates[i] = substrates[i][filter_mask2]
+    #filter_mask2 = (sensor_filter[1] > 0)
+    #sensor_filter = sensor_filter[0][filter_mask2], sensor_filter[1][:,filter_mask2]
+    #wavelengths = wavelengths[filter_mask2]
+    #a_water = a_water[filter_mask2]
+    #a_ph_star = a_ph_star[filter_mask2]
+    #for i, substrate in enumerate(substrates):
+    #    substrates[i] = substrates[i][filter_mask2]
 
     
     
@@ -166,13 +166,15 @@ def input_prepare_2(siop, envmeta, image_info, error_name):
     filter_mask = (sensor_filter[0] >= wavelengths.min()) & (sensor_filter[0] <= wavelengths.max())
     sensor_filter = sensor_filter[0][filter_mask], sensor_filter[1][:,filter_mask]
 
-    filter_mask2 = (sensor_filter[1][0] > 0) | (sensor_filter[1][1] > 0 ) | (sensor_filter[1][2] > 0 ) | (sensor_filter[1][3] > 0 ) | (sensor_filter[1][4] > 0 )
-    sensor_filter = sensor_filter[0][filter_mask2], sensor_filter[1][:,filter_mask2]
-    wavelengths = wavelengths[filter_mask2]
-    a_water = a_water[0][filter_mask2],a_water[1][filter_mask2]
-    a_ph_star = a_ph_star[0][filter_mask2],a_ph_star[1][filter_mask2]
-    for i, substrate in enumerate(substrates):
-        substrates[i] = substrate[0][filter_mask2],substrate[1][filter_mask2]
+    #filter_mask2 = (sensor_filter[1][0] > 0) | (sensor_filter[1][1] > 0 ) | (sensor_filter[1][2] > 0 ) | (sensor_filter[1][3] > 0 ) | (sensor_filter[1][4] > 0 )
+    #sensor_filter = sensor_filter[0][filter_mask2], sensor_filter[1][:,filter_mask2]
+    #wavelengths = wavelengths[filter_mask2]
+    #a_water = a_water[0][filter_mask2],a_water[1][filter_mask2]
+    #a_ph_star = a_ph_star[0][filter_mask2],a_ph_star[1][filter_mask2]
+    #for i, substrate in enumerate(substrates):
+    #    substrates[i] = substrate[0][filter_mask2],substrate[1][filter_mask2]
+
+
 
     fixed_parameters = sb.create_fixed_parameter_set(
         wavelengths=wavelengths,
