@@ -100,7 +100,7 @@ public class InversionTest {
         operator.setPythonModulePath(moduleDir.getParentFile().getPath());
         operator.setPythonModuleName("sambuca_snap_op");
         operator.setPythonClassName("sambuca_snap_op");
-        operator.setParameter("xmlpath_sensor", getTestDataPath("swampy_s2_5_bands_filter_nedr.xml").toString());
+        operator.setParameter("xmlpath_sensor", getTestDataPath("swampy_s2_6_bands_filter_nedr.xml").toString());
         operator.setParameter("xmlpath_parameters", getTestDataPath("swampy_s2_parameters_depth30.xml").toString());
         operator.setParameter("xmlpath_siop", getTestDataPath("swampy_s2_6_siop_Lizard.xml").toString());
         operator.setParameter("error_name", "alpha_f");
