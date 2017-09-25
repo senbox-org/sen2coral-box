@@ -13,9 +13,13 @@ import java.util.ArrayList;
 public class SensorXmlHandler extends DefaultHandler {
 
     private int nNumberOfWavelengths;
+    private ArrayList<Float> wavelengths;
     private ArrayList<Integer> nFilterWeights;
+    private ArrayList<ArrayList<Float>> weights;
     private int nNumberOfNedrWavelengths;
+    private ArrayList<Float> centralWavelengths;
     private int nNumberOfNedrValues;
+    private ArrayList<Float> nedrs;
     private int itemDepth;
     private boolean insideSensorFilter;
     private boolean insideNedr;
@@ -48,6 +52,7 @@ public class SensorXmlHandler extends DefaultHandler {
             itemDepth++;
         }
         if(itemDepth == 2 && insideSensorFilter && !finishedWL) {
+
             nNumberOfWavelengths++;
             return;
         }
