@@ -46,12 +46,23 @@
     </parameter>
 
     <parameter>
+      <name>band_names</name>
+      <description>The bands used in the processing.</description>
+      <label>Band Names</label>
+      <dataType>java.lang.String[]</dataType>
+      <defaultValue></defaultValue>
+      <notEmpty>false</notEmpty>
+    </parameter>
+
+
+    <parameter>
       <name>error_name</name>
       <description>The error used in the closure. Should be one of: 'alpha', 'alpha_f', 'lsq', 'f'.</description>
       <label>Error</label>
-      <dataType>String</dataType>
+      <dataType>java.lang.String</dataType>
       <defaultValue>alpha_f</defaultValue>
-      <notEmpty>False</notEmpty>
+      <valueSet>alpha,alpha_f,lsq,f</valueSet>
+      <notEmpty>true</notEmpty>
     </parameter>
 
     <parameter>
@@ -60,7 +71,8 @@
       <label>Optimization method</label>
       <dataType>String</dataType>
       <defaultValue>SLSQP</defaultValue>
-      <notEmpty>False</notEmpty>
+      <valueSet>SLSQP,L-BFGS-B,TNC,COBYLA</valueSet>
+      <notEmpty>true</notEmpty>
     </parameter>
 
     <parameter>
