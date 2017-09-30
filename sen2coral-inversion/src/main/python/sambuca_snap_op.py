@@ -93,6 +93,10 @@ class sambuca_snap_op:
         self.error_name=context.getParameter('error_name')
         self.opt_met=context.getParameter('opt_method')
 
+        self.processingBands = context.getParameter('band_names')
+        print('TYPE processing bands')
+        print(type(self.processingBands))
+
         #read the flag for rrs and shallow (True or False)
         self.above_rrs_flag=context.getParameter('above_rrs_flag')
         self.shallow_flag=context.getParameter('shallow_flag')

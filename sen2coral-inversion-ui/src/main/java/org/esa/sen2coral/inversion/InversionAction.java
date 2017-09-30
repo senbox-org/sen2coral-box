@@ -62,9 +62,10 @@ public class InversionAction extends AbstractSnapAction {
 
 
     protected ModelessDialog createOperatorDialog() {
-        InversionProductDialog productDialog = new InversionProductDialog(OPERATOR_NAME, getAppContext(),
-                                                                          DIALOG_TITLE, getHelpId());
+        //InversionProductDialog productDialog = new InversionProductDialog(OPERATOR_NAME, getAppContext(),
+        //                                                                  DIALOG_TITLE, getHelpId());
 
+        InversionCustomizedDialog productDialog = new InversionCustomizedDialog(getAppContext(), null, true );
         productDialog.setTargetProductNameSuffix(TARGET_PRODUCT_NAME_SUFFIX);
 
         return productDialog;
