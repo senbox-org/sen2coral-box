@@ -52,29 +52,29 @@ public class InversionProductDialog extends DefaultSingleTargetProductDialog {
         String valueOptMethod = (String) this.getBindingContext().getBinding("opt_method").getPropertyValue();
         //boolean valueRrs = (boolean) this.getBindingContext().getBinding("above_rrs_flag").getPropertyValue();
         File valueSensor = (File) this.getBindingContext().getBinding("xmlpath_sensor").getPropertyValue();
-        float valueMax = (float) this.getBindingContext().getBinding("max_wlen").getPropertyValue();
-        float valueMin = (float) this.getBindingContext().getBinding("min_wlen").getPropertyValue();
+        //float valueMax = (float) this.getBindingContext().getBinding("max_wlen").getPropertyValue();
+        //float valueMin = (float) this.getBindingContext().getBinding("min_wlen").getPropertyValue();
 
-        //TODO check at least MINIMUM_BANDS
-        int validBandCount = 0;
-        for(int i = 0; i<sourceProduct.getNumBands() ; i++) {
-            Band band = sourceProduct.getBandAt(i);
-            float spectralWavelength = band.getSpectralWavelength();
-            if (spectralWavelength >= valueMin  && spectralWavelength <= valueMax) {
-                validBandCount ++;
-            }
-        }
-        if(validBandCount < MINIMUM_BANDS) {
-            this.showErrorDialog("Not enough valid spectral bands in the source product." +
-                                         "Try to change wavelength range or to add spectral information to the bands.");
-            return false;
-        }
-
-        //Check parameters
-        if(valueMin >= valueMax) {
-            this.showErrorDialog("Max value must be higher than Min value.");
-            return false;
-        }
+//        //TODO check at least MINIMUM_BANDS
+//        int validBandCount = 0;
+//        for(int i = 0; i<sourceProduct.getNumBands() ; i++) {
+//            Band band = sourceProduct.getBandAt(i);
+//            float spectralWavelength = band.getSpectralWavelength();
+//            if (spectralWavelength >= valueMin  && spectralWavelength <= valueMax) {
+//                validBandCount ++;
+//            }
+//        }
+//        if(validBandCount < MINIMUM_BANDS) {
+//            this.showErrorDialog("Not enough valid spectral bands in the source product." +
+//                                         "Try to change wavelength range or to add spectral information to the bands.");
+//            return false;
+//        }
+//
+//        //Check parameters
+//        if(valueMin >= valueMax) {
+//            this.showErrorDialog("Max value must be higher than Min value.");
+//            return false;
+//        }
         if(valueSiop == null) {
             this.showErrorDialog("Siop path cannot be null. Please, select a file.");
             return false;

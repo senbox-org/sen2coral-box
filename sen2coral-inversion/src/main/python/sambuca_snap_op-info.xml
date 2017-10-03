@@ -71,26 +71,8 @@
       <label>Optimization method</label>
       <dataType>String</dataType>
       <defaultValue>SLSQP</defaultValue>
-      <valueSet>SLSQP,L-BFGS-B,TNC,COBYLA</valueSet>
+      <valueSet>SLSQP</valueSet>
       <notEmpty>true</notEmpty>
-    </parameter>
-
-    <parameter>
-      <name>min_wlen</name>
-      <description>The shorter wavelenght</description>
-      <label>Shorter wavelenght</label>
-      <dataType>Float</dataType>
-      <defaultValue>400.0</defaultValue>
-      <notEmpty>False</notEmpty>
-    </parameter>
-
-    <parameter>
-      <name>max_wlen</name>
-      <description>The longer wavelenght</description>
-      <label>Longer wavelenght</label>
-      <dataType>Float</dataType>
-      <defaultValue>750.0</defaultValue>
-      <notEmpty>False</notEmpty>
     </parameter>
 
     <parameter>

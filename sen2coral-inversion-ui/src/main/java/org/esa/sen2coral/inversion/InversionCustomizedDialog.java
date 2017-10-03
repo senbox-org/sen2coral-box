@@ -1,7 +1,6 @@
 package org.esa.sen2coral.inversion;
 
 import com.bc.ceres.binding.Property;
-import com.bc.ceres.binding.PropertyContainer;
 import com.bc.ceres.binding.PropertyDescriptor;
 import com.bc.ceres.binding.PropertySet;
 import com.bc.ceres.binding.ValidationException;
@@ -52,7 +51,7 @@ import java.util.*;
 public class InversionCustomizedDialog extends SingleTargetProductDialog {
 
     private static final float TIME_THRESHOLD_WARNING = 3; //in minutes
-    private static final float TIME_PER_PIXEL = 0.1f; //in seconds
+    private static final float TIME_PER_PIXEL = 0.036f; //in seconds
     private static final float MINIMUM_BANDS = 4; //in seconds
 
     private final String operatorName;
@@ -74,7 +73,7 @@ public class InversionCustomizedDialog extends SingleTargetProductDialog {
 
 
     public InversionCustomizedDialog(AppContext appContext, Product product, boolean modal) {
-        super(appContext, "SWAM", ID_APPLY_CLOSE, "swamAction"); //TODO check title and helpID
+        super(appContext, InversionAction.DIALOG_TITLE, ID_APPLY_CLOSE, "ModelInversionSWAMAlgorithm"); //TODO check title and helpID
         this.operatorName = InversionAction.OPERATOR_NAME;
         this.product = product;
         targetProductNameSuffix = InversionAction.TARGET_PRODUCT_NAME_SUFFIX;
@@ -90,11 +89,7 @@ public class InversionCustomizedDialog extends SingleTargetProductDialog {
         parameterSupport = new OperatorParameterSupport(operatorDescriptor);
         final ArrayList<SourceProductSelector> sourceProductSelectorList = ioParametersPanel.getSourceProductSelectorList();
         final PropertySet propertySet = parameterSupport.getPropertySet();
-        try {
-            propertySet.getProperty("band_names").setValue(new String[]{"B2","B3"});
-        } catch (ValidationException e) {
-            e.printStackTrace();
-        }
+
         Map<String, Object> map = parameterSupport.getParameterMap();
         bindingContext = new BindingContext(propertySet);
 
@@ -118,13 +113,11 @@ public class InversionCustomizedDialog extends SingleTargetProductDialog {
         }
     }
 
-
     @Override
     protected boolean canApply() {
         if(!super.canApply()) {
             return false;
         }
-
 
         ArrayList sourceProductSelectorList = getDefaultIOParametersPanel().getSourceProductSelectorList();
         Product sourceProduct = ((SourceProductSelector) sourceProductSelectorList.get(0)).getSelectedProduct();
@@ -133,27 +126,17 @@ public class InversionCustomizedDialog extends SingleTargetProductDialog {
             return false;
         }
 
-
-
-
-        String valueError = (String) this.getBindingContext().getBinding("error_name").getPropertyValue();
-        //boolean valueShallow = (boolean) this.getBindingContext().getBinding("shallow_flag").getPropertyValue();
-        //boolean valueRelaxed = (boolean) this.getBindingContext().getBinding("relaxed_cons").getPropertyValue();
         File valueSiop = (File) this.getBindingContext().getBinding("xmlpath_siop").getPropertyValue();
         File valueParam = (File) this.getBindingContext().getBinding("xmlpath_parameters").getPropertyValue();
-        String valueOptMethod = (String) this.getBindingContext().getBinding("opt_method").getPropertyValue();
-        //boolean valueRrs = (boolean) this.getBindingContext().getBinding("above_rrs_flag").getPropertyValue();
         File valueSensor = (File) this.getBindingContext().getBinding("xmlpath_sensor").getPropertyValue();
-        float valueMax = (float) this.getBindingContext().getBinding("max_wlen").getPropertyValue();
-        float valueMin = (float) this.getBindingContext().getBinding("min_wlen").getPropertyValue();
 
-        //TODO check at least MINIMUM_BANDS
+        //check at least MINIMUM_BANDS
+        String[] selectedBands = new String[sensorBandsTable.getRowCount()];
         int validBandCount = 0;
-        for(int i = 0; i<sourceProduct.getNumBands() ; i++) {
-            Band band = sourceProduct.getBandAt(i);
-            float spectralWavelength = band.getSpectralWavelength();
-            if (spectralWavelength >= valueMin  && spectralWavelength <= valueMax) {
-                validBandCount ++;
+        for(int i = 0 ; i < sensorBandsTable.getRowCount() ; i++) {
+            selectedBands[i] = (String) sensorBandsTable.getModel().getValueAt(i,2);
+            if(!selectedBands[i].equals("NULL") && !selectedBands[i].equals("null")) {
+                validBandCount++;
             }
         }
         if(validBandCount < MINIMUM_BANDS) {
@@ -162,11 +145,25 @@ public class InversionCustomizedDialog extends SingleTargetProductDialog {
             return false;
         }
 
-        //Check parameters
-        if(valueMin >= valueMax) {
-            this.showErrorDialog("Max value must be higher than Min value.");
-            return false;
+        //Check selected bands have the same rasterSize
+        int width = 0, height = 0;
+        for(int i = 0 ; i < sensorBandsTable.getRowCount() ; i++) {
+            if(selectedBands[i].equals("NULL") || selectedBands[i].equals("null")) {
+                continue;
+            }
+            int currentWidth = currentProduct.getBand(selectedBands[i]).getRasterWidth();
+            int currentHeight = currentProduct.getBand(selectedBands[i]).getRasterHeight();
+            if(width == 0 && height == 0) {
+                width = currentWidth;
+                height = currentHeight;
+            } else if(width != currentWidth || height != currentHeight) {
+                this.showErrorDialog("Selected bands have different raster sizes. " +
+                                             "Select other bands or resample the product before applying this operator.");
+                return false;
+            }
         }
+
+        //Check parameters
         if(valueSiop == null) {
             this.showErrorDialog("Siop path cannot be null. Please, select a file.");
             return false;
@@ -194,9 +191,6 @@ public class InversionCustomizedDialog extends SingleTargetProductDialog {
             return false;
         }
 
-
-        int width = sourceProduct.getSceneRasterWidth();
-        int height = sourceProduct.getSceneRasterHeight();
         int numberOfPixelsToCompute = width * height;
         float estimatedTime = TIME_PER_PIXEL * numberOfPixelsToCompute;
 
@@ -212,8 +206,6 @@ public class InversionCustomizedDialog extends SingleTargetProductDialog {
 
         return true;
     }
-
-
 
     @Override
     public int show() {
@@ -239,6 +231,17 @@ public class InversionCustomizedDialog extends SingleTargetProductDialog {
     @Override
     protected Product createTargetProduct() throws Exception {
         final HashMap<String, Product> sourceProducts = ioParametersPanel.createSourceProductsMap();
+        //create band names
+        final PropertySet propertySet = parameterSupport.getPropertySet();
+        String[] selectedBands = new String[sensorBandsTable.getRowCount()];
+        for(int i = 0 ; i < sensorBandsTable.getRowCount() ; i++) {
+            selectedBands[i] = (String) sensorBandsTable.getModel().getValueAt(i,2);
+        }
+        try {
+            propertySet.getProperty("band_names").setValue(selectedBands);
+        } catch (ValidationException e) {
+            e.printStackTrace();
+        }
         return GPF.createProduct(operatorName, parameterSupport.getParameterMap(), sourceProducts);
     }
 
@@ -259,16 +262,11 @@ public class InversionCustomizedDialog extends SingleTargetProductDialog {
     }
 
     private void initForm() {
-
         form = new JTabbedPane();
         form.add("I/O Parameters", ioParametersPanel);
         form.add("Resampling Parameters", new JScrollPane(createParametersPanel()));
         reactToSourceProductChange(ioParametersPanel.getSourceProductSelectorList().get(0).getSelectedProduct());
-
     }
-
-
-
 
     private OperatorMenu createDefaultMenuBar() {
         return new OperatorMenu(getJDialog(),
@@ -284,14 +282,16 @@ public class InversionCustomizedDialog extends SingleTargetProductDialog {
             if (property != null) {
                 property.setValue(productChangedHandler.currentProduct);
             }
-            setUpBandsColumn(sensorBandsTable,sensorBandsTable.getColumnModel().getColumn(1),productChangedHandler.currentProduct);
+            this.currentProduct = productChangedHandler.currentProduct;
+            setUpBandsColumn(sensorBandsTable,sensorBandsTable.getColumnModel().getColumn(2),productChangedHandler.currentProduct);
+            updateTableModel(bindingContext.getPropertySet().getProperty("xmlpath_sensor").getValue());
         } catch (ValidationException e) {
             throw new IllegalStateException("Property '" + UIUtils.PROPERTY_SOURCE_PRODUCT + "' must be of type " + Product.class + ".", e);
         }
     }
 
     private JPanel createParametersPanel() {
-        //TODO
+
         final PropertyEditorRegistry registry = PropertyEditorRegistry.getInstance();
         final PropertySet propertySet = bindingContext.getPropertySet();
 
@@ -307,24 +307,20 @@ public class InversionCustomizedDialog extends SingleTargetProductDialog {
         FileEditor fileEditorSensor = new FileEditor();
         PropertyDescriptor propertyDescriptorSensor = propertySet.getDescriptor("xmlpath_sensor");
         JComponent editorComponentSensor = fileEditorSensor.createEditorComponent(propertyDescriptorSensor, bindingContext);
+        editorComponentSensor.setPreferredSize(new Dimension(300, 20));
         bindingContext.addPropertyChangeListener("xmlpath_sensor", (PropertyChangeEvent evt) ->{
-            updateTableModel();
+            updateTableModel((File) evt.getNewValue());
         });
         panel.add(editorComponentSensor);
 
         //create table
         SensorBandsTableModel sensorBandsTableModel = new SensorBandsTableModel();
-        Object[][] data = {
-                {"1", "B1"},
-                {"2", "B4"},
+        sensorBandsTable = new JTable(sensorBandsTableModel);
 
-        };
-        sensorBandsTableModel.setData(data);//TODO
-        this.sensorBandsTable = new JTable(sensorBandsTableModel);
-        //table.setPreferredScrollableViewportSize(new Dimension(500, 70));
-        //table.setFillsViewportHeight(true);
+        sensorBandsTable.setPreferredScrollableViewportSize(new Dimension(400, 120));
+        sensorBandsTable.setFillsViewportHeight(true);
         JScrollPane scrollPane = new JScrollPane(sensorBandsTable);
-        setUpBandsColumn(sensorBandsTable, sensorBandsTable.getColumnModel().getColumn(1),product);
+        setUpBandsColumn(sensorBandsTable, sensorBandsTable.getColumnModel().getColumn(2),product);
         panel.add(new JLabel("Select input bands:"));
         panel.add(scrollPane);
 
@@ -332,12 +328,14 @@ public class InversionCustomizedDialog extends SingleTargetProductDialog {
         FileEditor fileEditorParameters = new FileEditor();
         PropertyDescriptor propertyDescriptorParameters = propertySet.getDescriptor("xmlpath_parameters");
         JComponent editorComponentParameters = fileEditorParameters.createEditorComponent(propertyDescriptorParameters, bindingContext);
+        editorComponentParameters.setPreferredSize(new Dimension(300, 20));
         panel.add(editorComponentParameters);
 
         panel.add(new JLabel("Path of the siop and substrates xml file:"));
         FileEditor fileEditorSiop = new FileEditor();
         PropertyDescriptor propertyDescriptorSiop = propertySet.getDescriptor("xmlpath_siop");
         JComponent editorComponentSiop = fileEditorSiop.createEditorComponent(propertyDescriptorSiop, bindingContext);
+        editorComponentSiop.setPreferredSize(new Dimension(300, 20));
         panel.add(editorComponentSiop);
 
         panel.add(new JLabel("Error:"));
@@ -352,17 +350,17 @@ public class InversionCustomizedDialog extends SingleTargetProductDialog {
         JComponent editorComponentMethod = singleSelectionEditorMethod.createEditorComponent(propertyDescriptorMethod, bindingContext);
         panel.add(editorComponentMethod);
 
-        panel.add(new JLabel("The shorter wavelength:"));
-        NumericEditor numericEditorShorter = new NumericEditor();
-        PropertyDescriptor propertyDescriptorShorter = propertySet.getDescriptor("min_wlen");
-        JComponent editorComponentShorter = numericEditorShorter.createEditorComponent(propertyDescriptorShorter, bindingContext);
-        panel.add(editorComponentShorter);
-
-        panel.add(new JLabel("The longer wavelength:"));
-        NumericEditor numericEditorLonger = new NumericEditor();
-        PropertyDescriptor propertyDescriptorLonger = propertySet.getDescriptor("max_wlen");
-        JComponent editorComponentLonger = numericEditorLonger.createEditorComponent(propertyDescriptorLonger, bindingContext);
-        panel.add(editorComponentLonger);
+//        panel.add(new JLabel("The shorter wavelength:"));
+//        NumericEditor numericEditorShorter = new NumericEditor();
+//        PropertyDescriptor propertyDescriptorShorter = propertySet.getDescriptor("min_wlen");
+//        JComponent editorComponentShorter = numericEditorShorter.createEditorComponent(propertyDescriptorShorter, bindingContext);
+//        panel.add(editorComponentShorter);
+//
+//        panel.add(new JLabel("The longer wavelength:"));
+//        NumericEditor numericEditorLonger = new NumericEditor();
+//        PropertyDescriptor propertyDescriptorLonger = propertySet.getDescriptor("max_wlen");
+//        JComponent editorComponentLonger = numericEditorLonger.createEditorComponent(propertyDescriptorLonger, bindingContext);
+//        panel.add(editorComponentLonger);
 
         panel.add(new JLabel("Is it above water rrs?"));
         CheckBoxEditor checkBoxEditorAbove = new CheckBoxEditor();
@@ -382,91 +380,56 @@ public class InversionCustomizedDialog extends SingleTargetProductDialog {
         JComponent editorComponentRelaxed = checkBoxEditorRelaxed.createEditorComponent(propertyDescriptorRelaxed, bindingContext);
         panel.add(editorComponentRelaxed);
 
-       /* final TableLayout defineTargetResolutionPanelLayout = new TableLayout(2);
-        defineTargetResolutionPanelLayout.setTableAnchor(TableLayout.Anchor.NORTHWEST);
-        defineTargetResolutionPanelLayout.setTableFill(TableLayout.Fill.HORIZONTAL);
-        defineTargetResolutionPanelLayout.setColumnWeightX(1, 1.0);
-        defineTargetResolutionPanelLayout.setTablePadding(4, 5);
-        final JPanel defineTargetSizePanel = new JPanel(defineTargetResolutionPanelLayout);
-        defineTargetSizePanel.setBorder(BorderFactory.createTitledBorder("Define size of resampled product"));
-        final ButtonGroup targetSizeButtonGroup = new ButtonGroup();
-        referenceBandButton = new JRadioButton("By reference band from source product:");
-        referenceBandButton.setToolTipText(REFERENCE_BAND_TOOLTIP_TEXT);
-        widthAndHeightButton = new JRadioButton("By target width and height:");
-        widthAndHeightButton.setToolTipText(TARGET_WIDTH_AND_HEIGHT_TOOLTIP_TEXT);
-        resolutionButton = new JRadioButton("By pixel resolution (in m):");
-        resolutionButton.setToolTipText(TARGET_RESOLUTION_TOOLTIP_TEXT);
-        targetSizeButtonGroup.add(referenceBandButton);
-        targetSizeButtonGroup.add(widthAndHeightButton);
-        targetSizeButtonGroup.add(resolutionButton);
-
-        defineTargetSizePanel.add(referenceBandButton);
-        referenceBandNameBoxPanel = new ResamplingDialog.ReferenceBandNameBoxPanel();
-        defineTargetSizePanel.add(referenceBandNameBoxPanel);
-
-        defineTargetSizePanel.add(widthAndHeightButton);
-        targetWidthAndHeightPanel = new ResamplingDialog.TargetWidthAndHeightPanel();
-        defineTargetSizePanel.add(targetWidthAndHeightPanel);
-
-        defineTargetSizePanel.add(resolutionButton);
-        targetResolutionPanel = new ResamplingDialog.TargetResolutionPanel();
-        defineTargetSizePanel.add(targetResolutionPanel);
-
-        referenceBandButton.addActionListener(e -> {
-            if (referenceBandButton.isSelected()) {
-                enablePanel(REFERENCE_BAND_NAME_PANEL_INDEX);
-            }
-        });
-        widthAndHeightButton.addActionListener(e -> {
-            if (widthAndHeightButton.isSelected()) {
-                enablePanel(TARGET_WIDTH_AND_HEIGHT_PANEL_INDEX);
-            }
-        });
-        resolutionButton.addActionListener(e -> {
-            if (resolutionButton.isSelected()) {
-                enablePanel(TARGET_RESOLUTION_PANEL_INDEX);
-            }
-        });
-
-        referenceBandButton.setSelected(true);
-
-        final JPanel upsamplingMethodPanel = createPropertyPanel(propertySet, "upsamplingMethod", registry);
-        final JPanel downsamplingMethodPanel = createPropertyPanel(propertySet, "downsamplingMethod", registry);
-        final JPanel flagDownsamplingMethodPanel = createPropertyPanel(propertySet, "flagDownsamplingMethod", registry);
-        final JPanel resampleOnPyramidLevelsPanel = createPropertyPanel(propertySet, "resampleOnPyramidLevels", registry);
-        final JPanel parametersPanel = new JPanel(tableLayout);
-        parametersPanel.setBorder(new EmptyBorder(4, 4, 4, 4));
-        parametersPanel.add(defineTargetSizePanel);
-        parametersPanel.add(upsamplingMethodPanel);
-        parametersPanel.add(downsamplingMethodPanel);
-        parametersPanel.add(flagDownsamplingMethodPanel);
-        parametersPanel.add(resampleOnPyramidLevelsPanel);
-        parametersPanel.add(tableLayout.createVerticalSpacer());
-        return parametersPanel;*/
         return panel;
     }
 
-    private void updateTableModel() {
+    private void updateTableModel(File sensorXml) {
+        if(sensorXml == null) {
+            return;
+        }
         SensorBandsTableModel sensorBandsTableModel = new SensorBandsTableModel();
+        SensorXMLReader sensorReader = new SensorXMLReader(sensorXml);
+        double[] centralWavelengths = sensorReader.getCentralWavelengths();
 
-        Object[][] data = {
-                {"3", "B8"},
-                {"4", "B8"},
 
-        };
-        sensorBandsTableModel.setData(data);
+        String[][] dataString = new String [centralWavelengths.length][3];
+        for (int i = 0 ; i < centralWavelengths.length ; i ++) {
+            dataString[i][0] = String.valueOf(i+1);
+            dataString[i][1] = String.valueOf(centralWavelengths[i]);
+            dataString[i][2] = getSimilarBand(currentProduct, (float) centralWavelengths[i], 20.0f);
+        }
+
+        sensorBandsTableModel.setData(dataString);
         sensorBandsTable.setModel(sensorBandsTableModel);
-        setUpBandsColumn(sensorBandsTable, sensorBandsTable.getColumnModel().getColumn(1),productChangedHandler.currentProduct);
+        setUpBandsColumn(sensorBandsTable, sensorBandsTable.getColumnModel().getColumn(2),productChangedHandler.currentProduct);
 
+    }
+
+    private String getSimilarBand(Product product, float approxWavelength, float validRange) {
+
+        String bandName = "NULL";
+        if (product == null) {
+            return bandName;
+        }
+        float distance = Float.MAX_VALUE;
+        for(Band band : product.getBands()) {
+            float spectralWavelength = band.getSpectralWavelength();
+            if(spectralWavelength == 0f) continue;
+            if(Math.abs(spectralWavelength-approxWavelength) <= validRange && Math.abs(spectralWavelength-approxWavelength) < distance) {
+                bandName = band.getName();
+                distance = Math.abs(spectralWavelength-approxWavelength);
+            }
+        }
+        return bandName;
     }
 
     private void reactToSourceProductChange(Product product) {
-        //TODO
+        updateSourceProduct();
     }
 
     private class SensorBandsTableModel extends AbstractTableModel {
-        private String[] columnNames = {"Sensor filter ID",
-                "Input Band"};
+        private String[] columnNames = {"Sensor filter ID", "Central Wavelength",
+                "Input Product Band"};
         private Object[][] data = null;
 
 
@@ -478,6 +441,9 @@ public class InversionCustomizedDialog extends SingleTargetProductDialog {
         }
 
         public int getRowCount() {
+            if(data == null) {
+                return 0;
+            }
             return data.length;
         }
 
@@ -486,22 +452,14 @@ public class InversionCustomizedDialog extends SingleTargetProductDialog {
         }
 
         public Object getValueAt(int row, int col) {
+            if(data == null) {
+                return null;
+            }
             return data[row][col];
         }
 
-        /*
-         * JTable uses this method to determine the default renderer/
-         * editor for each cell.  If we didn't implement this method,
-         * then the last column would contain text ("true"/"false"),
-         * rather than a check box.
-         */
-        //public Class getColumnClass(int c) {
-        //    return getValueAt(0, c).getClass();
-        //}
-
-
         public boolean isCellEditable(int row, int col) {
-            if (col < 1) {
+            if (col < 2) {
                 return false;
             } else {
                 return true;
@@ -509,6 +467,9 @@ public class InversionCustomizedDialog extends SingleTargetProductDialog {
         }
 
         public void setValueAt(Object value, int row, int col) {
+            if(data == null) {
+                return;
+            }
             data[row][col] = value;
             fireTableCellUpdated(row, col);
         }
@@ -518,11 +479,20 @@ public class InversionCustomizedDialog extends SingleTargetProductDialog {
                                  TableColumn bandColumn, Product product) {
         //Set up the editor for the sport cells.
         JComboBox comboBox = new JComboBox();
-        if(product == null || product.getNumBands() == 0) {
-            return;
-        }
-        for(String bandName : product.getBandNames()) {
-            comboBox.addItem(bandName);
+        comboBox.addItem("NULL");
+        if(product != null && product.getNumBands() >0) {
+            //If some bands have Wavelength, I only add the bands with wavelengths
+            if (containsWavelengths(product)) {
+                for (Band band : product.getBands()) {
+                    if(band.getSpectralWavelength() > 0.0f) {
+                        comboBox.addItem(band.getName());
+                    }
+                }
+            } else {
+                for (String bandName : product.getBandNames()) {
+                    comboBox.addItem(bandName);
+                }
+            }
         }
 
         bandColumn.setCellEditor(new DefaultCellEditor(comboBox));
@@ -534,7 +504,14 @@ public class InversionCustomizedDialog extends SingleTargetProductDialog {
         bandColumn.setCellRenderer(renderer);
     }
 
-
+    private static boolean containsWavelengths(Product product) {
+        for( Band band : product.getBands()) {
+            if(band.getSpectralWavelength() > 0.0f) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     private class ProductChangedHandler extends AbstractSelectionChangeListener implements ProductNodeListener {
 
@@ -545,6 +522,7 @@ public class InversionCustomizedDialog extends SingleTargetProductDialog {
             if (currentProduct != null) {
                 currentProduct.removeProductNodeListener(this);
                 currentProduct = null;
+
                 updateSourceProduct();
             }
         }
@@ -627,34 +605,5 @@ public class InversionCustomizedDialog extends SingleTargetProductDialog {
         }
         propertyDescriptor.setValueSet(new ValueSet(values));
     }
-
-    public JComponent createEditorComponent(PropertyDescriptor propertyDescriptor, BindingContext bindingContext) {
-        final JTextField textField = new JTextField();
-        final ComponentAdapter adapter = new TextComponentAdapter(textField);
-        final Binding binding = bindingContext.bind(propertyDescriptor.getName(), adapter);
-        final JPanel editorPanel = new JPanel(new BorderLayout(2, 2));
-        editorPanel.add(textField, BorderLayout.CENTER);
-        final JButton etcButton = new JButton("...");
-        final Dimension size = new Dimension(26, 16);
-        etcButton.setPreferredSize(size);
-        etcButton.setMinimumSize(size);
-        etcButton.addActionListener(e -> {
-            final JFileChooser fileChooser = new JFileChooser();
-            File currentFile = (File) binding.getPropertyValue();
-            if (currentFile != null) {
-                fileChooser.setSelectedFile(currentFile);
-            } else {
-                File selectedFile = (File) propertyDescriptor.getDefaultValue();
-                fileChooser.setSelectedFile(selectedFile);
-            }
-            int i = fileChooser.showDialog(editorPanel, "Select");
-            if (i == JFileChooser.APPROVE_OPTION && fileChooser.getSelectedFile() != null) {
-                binding.setPropertyValue(fileChooser.getSelectedFile());
-            }
-        });
-        editorPanel.add(etcButton, BorderLayout.EAST);
-        return editorPanel;
-    }
-
 
 }
