@@ -52,37 +52,24 @@ class sambuca_snap_op:
         if source_product is None:
             return
         print('initialize: source product location is', source_product.getFileLocation())
+
+
+        #get the names of the bands to be used by operator
+        self.processingBands = context.getParameter('band_names')
+
+        self.band_list = []
+        for band_name in self.processingBands:
+            if (band_name != 'NULL' and band_name != 'null'):
+                b=source_product.getBand(band_name)
+                self.band_list.append(b)
+
         #get width and height of the image
-        width = source_product.getSceneRasterWidth()
-        height = source_product.getSceneRasterHeight()
+        width = self.band_list[0].getRasterWidth()
+        height = self.band_list[0].getRasterHeight()
 
-        #get the names of the bands
-        band_names = source_product.getBandNames()
-        band_n=list(band_names)
-
-        #choose the band with wavelenght between 420 and 750 nm
-        self.min_w=context.getParameter('min_wlen')
-        self.max_w=context.getParameter('max_wlen')
-        band_l=[]
-        y=[]
-        for band_name in band_n:
-            b=source_product.getBand(band_name)
-            w=b.getSpectralWavelength()
-            if w>self.min_w and w<self.max_w:
-                band_l.append(b)
-                y.append(w)
-        #we order the band_list
-        self.band_list=[band_l for (y,band_l) in sorted(zip(y,band_l))]
-
-
-
-
-
-
-
-        #read the .xml file with nedr, sensor filters, parameters, SIOP and substrates
+        #read the .xml file with nedr, sensor filters (load only the processing bands)
         self.sensor_xml_path=str(context.getParameter('xmlpath_sensor'))
-        [self.sensor_filter, self.nedr]=input_sensor_filter.read_sensor_filter(self.sensor_xml_path)
+        [self.sensor_filter, self.nedr]=input_sensor_filter.read_sensor_filter(self.sensor_xml_path,self.processingBands)
 
         #read the .xml file with parameters, SIOP and substrates
         self.siop_xml_path=str(context.getParameter('xmlpath_siop'))
@@ -92,10 +79,6 @@ class sambuca_snap_op:
         #read parameters
         self.error_name=context.getParameter('error_name')
         self.opt_met=context.getParameter('opt_method')
-
-        self.processingBands = context.getParameter('band_names')
-        print('TYPE processing bands')
-        print(type(self.processingBands))
 
         #read the flag for rrs and shallow (True or False)
         self.above_rrs_flag=context.getParameter('above_rrs_flag')
@@ -114,7 +97,7 @@ class sambuca_snap_op:
         #create the target product
         sambuca_product=snappy.Product('sambuca', 'sambuca', width, height)
         #import metadata and geocoding from the source_product
-        snappy.ProductUtils.copyGeoCoding(source_product, sambuca_product)
+        snappy.ProductUtils.copyGeoCoding(self.band_list[0], sambuca_product)
         snappy.ProductUtils.copyMetadata(source_product, sambuca_product)
 
         #create the ouput bands and add them to the output product
