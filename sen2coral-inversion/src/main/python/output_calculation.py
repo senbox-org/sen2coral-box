@@ -80,7 +80,7 @@ def output_calculation(observed_rrs, objective, siop, result_recorder, image_inf
                             method=opt_met,
                             bounds=siop['p_bounds'],
                             constraints=cons,
-                            options={'disp':True, 'maxiter':10000},
+                            options={'disp':False, 'maxiter':10000},
                             obs_rrs=obs_rrs)
 
 
