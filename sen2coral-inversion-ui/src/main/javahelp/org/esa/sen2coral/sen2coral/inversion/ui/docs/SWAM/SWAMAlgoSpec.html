@@ -127,10 +127,9 @@
         <td>The optimization method used in the closure. Currently, it should be 'SLSQP'.</td>
     </tr>
     <tr>
-        <td><strong>min_wlen, max_wlen</strong></td>
-        <td>The shortest and longest wavelengths. The algorithm will select only the rrs bands
-            with central wavelengths inside this range (remember to choose wisely this range:
-            it must be coherent with the chosen sensor filters).</td>
+        <td><strong>band_names</strong></td>
+        <td>The names of the input bands that match with the bands defined in the sensor xml file,
+            in the same order. If any band of the sensor xml is not going to be used, the name should be 'NULL'.</td>
     </tr>
     <tr>
         <td><strong>above_rrs_flag</strong></td>
@@ -153,7 +152,7 @@
 <p>
     The parameters described above can be set through the graphical user interface designed in the SNAP Desktop component:
 </p>
-<IMG SRC="../images/SWAM/SWAMUI.jpg">
+<IMG SRC="../images/SWAM/SWAM_UI.jpg">
 
 <h5>Recommendations</h5>
 <ul>
