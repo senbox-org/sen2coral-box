@@ -278,6 +278,9 @@ public class InversionCustomizedDialog extends SingleTargetProductDialog {
 
     private void updateSourceProduct() {
         try {
+            if(sensorBandsTable == null || productChangedHandler == null) {
+                return;
+            }
             Property property = bindingContext.getPropertySet().getProperty(UIUtils.PROPERTY_SOURCE_PRODUCT);
             if (property != null) {
                 property.setValue(productChangedHandler.currentProduct);
