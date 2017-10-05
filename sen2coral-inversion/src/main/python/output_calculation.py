@@ -101,11 +101,16 @@ def output_calculation(observed_rrs, objective, siop, result_recorder, image_inf
                 if shallow == True:
                     #parameters=sb.FreeParameters(*result.x)
                     while np.floor(result_recorder.sdi[x,y]) == 0 :
+                        old_sdi = result_recorder.sdi[x,y]
                         depth_sdi0=result.x[3]
                         result.x[3] =depth_sdi0 *0.95
                         result_recorder(x, y, obs_rrs, parameters=sb.FreeParameters(*result.x), nit=result.nit, success=result.success)
                         print ([result_recorder.sdi[x,y],  result.x[3]])
                         if np.floor(result_recorder.sdi[x,y])> 0:
+                            result.x[3] =depth_sdi0
+                            result_recorder(x, y, obs_rrs, parameters=sb.FreeParameters(*result.x), nit=result.nit, success=result.success)
+                            break
+                        if abs(old_sdi - result_recorder.sdi[x,y]) < 0.0000001:
                             result.x[3] =depth_sdi0
                             result_recorder(x, y, obs_rrs, parameters=sb.FreeParameters(*result.x), nit=result.nit, success=result.success)
                             break
