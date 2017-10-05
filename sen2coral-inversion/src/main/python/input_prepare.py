@@ -169,12 +169,13 @@ def input_prepare_2(siop, envmeta, image_info, error_name):
     filter_mask2 = (sensor_filter[1][0] > 0)
     for i in range(1,len(sensor_filter[1])):
         filter_mask2 = filter_mask2 | (sensor_filter[1][i] > 0)
-    sensor_filter = sensor_filter[0][filter_mask2], sensor_filter[1][:,filter_mask2]
-    wavelengths = wavelengths[filter_mask2]
-    a_water = a_water[0][filter_mask2],a_water[1][filter_mask2]
-    a_ph_star = a_ph_star[0][filter_mask2],a_ph_star[1][filter_mask2]
+    mask_filter_mask2 = np.array(filter_mask2, dtype = bool)
+    sensor_filter = sensor_filter[0][mask_filter_mask2], sensor_filter[1][:,mask_filter_mask2]
+    wavelengths = wavelengths[mask_filter_mask2]
+    a_water = a_water[0][mask_filter_mask2],a_water[1][mask_filter_mask2]
+    a_ph_star = a_ph_star[0][mask_filter_mask2],a_ph_star[1][mask_filter_mask2]
     for i, substrate in enumerate(substrates):
-        substrates[i] = substrate[0][filter_mask2],substrate[1][filter_mask2]
+        substrates[i] = substrate[0][mask_filter_mask2],substrate[1][mask_filter_mask2]
 
 
 

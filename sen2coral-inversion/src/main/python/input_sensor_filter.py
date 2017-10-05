@@ -13,7 +13,7 @@ Created on Mon Feb  6 15:36:34 2017
 
 from os.path import join
 import os.path
-#import rasterio
+import rasterio
 import sambuca as sb
 import sambuca_core as sbc
 #import nibabel as nib
@@ -110,6 +110,8 @@ def read_sensor_filter(sensor_xml_path,processingBands):
         filter_bands = []
         for i in range(len(processingBands)):
             filter_bands.append(processingBands[i] != 'NULL' and processingBands[i] != 'null')
+
+        mask_filter_bands = np.array(filter_bands, dtype = bool)
         xml=open(sensor_xml_path, 'rb')
         my_dict=xmltodict.parse(xml.read())
         nedrw=my_dict['root']['nedr']['item'][0]['item']
@@ -123,8 +125,8 @@ def read_sensor_filter(sensor_xml_path,processingBands):
         nw_original=len(nedrw)
 
         #filter
-        nedrw_m = nedrw_m[filter_bands]
-        nedrs_m = nedrs_m[filter_bands]
+        nedrw_m = nedrw_m[mask_filter_bands]
+        nedrs_m = nedrs_m[mask_filter_bands]
         #we create the tuple for nedr
         nedr=tuple([nedrw_m, nedrs_m])
         #nw is the nunmber of central wavelenghts
@@ -142,7 +144,7 @@ def read_sensor_filter(sensor_xml_path,processingBands):
             sf.append(np.array(list(map(float,sf_dict[i]['item']))))
         sfs=np.array(sf) #the array with the filters spectra
         #filter bands
-        sfs=sfs[filter_bands]
+        sfs=sfs[mask_filter_bands]
 
         sfwm=np.array(list(map(float, sfw)))
         #we create the tuple for the sensor filter
