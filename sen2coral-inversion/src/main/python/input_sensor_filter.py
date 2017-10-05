@@ -13,7 +13,7 @@ Created on Mon Feb  6 15:36:34 2017
 
 from os.path import join
 import os.path
-import rasterio
+#import rasterio
 import sambuca as sb
 import sambuca_core as sbc
 #import nibabel as nib
