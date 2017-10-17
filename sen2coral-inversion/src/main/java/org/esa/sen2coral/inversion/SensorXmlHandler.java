@@ -83,6 +83,7 @@ public class SensorXmlHandler extends DefaultHandler {
         }
         if(localName.equals("nedr")) {
             insideNedr = false;
+            finishedWL = false;
             return;
         }
 
