@@ -53,6 +53,7 @@ public class InversionCustomizedDialog extends SingleTargetProductDialog {
     private static final float TIME_THRESHOLD_WARNING = 3; //in minutes
     private static final float TIME_PER_PIXEL = 0.036f; //in seconds
     private static final float MINIMUM_BANDS = 4; //in seconds
+    private static final float MAX_DIFF_WAVELENGHTS = 20; //in seconds
 
     private final String operatorName;
     private final OperatorDescriptor operatorDescriptor;
@@ -140,8 +141,7 @@ public class InversionCustomizedDialog extends SingleTargetProductDialog {
             }
         }
         if(validBandCount < MINIMUM_BANDS) {
-            this.showErrorDialog("Not enough valid spectral bands in the source product." +
-                                         "Try to change wavelength range or to add spectral information to the bands.");
+            this.showErrorDialog("Not enough valid spectral bands selected");
             return false;
         }
 
@@ -162,6 +162,52 @@ public class InversionCustomizedDialog extends SingleTargetProductDialog {
                 return false;
             }
         }
+
+        //Check wavelengths selected, only if bands have wavelength
+        for(int i = 0 ; i < sensorBandsTable.getRowCount() ; i++) {
+            if(selectedBands[i].equals("NULL") || selectedBands[i].equals("null")) {
+                continue;
+            }
+            float selectedBandWavelength = currentProduct.getBand(selectedBands[i]).getSpectralWavelength();
+            if (selectedBandWavelength <= 0.0f) {
+                continue;
+            }
+
+            float centralWavelength = Float.parseFloat((String) sensorBandsTable.getModel().getValueAt(i,1));
+
+
+            if(Math.abs(centralWavelength-selectedBandWavelength) > MAX_DIFF_WAVELENGHTS) {
+                String message = String.format("There is a difference of %.1f nm in the band with ID %d. Do you want to continue?",
+                                               Math.abs(centralWavelength-selectedBandWavelength), i+1);
+                final int answer = JOptionPane.showConfirmDialog(getJDialog(), message,
+                                                                 getTitle(), JOptionPane.YES_NO_OPTION);
+                if (answer != JOptionPane.YES_OPTION) {
+                    return false;
+                }
+            }
+        }
+
+        //Check if there are repeated bands
+        for(int i = 0 ; i < sensorBandsTable.getRowCount() ; i++) {
+            if(selectedBands[i].equals("NULL") || selectedBands[i].equals("null")) {
+                continue;
+            }
+            for(int j = 0; j < sensorBandsTable.getRowCount() ; j++) {
+                if( i == j ) {
+                    continue;
+                }
+                if (selectedBands[i].equals(selectedBands[j])) {
+                    String message = "There is at least one band selected twice. Do you want to continue?";
+                    final int answer = JOptionPane.showConfirmDialog(getJDialog(), message,
+                                                                     getTitle(), JOptionPane.YES_NO_OPTION);
+                    if (answer != JOptionPane.YES_OPTION) {
+                        return false;
+                    }
+                    break;
+                }
+            }
+        }
+
 
         //Check parameters
         if(valueSiop == null) {
@@ -191,10 +237,12 @@ public class InversionCustomizedDialog extends SingleTargetProductDialog {
             return false;
         }
 
+
+
         int numberOfPixelsToCompute = width * height;
         float estimatedTime = TIME_PER_PIXEL * numberOfPixelsToCompute;
 
-        if (estimatedTime >= TIME_THRESHOLD_WARNING) {
+        if (estimatedTime >= TIME_THRESHOLD_WARNING * 60) {
             String message = String.format("Depending on the machine you are using, this may take %.1f minutes, do you want to proceed?",
                                            estimatedTime / 60.0);
             final int answer = JOptionPane.showConfirmDialog(getJDialog(), message,
