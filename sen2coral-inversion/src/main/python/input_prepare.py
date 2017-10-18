@@ -166,9 +166,12 @@ def input_prepare_2(siop, envmeta, image_info, error_name):
     sensor_filter = sensor_filter[0][filter_mask], sensor_filter[1][:,filter_mask]
 
     #Apply another filter: compute only the wavelengths that are not 0 in all the sensor filters
+    #create filter_mask_550 to keep this wavelength since it is used by sambuca
+    filter_mask_550 = (sensor_filter[0] == 550)
     filter_mask2 = (sensor_filter[1][0] > 0)
     for i in range(1,len(sensor_filter[1])):
         filter_mask2 = filter_mask2 | (sensor_filter[1][i] > 0)
+    filter_mask2 = filter_mask2 | filter_mask_550
     mask_filter_mask2 = np.array(filter_mask2, dtype = bool)
     sensor_filter = sensor_filter[0][mask_filter_mask2], sensor_filter[1][:,mask_filter_mask2]
     wavelengths = wavelengths[mask_filter_mask2]
