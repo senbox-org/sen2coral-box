@@ -9,6 +9,7 @@
 
     <tocitem text="Sentinel Toolbox Application">
         <tocitem text="Optical">
+            <tocitem text="Thematic Water Processing">
             <tocitem text="Sen2Coral">
                 <tocitem text="Sen2Coral Algorithms">
 
@@ -32,6 +33,7 @@
                     </tocitem>
 
                 </tocitem>
+            </tocitem>
             </tocitem>
         </tocitem>
     </tocitem>

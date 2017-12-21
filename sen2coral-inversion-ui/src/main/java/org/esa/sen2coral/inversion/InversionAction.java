@@ -29,7 +29,7 @@ import java.util.Set;
 )
 @ActionReferences({
         @ActionReference(
-                path = "Menu/Optical/Sen2Coral Processing/Processing modules",
+                path = "Menu/Optical/Thematic Water Processing/Sen2Coral/Processing modules",
                 position = 250
         ),
 

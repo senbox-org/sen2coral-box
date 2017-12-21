@@ -66,7 +66,8 @@
 
     <folder name="Menu">
         <folder name="Optical">
-            <folder name="Sen2Coral Processing">
+            <folder name="Thematic Water Processing">
+            <folder name="Sen2Coral">
                 <folder name="Processing modules">
                     <file name="org-esa-sen2coral-algorithms-DeglintOpAction.shadow">
                         <attr name="originalFile"
@@ -94,6 +95,7 @@
                         <attr name="position" intvalue="1"/>
                     </file>
                 </folder>
+            </folder>
             </folder>
         </folder>
     </folder>
