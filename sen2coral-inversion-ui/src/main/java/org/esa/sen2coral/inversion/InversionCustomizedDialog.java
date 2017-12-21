@@ -312,7 +312,7 @@ public class InversionCustomizedDialog extends SingleTargetProductDialog {
     private void initForm() {
         form = new JTabbedPane();
         form.add("I/O Parameters", ioParametersPanel);
-        form.add("Resampling Parameters", new JScrollPane(createParametersPanel()));
+        form.add("SWAM Parameters", new JScrollPane(createParametersPanel()));
         reactToSourceProductChange(ioParametersPanel.getSourceProductSelectorList().get(0).getSelectedProduct());
     }
 
