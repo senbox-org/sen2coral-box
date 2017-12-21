@@ -9,6 +9,7 @@
 
     <tocitem text="Sentinel Toolbox Application">
         <tocitem text="Optical">
+            <tocitem text="Thematic Water Processing">
             <tocitem text="Sen2Coral">
                 <tocitem text="Sen2Coral Physics-based model inversion">
 
@@ -22,6 +23,7 @@
                         <tocitem text="SWAM Installation on Linux - Anaconda" target="ModelInversionSWAMInstallationLinuxAnaconda"/>
                     </tocitem>
                 </tocitem>
+            </tocitem>
             </tocitem>
         </tocitem>
     </tocitem>
