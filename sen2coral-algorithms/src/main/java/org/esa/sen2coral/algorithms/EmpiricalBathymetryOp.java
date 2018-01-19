@@ -32,7 +32,7 @@ import java.util.ArrayList;
  * Empirical Bathymetry operator
  */
 @OperatorMetadata(alias = "EmpiricalBathymetryOp",
-        category = "Raster",
+        category = "Optical/Thematic Water Processing/Sen2Coral",
         authors = "Omar Barrilero",
         version = "1.0",
         internal = true,

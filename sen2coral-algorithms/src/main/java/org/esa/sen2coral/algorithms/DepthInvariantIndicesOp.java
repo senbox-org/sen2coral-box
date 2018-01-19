@@ -34,7 +34,7 @@ import java.util.Set;
  * Depth invariant indices operator
  */
 @OperatorMetadata(alias = "DepthInvariantIndicesOp",
-        category = "Raster",
+        category = "Optical/Thematic Water Processing/Sen2Coral",
         authors = "Omar Barrilero",
         version = "1.0",
         internal = true,
