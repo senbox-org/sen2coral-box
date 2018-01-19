@@ -65,7 +65,7 @@ import java.util.Set;
  * deglint operator
  */
 @OperatorMetadata(alias = "LandCloudWhiteCapMaskOp",
-        category = "Raster",
+        category = "Optical/Thematic Water Processing/Sen2Coral",
         authors = "Omar Barrilero",
         version = "1.0",
         internal = true,

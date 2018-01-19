@@ -45,7 +45,7 @@ import static org.geotools.referencing.CRS.decode;
  * Radiometric Normalisation with PIFs operator
  */
 @OperatorMetadata(alias = "RadiometricNormalisationPIFsOp",
-        category = "Raster",
+        category = "Optical/Thematic Water Processing/Sen2Coral",
         authors = "Omar Barrilero",
         version = "1.0",
         internal = true,
