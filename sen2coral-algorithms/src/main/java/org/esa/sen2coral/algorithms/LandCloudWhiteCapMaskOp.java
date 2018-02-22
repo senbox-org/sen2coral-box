@@ -269,10 +269,16 @@ public class LandCloudWhiteCapMaskOp extends Operator {
                                                  srcBand.getDataType(),
                                                  srcBand.getRasterWidth(),
                                                  srcBand.getRasterHeight());
-
-                targetBand.setUnit(srcBand.getUnit());
-                targetBand.setNoDataValue(srcBand.getNoDataValue());
-                targetBand.setNoDataValueUsed(true);
+                
+                ProductUtils.copyRasterDataNodeProperties(srcBand,targetBand);
+                //targetBand.setUnit(srcBand.getUnit());
+                //targetBand.setSpectralBandIndex(srcBand.getSpectralBandIndex());
+                //targetBand.setSpectralWavelength(srcBand.getSpectralWavelength());
+                //targetBand.setSpectralBandwidth(srcBand.getSpectralBandwidth());
+                //targetBand.setNoDataValue(srcBand.getNoDataValue());
+                //targetBand.setNoDataValueUsed(true);
+                //targetBand.setScalingFactor(srcBand.getScalingFactor());
+                //targetBand.setScalingOffset(srcBand.getScalingOffset());
                 String validExpression = "";
                 for (String maskName : getMaskNames(srcBand.getRasterSize())) {
                     if (validExpression.length() == 0) {
