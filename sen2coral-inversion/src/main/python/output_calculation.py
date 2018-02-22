@@ -67,7 +67,7 @@ def output_calculation(observed_rrs, objective, siop, result_recorder, image_inf
             obs_rrs = observed_rrs[:,x,y]
 
             # Quick and dirty check because we are not masking out the no-data pixels
-            if not np.allclose(obs_rrs, 0):
+            if (not np.allclose(obs_rrs, 0)) and (not np.isclose(obs_rrs,np.nan,equal_nan=True).any()):
 
                 # we need to set the observed rrs for this pixel into the objective, as there is no
                 # direct way to get the scipy.minimise function to do it (although there are other ways
@@ -80,7 +80,7 @@ def output_calculation(observed_rrs, objective, siop, result_recorder, image_inf
                             method=opt_met,
                             bounds=siop['p_bounds'],
                             constraints=cons,
-                            options={'disp':False, 'maxiter':10000},
+                            options={'disp':False, 'maxiter':100},
                             obs_rrs=obs_rrs)
 
 
