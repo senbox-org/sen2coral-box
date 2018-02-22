@@ -138,6 +138,10 @@ class sambuca_snap_op:
         #self.nit_band.setNoDataValue(Float.NaN)
         #self.nit_band.setNoDataValueUsed(True)
 
+        #test for adding a virtual band with corrected depth
+        #virtDepth = snappy.VirtualBand("depth_corrected", snappy.ProductData.TYPE_FLOAT32, sambuca_product.getSceneRasterWidth(), sambuca_product.getSceneRasterHeight(), "depth + 20.1")
+        #sambuca_product.addBand(virtDepth)
+
         #set the target product
         context.setTargetProduct(sambuca_product)
 
@@ -160,6 +164,7 @@ class sambuca_snap_op:
             rrs_list.append(sample)
         #create the rrs matrix (wavelenghtsz x height x width)
         rrs=np.array(rrs_list)
+
 
         #
         if self.above_rrs_flag == True:
