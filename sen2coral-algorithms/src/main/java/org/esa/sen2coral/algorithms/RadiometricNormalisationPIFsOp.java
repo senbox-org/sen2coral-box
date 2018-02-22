@@ -167,8 +167,8 @@ public class RadiometricNormalisationPIFsOp extends PixelOperatorMultisize {
         }
 
         //check that products intersects and their intersections intersects the PIF
-        Geometry refGeometry = createGeoBoundaryPolygonLatLon(referenceProduct);
-        Geometry slaveGeometry = createGeoBoundaryPolygonLatLon(slaveProduct);
+        Geometry refGeometry = createGeoBoundaryPolygonLonLat(referenceProduct);
+        Geometry slaveGeometry = createGeoBoundaryPolygonLonLat(slaveProduct);
         Geometry intersection = refGeometry.intersection(slaveGeometry);
         MathTransform transform = null;
         boolean bFoundIntersection = false;
@@ -385,7 +385,7 @@ public class RadiometricNormalisationPIFsOp extends PixelOperatorMultisize {
     }
 
 
-    private static Geometry createGeoBoundaryPolygonLatLon(Product product) {
+    private static Geometry createGeoBoundaryPolygonLonLat(Product product) {
         GeometryFactory gf = new GeometryFactory();
         GeoPos[] geoPositions = ProductUtils.createGeoBoundary(product, 100);
         Coordinate[] coordinates;
@@ -396,7 +396,7 @@ public class RadiometricNormalisationPIFsOp extends PixelOperatorMultisize {
 
             for(int i = 0; i < geoPositions.length; ++i) {
                 GeoPos geoPos = geoPositions[i];
-                coordinates[i] = new Coordinate(geoPos.lat, geoPos.lon);
+                coordinates[i] = new Coordinate(geoPos.lon, geoPos.lat);
             }
 
             coordinates[coordinates.length - 1] = coordinates[0];
