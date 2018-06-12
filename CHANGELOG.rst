@@ -40,3 +40,12 @@ Changelog
 1.2.2 (2015-12-04)
 ------------------
 * Fixed filename case-sensitivity issue between Windows and Linux.
+
+1.3.0 (2018-06-18)
+------------------
+* Added licence, cleaned up docs and pushed to GitHub.
+
+1.3.1 (2018-06-18)
+------------------
+* Added Readthedocs link.
+* updated changelog.

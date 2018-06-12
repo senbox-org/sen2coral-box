@@ -1,6 +1,6 @@
 * Free software: CSIRO Open Source Software Licence Agreement
 * Homepage: **todo**
-* Documentation: **todo**
+* Documentation: https://sambuca-core.readthedocs.io/en/latest/
 * Version: 1.3.0
 
 Contains the core model components for the Semi-Analytical Model
