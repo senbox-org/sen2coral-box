@@ -1,0 +1,20 @@
+#!/bin/bash
+
+echo Running tests for $1 loops
+i=0
+while [ $i -lt $1 ]; do
+    let i=i+1
+    clear
+
+    if [ "$2" ]; then
+        $2
+    else
+        make test
+    fi
+
+    if [ $i -lt $1 ]; then
+        echo
+        read -n1 -s -p "Press any key to repeat tests (ctrl-c to quit) ..."
+        echo
+    fi
+done

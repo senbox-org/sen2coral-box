@@ -1,0 +1,19 @@
+ENVI
+description = {
+  Resampled Spectral Library [Mon Jan 05 11:09:01 2015]}
+samples = 4
+lines   = 1
+bands   = 1
+header offset = 0
+file type = ENVI Spectral Library
+data type = 4
+interleave = bsq
+sensor type = Unknown
+byte order = 0
+wavelength units = Nanometers
+band names = {
+ Resampled (Band 1:test_spectra.lib)}
+spectra names = {
+ closedRSS}
+wavelength = {
+ 480.313904, 544.768494, 652.392883, 804.339111}
