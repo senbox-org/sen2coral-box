@@ -71,7 +71,9 @@ bdist_wheel:
 
 .PHONY: upload
 upload: clean
-	python setup.py sdist upload
+	rm -rf dist/
+	python setup.py sdist bdist_wheel
+	twine upload dist/*
 
 .PHONY: html
 html:

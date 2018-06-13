@@ -111,6 +111,7 @@ for Bathymetry, Un-mixing, and Concentration Assessment (SAMBUCA).''',
             'pylint',
             'sphinx',
             'sphinx_rtd_theme',
+            'twine',
             'wheel',
         ],
         'test': [
