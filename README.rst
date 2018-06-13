@@ -1,3 +1,7 @@
+.. image:: https://readthedocs.org/projects/sambuca-core/badge/?version=latest
+    :target: https://sambuca-core.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
+
 * **Free software:** CSIRO Open Source Software Licence Agreement
 * **Homepage:** https://github.com/csiro-aquatic-remote-sensing/sambuca_core
 * **Documentation:** https://sambuca-core.readthedocs.io/en/latest/
