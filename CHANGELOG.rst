@@ -56,3 +56,8 @@ Changelog
 * Setup Travis CI integration.
 * Completed Read the Docs integration.
 * Removed Python 3.4 from CI, as it is not supported by pandas.
+
+1.3.3 (Wednesday June 13, 2018)
+------------------
+* Updating setup.py metadata
+* First version pushed to PyPI
