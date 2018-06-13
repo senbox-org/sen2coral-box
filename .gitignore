@@ -1,0 +1,22 @@
+idl-01.rdp
+tags
+reference/IDL/*/
+.project
+*.pyc
+readme.html
+build/
+dist/
+sambuca.egg-info/
+.tox/
+__pycache__/
+.coverage
+.ipynb*
+.cache/
+
+# PyCharm Project files contain local settings, and so are not appropriate for Git
+.idea/
+*.dat
+
+reference/wl_alos_data/outputs/closed.*
+reference/4Daniel.7z
+.pytest_cache/
