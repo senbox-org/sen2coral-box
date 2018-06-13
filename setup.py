@@ -36,7 +36,7 @@ for Bathymetry, Un-mixing, and Concentration Assessment (SAMBUCA).''',
     long_description=long_description,
 
     # The project's main homepage.
-    url='',
+    url='https://github.com/csiro-aquatic-remote-sensing/sambuca_core',
 
     # Author details
     author='Daniel Collins',
@@ -140,5 +140,5 @@ for Bathymetry, Un-mixing, and Concentration Assessment (SAMBUCA).''',
     },
 
     # Is your project zip safe?
-    # zip_safe=True,
+    zip_safe=True,
 )

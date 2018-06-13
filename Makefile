@@ -69,6 +69,10 @@ sdist:
 bdist_wheel:
 	python setup.py bdist_wheel
 
+.PHONY: upload
+upload: clean
+	python setup.py sdist upload
+
 .PHONY: html
 html:
 	sphinx-build -b html docs build/docs/html
