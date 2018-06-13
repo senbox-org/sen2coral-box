@@ -1,3 +1,7 @@
+.. image:: https://travis-ci.org/csiro-aquatic-remote-sensing/sambuca_core.svg
+    :target: https://travis-ci.org/csiro-aquatic-remote-sensing/sambuca_core
+    :alt: Build Status
+
 .. image:: https://readthedocs.org/projects/sambuca-core/badge/?version=latest
     :target: https://sambuca-core.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
