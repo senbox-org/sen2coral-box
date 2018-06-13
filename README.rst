@@ -3,7 +3,7 @@
     :alt: Build Status
 
 .. image:: https://readthedocs.org/projects/sambuca/badge/?version=latest
-    :target: https://sambuca.io/en/latest/?badge=latest
+    :target: https://sambuca.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
 * Free software: CSIRO Open Source Software Licence Agreement
