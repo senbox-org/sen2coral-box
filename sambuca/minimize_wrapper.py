@@ -70,13 +70,13 @@ def minimize(objective,p0,method,bounds ,constraints ,options,obs_rrs): #
     
     objective.observed_rrs = obs_rrs
      
-    results =  scipy_minimize(objective,p0,
+    results =  scipy_minimize(objective,p0,jac=True,
                               method=method,
                               bounds=bounds,
                               constraints=constraints,
                               options=options) 
-    print(results.jac)
 
+    
     
 #    Nc = len(objective._fixed_parameters.substrate_combinations)
 #    
