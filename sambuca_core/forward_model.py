@@ -38,6 +38,13 @@ ForwardModelResults = namedtuple('ForwardModelResults',
                                      'bb_ph',
                                      'bb_nap',
                                      'bb_water',
+									 'rrs_dchl',
+									 'rrs_dcdom',
+									 'rrs_dnap',
+									 'rrs_ddepth',
+									 'rrs_dfrac1',
+									 'rrs_dfrac2',
+									 'rrs_dfrac3'
                                  ])
 """ A namedtuple containing the forward model results.
 
@@ -251,7 +258,28 @@ def forward_model(
            (1.0 - np.exp(-(inv_cos_theta_w + du_column_scaled) * kappa_d)) +
            ((1.0 / math.pi) * r_substratum *
             np.exp(-(inv_cos_theta_w + du_bottom_scaled) * kappa_d)))
-
+	
+	#jacobian
+    expBottomScaled = np.exp(-(inv_cos_theta_w + du_bottom_scaled) * kappa_d)
+    expColumnScaled = np.exp(-(inv_cos_theta_w + du_column_scaled) * kappa_d)
+    rrs_dfrac1 = (1.0 / math.pi) * substrate1 * expBottomScaled
+    rrs_dfrac2 = (1.0 / math.pi) * substrate2 *expBottomScaled
+    rrs_dfrac3 = (1.0 / math.pi) * substrate3 *expBottomScaled
+    sq1= np.power(1.00 + (2.40 * u), 0.50)
+    sq2= np.power(1.00 + (5.40 * u), 0.50)
+    rrs_ddepth = rrsdp *(inv_cos_theta_w + du_column_scaled)* kappa*expColumnScaled - (1.0 / math.pi) * r_substratum *(inv_cos_theta_w + du_bottom_scaled)*kappa*expBottomScaled
+    u_dcdom = -(bb*a_cdom_star/(kappa*kappa))
+    du_column_dcdom = 1.03*2.4*u_dcdom/(2.0*sq1)
+    du_bottom_dcdom = 1.04*5.4*u_dcdom/(2.0*sq2)
+    rrs_dcdom = (0.084*u_dcdom+0.34*u*u_dcdom)*(1.0 - expColumnScaled) +rrsdp*depth*((inv_cos_theta_0*du_column_dcdom*kappa+a_cdom_star*(inv_cos_theta_w + du_column_scaled)) * expColumnScaled) +(1.0 / math.pi) * r_substratum * (-depth) * ((inv_cos_theta_0*du_bottom_dcdom*(a+bb)+a_cdom_star*(inv_cos_theta_w + du_bottom_scaled)) * expBottomScaled)
+    u_dchl = (bb_ph_star*(a+bb)-bb*(a_ph_star+bb_ph_star))/(kappa*kappa)
+    du_column_dchl = 1.03*2.4*u_dchl/(2.0*sq1)
+    du_bottom_dchl = 1.04*5.4*u_dchl/(2.0*sq2)
+    rrs_dchl = (0.084*u_dchl+0.34*u*u_dchl)*(1.0 - expColumnScaled) +rrsdp*depth*((inv_cos_theta_0*du_column_dchl*kappa+(a_ph_star+bb_ph_star)*(inv_cos_theta_w + du_column_scaled)) * expColumnScaled) +(1.0 / math.pi) * r_substratum * (-depth) * ((inv_cos_theta_0*du_bottom_dchl*(a+bb)+(a_ph_star+bb_ph_star)*(inv_cos_theta_w + du_bottom_scaled)) * expBottomScaled)
+    u_dnap = (bb_nap_star*(a+bb)-bb*(a_nap_star+bb_nap_star))/(kappa*kappa)
+    du_column_dnap = 1.03*2.4*u_dnap/(2.0*sq1)
+    du_bottom_dnap = 1.04*5.4*u_dnap/(2.0*sq2)
+    rrs_dnap = (0.084*u_dnap+0.34*u*u_dnap)*(1.0 - expColumnScaled) +rrsdp*depth*((inv_cos_theta_0*du_column_dnap*(a+bb)+(a_nap_star+bb_nap_star)*(inv_cos_theta_w + du_column_scaled)) * expColumnScaled) +(1.0 / math.pi) * r_substratum * (-depth) * ((inv_cos_theta_0*du_bottom_dnap*(a+bb)+(a_nap_star+bb_nap_star)*(inv_cos_theta_w + du_bottom_scaled)) * expBottomScaled)			
     return ForwardModelResults(
         r_substratum=r_substratum,
         rrs=rrs,
@@ -275,6 +303,13 @@ def forward_model(
         bb_ph=bb_ph,
         bb_nap=bb_nap,
         bb_water=bb_water,
+		rrs_dchl=rrs_dchl,
+		rrs_dcdom=rrs_dcdom,
+		rrs_dnap=rrs_dnap,
+		rrs_ddepth=rrs_ddepth,
+		rrs_dfrac1=rrs_dfrac1,
+		rrs_dfrac2=rrs_dfrac2,
+		rrs_dfrac3=rrs_dfrac3
     )
 
 # pylint: enable=too-many-arguments
