@@ -87,29 +87,32 @@ def forward_model(
         cdom,
         nap,
         depth,
+        sub1_frac,
+        sub2_frac,
+        sub3_frac,
         substrate1,
+        substrate2,
+        substrate3,
         wavelengths,
         a_water,
         a_ph_star,
         num_bands,
-        substrate_fraction=1,
-        substrate2=None,
-        a_cdom_slope=0.0168052,
-        a_nap_slope=0.00977262,
-        bb_ph_slope=0.878138,
+        a_cdom_slope=None,
+        a_nap_slope=None,
+        bb_ph_slope=None,
         bb_nap_slope=None,
-        lambda0cdom=550.0,
-        lambda0nap=550.0,
-        lambda0x=546.0,
-        x_ph_lambda0x=0.00157747,
-        x_nap_lambda0x=0.0225353,
-        a_cdom_lambda0cdom=1.0,
-        a_nap_lambda0nap=0.00433,
-        bb_lambda_ref=550,
-        water_refractive_index=REFRACTIVE_INDEX_SEAWATER,
-        theta_air=30.0,
-        off_nadir=0.0,
-        q_factor=np.pi):
+        lambda0cdom=None,
+        lambda0nap=None,
+        lambda0x=None,
+        x_ph_lambda0x=None,
+        x_nap_lambda0x=None,
+        a_cdom_lambda0cdom=None,
+        a_nap_lambda0nap=None,
+        bb_lambda_ref=None,
+        water_refractive_index=None,
+        theta_air=None,
+        off_nadir=None,
+        q_factor=None):
     """Semi-analytical Lee/Sambuca forward model.
 
     TODO: Extended description goes here.
@@ -162,6 +165,8 @@ def forward_model(
     assert len(substrate1) == num_bands
     if substrate2 is not None:
         assert len(substrate2) == num_bands
+    if substrate3 is not None:
+        assert len(substrate2) == num_bands
     assert len(wavelengths) == num_bands
     assert len(a_water) == num_bands
     assert len(a_ph_star) == num_bands
@@ -206,10 +211,14 @@ def forward_model(
     bb = bb_water + bb_ph + bb_nap
 
     # Calculate total bottom reflectance from the two substrates
-    r_substratum = substrate1
-    if substrate2 is not None:
-        r_substratum = substrate_fraction * substrate1 + \
-        (1. - substrate_fraction) * substrate2
+    #r_substratum = substrate1
+    #if substrate2 is not None:
+        #r_substratum = substrate_fraction * substrate1 + \
+        #(1. - substrate_fraction) * substrate2
+        
+    # Calculate bottom reflectance from 3 subs (BOMBER etc)
+    
+    r_substratum = sub1_frac * substrate1 + sub2_frac * substrate2 + sub3_frac * substrate3
 
     # TODO: what are u and kappa?
     kappa = a + bb
