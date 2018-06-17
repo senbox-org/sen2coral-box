@@ -1,0 +1,13 @@
+graft docs
+graft examples
+graft sambuca
+
+include pylintrc
+
+include AUTHORS.rst
+include CHANGELOG.rst
+include CONTRIBUTING.rst
+include LICENSE
+include README.rst
+
+global-exclude *.py[co] __pycache__ *.so *.pyd
