@@ -30,9 +30,10 @@ AllParameters = namedtuple('AllParameters',
                                 a_water,
                                 a_ph_star,
                                 num_bands,
-                                substrate_fraction,
-                                substrates,
-                                substrate_combinations,
+                                sub1_frac,
+                                sub2_frac,
+                                sub3_frac,,
+                                substrates,                            
                                 a_cdom_slope,
                                 a_nap_slope,
                                 bb_ph_slope,
@@ -64,10 +65,9 @@ Attributes:
         a_water (array-like): Absorption coefficient of pure water
         a_ph_star (array-like): Specific absorption of phytoplankton.
         num_bands (int): The number of spectral bands.
-        substrate_fraction (float): Substrate proportion, used to generate a
-            convex combination of two substrate members.
-        substrate_combinations (array-like): The index in substrates for all
-            combintations of pairs in substrates
+        sub1_frac (float): Substrate proportion of substrate1
+        sub2_frac (float): Substrate proportion of substrate2
+        sub3_frac (float): Substrate proportion of substrate3
         a_cdom_slope (float, optional): slope of CDOM absorption
         a_nap_slope (float, optional): slope of NAP absorption
         bb_ph_slope (float, optional): Power law exponent for the
@@ -99,7 +99,9 @@ def create_fixed_parameter_set(
         a_water,
         a_ph_star,
         substrates,
-        substrate_fraction,
+        sub1_frac,
+        sub2_frac,
+        sub3_frac,
         chl,
         cdom,
         nap,
@@ -140,21 +142,22 @@ def create_fixed_parameter_set(
         if isinstance(substrate, tuple) and len(substrate) == 2:
             lsubstrates.append(substrate[1])
 
-    nsubstrates = len(substrates)
-    substrate_combinations =  [ combo for combo in combinations([ i for i in range(nsubstrates) ],2)]
+    #nsubstrates = len(substrates)
+    #substrate_combinations =  [ combo for combo in combinations([ i for i in range(nsubstrates) ],2)]
 
     return AllParameters(
         chl=chl,
         cdom=cdom,
         nap=nap,
         depth=depth,
-        substrate_fraction=substrate_fraction,
+        sub1_frac=sub1_frac,
+        sub2_frac=sub2_frac,
+        sub3_frac=sub3_frac,
         wavelengths=wavelengths,
         a_water=a_water,
         a_ph_star=a_ph_star,
         num_bands=len(wavelengths),
         substrates=lsubstrates,
-        substrate_combinations=substrate_combinations,
         a_cdom_slope=a_cdom_slope,
         a_nap_slope=a_nap_slope,
         bb_ph_slope=bb_ph_slope,

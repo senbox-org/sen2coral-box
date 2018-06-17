@@ -21,7 +21,9 @@ FreeParameters = namedtuple('FreeParameters',
                                 cdom,
                                 nap,
                                 depth,
-                                substrate_fraction
+                                sub1_frac,
+                                sub2_frac,
+                                sub3_frac
                             ''')
 """ namedtuple containing the default Sambuca free parameters.
 
@@ -31,6 +33,7 @@ Attributes:
         (CDOM).
     nap (float): Concentration of non-algal particulates (NAP).
     depth (float): Water column depth.
-    substrate_fraction (float): relative proportion of substrate1
-        and substrate2.
+    sub1_frac (float): relative proportion of substrate1
+    sub2_frac (float): relative proportion of substrate2
+    sub3_frac (float): relative proportion of substrate3
 """

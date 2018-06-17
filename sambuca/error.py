@@ -47,7 +47,7 @@ def error_all(observed_rrs, modelled_rrs, nedr=None):
     Returns:
         ErrorTerms: The error terms.
     """
-
+   
     # LSQ as in as in equation 1 of Mobley 2005 AO:i.e. without using Noise
     # L^2 Vector Norm of observed - modelled
     lsq = np.linalg.norm(observed_rrs - modelled_rrs)
@@ -72,6 +72,7 @@ def error_all(observed_rrs, modelled_rrs, nedr=None):
     return ErrorTerms(alpha_val, alpha_val * f_val, f_val, lsq)
 
 
+    
 def distance_alpha(observed_rrs, modelled_rrs, nedr=None):
     # TODO: complete the docstring
     """Calculates TODO
@@ -126,3 +127,5 @@ def distance_f(observed_rrs, modelled_rrs, nedr=None):
     Returns: TODO
     """
     return error_all(observed_rrs, modelled_rrs, nedr).f
+
+    

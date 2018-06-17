@@ -38,8 +38,8 @@ class ArrayResultWriter(PixelResultHandler):
 
     def __init__(
             self,
-            width,
             height,
+            width,
             sensor_filter,
             nedr,
             fixed_parameters):
@@ -73,24 +73,26 @@ class ArrayResultWriter(PixelResultHandler):
         # initialise the ndarrays for the outputs.
         # Note that I am hard-coding these outputs for now, but the intent is that this class
         # support a customisable list of outputs.
-        self.error_alpha = np.zeros((width, height))
-        self.error_alpha_f = np.zeros((width, height))
-        self.error_f = np.zeros((width, height))
-        self.error_lsq = np.zeros((width, height))
-        self.chl = np.zeros((width, height))
-        self.cdom = np.zeros((width, height))
-        self.nap = np.zeros((width, height))
-        self.depth = np.zeros((width, height))
-        self.substrate_fraction = np.zeros((width, height))
-        self.closed_rrs = np.zeros((width, height, self._num_observed_bands))
-        self.nit = np.full((width, height), -1, dtype=np.int64)
-        self.success = np.full((width, height), -1, dtype=np.int64)
-        self.substrate_pair = np.full((width, height), -1, dtype=np.int64)
-        self.kd = np.zeros((width,height))
-        self.sdi = np.zeros((width,height))
+        self.error_alpha = np.zeros((height, width))
+        self.error_alpha_f = np.zeros((height, width))
+        self.error_f = np.zeros((height, width))
+        self.error_lsq = np.zeros((height, width))
+        self.chl = np.zeros((height, width))
+        self.cdom = np.zeros((height, width))
+        self.nap = np.zeros((height, width))
+        self.depth = np.zeros((height, width))
+        self.sub1_frac = np.zeros((height, width))
+        self.sub2_frac = np.zeros((height, width))
+        self.sub3_frac = np.zeros((height, width))
+        self.closed_rrs = np.zeros((height, width, self._num_observed_bands))
+        self.nit = np.full((height, width), -1, dtype=np.int64)
+        self.success = np.full((height, width), -1, dtype=np.int64)
+        self.kd = np.zeros((height, width))
+        self.sdi = np.zeros((height, width))
+        self.r_sub=np.zeros((height, width))
 
 
-    def __call__(self, x, y, observed_rrs, parameters=None, id=None, nit=None, success=None):
+    def __call__(self, x, y, observed_rrs, parameters=None, nit=None, success=None):
         """
         Called by the parameter estimator when there is a result for a pixel.
 
@@ -113,8 +115,8 @@ class ArrayResultWriter(PixelResultHandler):
             return
 
         # Select the substrate pair from the list of substrates
-        id1 = self._fixed_parameters.substrate_combinations[id][0]
-        id2 = self._fixed_parameters.substrate_combinations[id][1]
+        #id1 = self._fixed_parameters.substrate_combinations[id][0]
+        #id2 = self._fixed_parameters.substrate_combinations[id][1]
 
         # Generate results from the given parameters
         model_results = sbc.forward_model(
@@ -122,13 +124,16 @@ class ArrayResultWriter(PixelResultHandler):
             parameters.cdom,
             parameters.nap,
             parameters.depth,
-            self._fixed_parameters.substrates[id1],
+            parameters.sub1_frac,
+            parameters.sub2_frac,
+            parameters.sub3_frac,
+            self._fixed_parameters.substrates[0],
+            self._fixed_parameters.substrates[1],
+            self._fixed_parameters.substrates[2],
             self._fixed_parameters.wavelengths,
             self._fixed_parameters.a_water,
             self._fixed_parameters.a_ph_star,
             self._fixed_parameters.num_bands,
-            substrate_fraction=parameters.substrate_fraction,
-            substrate2=self._fixed_parameters.substrates[id2],
             a_cdom_slope=self._fixed_parameters.a_cdom_slope,
             a_nap_slope=self._fixed_parameters.a_nap_slope,
             bb_ph_slope=self._fixed_parameters.bb_ph_slope,
@@ -145,15 +150,21 @@ class ArrayResultWriter(PixelResultHandler):
             theta_air=self._fixed_parameters.theta_air,
             off_nadir=self._fixed_parameters.off_nadir,
             q_factor=self._fixed_parameters.q_factor)
+       
+        # set reference band in nm for Kd output
+        kd_ref = np.where(self._fixed_parameters.wavelengths == 550)
+        kd_out = model_results.kd[kd_ref]
+
+        """r_substratum = sbc.apply_sensor_filter(
+            model_results.r_substratum,
+            self._sensor_filter)"""
+        r_sub_out= model_results.r_substratum[kd_ref]
+      
 
         closed_rrs = sbc.apply_sensor_filter(
             model_results.rrs,
             self._sensor_filter)
-        
-        
-        kd_ref = np.where(self._fixed_parameters.wavelengths == 550)
-        kd_out = model_results.kd[kd_ref]
-        
+                
         closed_rrsdp = sbc.apply_sensor_filter(
             model_results.rrsdp,
             self._sensor_filter)
@@ -172,12 +183,13 @@ class ArrayResultWriter(PixelResultHandler):
         self.cdom[x,y] = parameters.cdom
         self.nap[x,y] = parameters.nap
         self.depth[x,y] = parameters.depth
-        self.substrate_fraction[x,y] = parameters.substrate_fraction
+        self.sub1_frac[x,y] = parameters.sub1_frac
+        self.sub2_frac[x,y] = parameters.sub2_frac
+        self.sub3_frac[x,y] = parameters.sub3_frac
         self.closed_rrs[x,y,:] = closed_rrs
         self.nit[x,y] = nit
         self.success[x,y] = success
-        self.substrate_pair[x,y] = id
         # New outputs
         self.kd[x,y] = kd_out
         self.sdi[x,y] = sdi
-
+        self.r_sub[x,y]=r_sub_out
