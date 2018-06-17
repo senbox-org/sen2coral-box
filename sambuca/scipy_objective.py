@@ -149,7 +149,6 @@ class SciPyObjective(Callable):
             model_results.rrs_dfrac3,
             self._sensor_filter)
 
-        print('AA')
         if self._error_func_name == 'lsq':
             C = np.linalg.norm(closed_rrs-self.observed_rrs)
             C_dcdom = np.sum((self.observed_rrs-closed_rrs)*(-closed_rrs_dcdom))/C
@@ -165,10 +164,6 @@ class SciPyObjective(Callable):
         if self._nedr is not None:
         # deliberately avoiding an in-place divide as I want a copy of the
         # spectra to avoid side-effects due to pass by reference semantics
-            print('AA2')
-            print(self._nedr.shape)
-            print(self._sensor_filter.shape)
-            print(closed_rrs)
             closed_rrs_dchl = closed_rrs_dchl / self._nedr
             closed_rrs_dcdom = closed_rrs_dcdom / self._nedr
             closed_rrs_dnap = closed_rrs_dnap / self._nedr
@@ -178,7 +173,6 @@ class SciPyObjective(Callable):
             closed_rrs_dfrac3 = closed_rrs_dfrac3 / self._nedr
             closed_rrs = closed_rrs / self._nedr
             observed_rrsNedr = self.observed_rrs / self._nedr
-            print('AA3')
         #alpha_f=A*B
         normClosed_rss = np.linalg.norm(closed_rrs)
         normObserved_rss = np.linalg.norm(observed_rrsNedr)
@@ -196,7 +190,6 @@ class SciPyObjective(Callable):
         #C = np.clip(C, 1e-9, C)
         B = np.arccos(G)
         A = C/D
-        print('AA4')
         F_dcdom = normObserved_rss * np.sum(closed_rrs * closed_rrs_dcdom)/normClosed_rss
         E_dcdom = np.sum(observed_rrsNedr*closed_rrs_dcdom)
         G_dcdom = (E_dcdom*F - F_dcdom*E)/F2
