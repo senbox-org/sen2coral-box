@@ -105,7 +105,7 @@ public class InversionTest {
         operator.setParameter("xmlpath_siop", getTestDataPath("swampy_s2_6_siop_Lizard.xml").toString());
         operator.setParameter("error_name", "alpha_f");
         operator.setParameter("opt_method", "SLSQP");
-        operator.setParameter("band_names", new String[] {"band_1","band_2","band_3","band_4","band_5"});
+        operator.setParameter("band_names", new String[] {"band_1","band_2","band_3","band_4","band_5","null"});
         operator.setParameter("above_rrs_flag", true);
         operator.setParameter("shallow_flag", true);
         operator.setParameter("relaxed_cons", true);
