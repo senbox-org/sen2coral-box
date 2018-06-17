@@ -86,6 +86,9 @@ class ArrayResultWriter(PixelResultHandler):
         self.nit = np.full((width, height), -1, dtype=np.int64)
         self.success = np.full((width, height), -1, dtype=np.int64)
         self.substrate_pair = np.full((width, height), -1, dtype=np.int64)
+        self.kd = np.zeros((width,height))
+        self.sdi = np.zeros((width,height))
+
 
     def __call__(self, x, y, observed_rrs, parameters=None, id=None, nit=None, success=None):
         """
@@ -146,6 +149,17 @@ class ArrayResultWriter(PixelResultHandler):
         closed_rrs = sbc.apply_sensor_filter(
             model_results.rrs,
             self._sensor_filter)
+        
+        
+        kd_ref = np.where(self._fixed_parameters.wavelengths == 550)
+        kd_out = model_results.kd[kd_ref]
+        
+        closed_rrsdp = sbc.apply_sensor_filter(
+            model_results.rrsdp,
+            self._sensor_filter)
+        
+        sdi = np.max(np.absolute(closed_rrs - closed_rrsdp) / self._nedr)
+
 
         error = error_all(observed_rrs, closed_rrs, self._nedr)
 
@@ -163,3 +177,7 @@ class ArrayResultWriter(PixelResultHandler):
         self.nit[x,y] = nit
         self.success[x,y] = success
         self.substrate_pair[x,y] = id
+        # New outputs
+        self.kd[x,y] = kd_out
+        self.sdi[x,y] = sdi
+

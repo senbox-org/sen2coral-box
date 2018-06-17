@@ -79,9 +79,9 @@ def minimize(objective,p0,method,bounds,options,obs_rrs,pool=None):
         results = [None]*Nc
         presults = [None]*Nc
     
-        if __name__ == 'sambuca.minimize_wrapper':
-            for i in range(Nc):
-                presults[i] = pool.apply_async(pwork,args=(i,objective,p0,method,bounds,options,obs_rrs))
+
+        for i in range(Nc):
+            presults[i] = pool.apply_async(pwork,args=(i,objective,p0,method,bounds,options,obs_rrs))
 
         for i, presult in enumerate(presults):
             results[i] = presult.get()
