@@ -1,0 +1,21 @@
+ENVI
+description = {
+  New spectral library file [Mon Mar 17 15:34:20 2008]}
+samples = 4
+lines   = 1
+bands   = 1
+header offset = 0
+file type = ENVI Spectral Library
+data type = 5
+interleave = bsq
+sensor type = Unknown
+byte order = 0
+wavelength units = Nanometers
+reflectance scale factor = 1.000000
+z plot titles = {Wavelength, Value}
+band names = {
+ Spectral Library}
+spectra names = {
+       33}
+wavelength = {
+ 460.000000, 560.000000, 650.000000, 825.000000}

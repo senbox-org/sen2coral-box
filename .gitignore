@@ -8,4 +8,14 @@ generated-sources/
 *.class
 *~
 *.pyc
-*.java.orig
+
+# PyCharm Project files contain local settings, and so are not appropriate for Git
+.project
+.idea/
+*.dat
+
+# Temporary files
+*.xlsx#
+.cache/
+.pytest_cache/
+.tox/

@@ -1,0 +1,18 @@
+language: python
+
+python:
+  - "2.7"
+  - "3.5"
+  - "3.6"
+
+# command to install dependencies
+install:
+    # Make sure we have the latest pip and setuptools
+  - pip install --upgrade pip setuptools
+    # Install the project
+  - python setup.py install
+    # install test dependencies
+  - pip install -e.[test]
+
+# run the tests
+script: py.test
