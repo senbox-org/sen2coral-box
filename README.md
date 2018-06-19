@@ -3,6 +3,11 @@ Sen2Coral Toolbox (SEN2CORAL)
 
 A toolbox for mapping (habitat, bathymetry, and water quality) and detection change for coral reef health assessment and monitoring
 
+Licenses
+---------
+
+The Sen2Coral-box include two third-party libraries which have been forked and modified: 'sambuca' and 'sambuca_core'.
+The licenses of these projects are available in their respective folders.
 
 Building Sen2Coral from the source
 ------------------------------
