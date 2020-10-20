@@ -1,5 +1,5 @@
 Manifest-Version: 1.0
 OpenIDE-Module-Specification-Version: ${project.nbmSpecVersion}
-OpenIDE-Module-Display-Category: Sen2Coral Toolbox
+OpenIDE-Module-Display-Category: SNAP Supported Plugins
 AutoUpdate-Show-In-Client: true
 AutoUpdate-Essential-Module: false
