@@ -6,7 +6,7 @@
 
     <groupId>org.esa.sen2coral</groupId>
     <artifactId>sen2coral</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 
     <name>Sen2Coral Toolbox</name>
     <description>Tools for mapping (habitat, bathymetry, and water quality) and detection change for coral reef health assessment and monitoring</description>
@@ -34,8 +34,8 @@
     <packaging>pom</packaging>
 
     <properties>
-        <snap.version>6.0.0</snap.version>
-        <s2tbx.version>6.0.0</s2tbx.version>
+        <snap.version>8.0.0</snap.version>
+        <s2tbx.version>8.0.0</s2tbx.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <user.language>en</user.language>
         <netbeans.version>RELEASE82</netbeans.version>
