@@ -8,8 +8,8 @@ import org.esa.snap.core.datamodel.Product;
 import org.esa.snap.core.gpf.OperatorSpi;
 import org.esa.snap.core.gpf.descriptor.DefaultOperatorDescriptor;
 import org.esa.snap.engine_utilities.util.TestUtils;
-import org.esa.snap.python.gpf.PyOperator;
-import org.esa.snap.python.gpf.PyOperatorSpi;
+import eu.esa.snap.snappy.gpf.PyOperator;
+import eu.esa.snap.snappy.gpf.PyOperatorSpi;
 import org.junit.Ignore;
 import org.junit.Test;
 

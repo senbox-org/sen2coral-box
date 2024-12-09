@@ -9,7 +9,7 @@ from __future__ import (
     unicode_literals)
 from builtins import *
 
-from collections import Callable
+from collections.abc import Callable
 
 import sambuca_core as sbc
 import numpy as np
