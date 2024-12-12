@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <operator>
-  <name>org.esa.snap.python.sambuca_snap_op</name>
+  <name>eu.esa.snap.snappy.sambuca_snap_op</name>
   <alias>py_sambuca_snap_op</alias>
-  <operatorClass>org.esa.snap.python.gpf.PyOperator</operatorClass>
+  <operatorClass>eu.esa.snap.snappy.gpf.PyOperator</operatorClass>
   <version>1.0</version>
   <authors>ACME Guys</authors>
   <copyright>(C) 2016 ACME</copyright>

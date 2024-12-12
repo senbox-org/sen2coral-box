@@ -6,7 +6,7 @@
 
     <groupId>org.esa.sen2coral</groupId>
     <artifactId>sen2coral</artifactId>
-    <version>1.0.0</version>
+    <version>2.0.0</version>
 
     <name>Sen2Coral Toolbox</name>
     <description>Tools for mapping (habitat, bathymetry, and water quality) and detection change for coral reef health assessment and monitoring</description>
@@ -34,20 +34,19 @@
     <packaging>pom</packaging>
 
     <properties>
-        <snap.version>9.0.0-SNAPSHOT</snap.version>
-        <s2tbx.version>9.0.0-SNAPSHOT</s2tbx.version>
+        <snap.version>10.0.0</snap.version>
+        <opttbx.version>10.0.0</opttbx.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <user.language>en</user.language>
         <netbeans.version>RELEASE82</netbeans.version>
         <javahelp.version>2.0.05</javahelp.version>
         <brandingToken>sen2coral</brandingToken>
     </properties>
-
     <repositories>
         <repository>
             <id>snap-repo-public</id>
             <name>Public Maven Repository for SNAP</name>
-            <url>https://snap-build-server.tilaa.cloud/nexus/repository/snap-maven-public/</url>
+            <url>https://nexus.snap-ci.ovh/repository/snap-maven-public/</url>
             <releases>
                 <enabled>true</enabled>
                 <checksumPolicy>warn</checksumPolicy>
@@ -63,7 +62,7 @@
         <pluginRepository>
             <id>snap-repo-public</id>
             <name>Public Maven Repository for SNAP</name>
-            <url>https://snap-build-server.tilaa.cloud/nexus/repository/snap-maven-public/</url>
+            <url>https://nexus.snap-ci.ovh/repository/snap-maven-public/</url>
             <releases>
                 <enabled>true</enabled>
                 <checksumPolicy>warn</checksumPolicy>
@@ -79,13 +78,13 @@
         <repository>
             <id>snap-repo-public</id>
             <name>Public Maven Repository for SNAP</name>
-            <url>https://snap-build-server.tilaa.cloud/nexus/repository/snap-maven-releases/</url>
+            <url>https://nexus.snap-ci.ovh/repository/snap-maven-releases/</url>
             <uniqueVersion>false</uniqueVersion>
         </repository>
         <snapshotRepository>
             <id>snap-repo-public</id>
             <name>Public Maven Snapshot Repository for SNAP</name>
-            <url>https://snap-build-server.tilaa.cloud/nexus/repository/snap-maven-snapshot/</url>
+            <url>https://nexus.snap-ci.ovh/repository/snap-maven-snapshot/</url>
             <uniqueVersion>false</uniqueVersion>
         </snapshotRepository>
     </distributionManagement>
@@ -191,8 +190,8 @@
             </dependency>
 
             <dependency>
-                <groupId>org.esa.snap</groupId>
-                <artifactId>snap-python</artifactId>
+                <groupId>eu.esa.snap</groupId>
+                <artifactId>esa-snappy</artifactId>
                 <version>${snap.version}</version>
             </dependency>
 
@@ -205,6 +204,12 @@
             <dependency>
                 <groupId>org.esa.snap</groupId>
                 <artifactId>snap-engine-utilities</artifactId>
+                <version>${snap.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.esa.snap</groupId>
+                <artifactId>ceres-binding</artifactId>
                 <version>${snap.version}</version>
             </dependency>
 

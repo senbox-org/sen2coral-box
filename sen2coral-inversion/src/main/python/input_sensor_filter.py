@@ -17,7 +17,7 @@ import os.path
 import sambuca as sb
 import sambuca_core as sbc
 #import nibabel as nib
-import snappy
+import esa_snappy
 import numpy as np
 import xmltodict
 

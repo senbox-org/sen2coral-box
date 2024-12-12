@@ -12,14 +12,14 @@ import out
 import prep"""
 import os, sys
 sys.path.insert(0, os.getcwd())
-import snappy
+import esa_snappy
 import numpy as np
-from snappy import jpy
+from esa_snappy import jpy
 Float = jpy.get_type('java.lang.Float')
 Int = jpy.get_type('java.lang.Integer')
 Color = jpy.get_type('java.awt.Color')
 FileIO= jpy.get_type ('java.io.File')
-from snappy import jpy
+from esa_snappy import jpy
 import sambuca
 import main_sambuca_snap
 import input_sensor_filter
@@ -95,41 +95,41 @@ class sambuca_snap_op:
         #define the sambuca algorithm
         self.algo=main_sambuca_snap.main_sambuca()
         #create the target product
-        sambuca_product=snappy.Product('sambuca', 'sambuca', width, height)
+        sambuca_product=esa_snappy.Product('sambuca', 'sambuca', width, height)
         #import metadata and geocoding from the source_product
-        snappy.ProductUtils.copyGeoCoding(self.band_list[0], sambuca_product)
-        snappy.ProductUtils.copyMetadata(source_product, sambuca_product)
+        esa_snappy.ProductUtils.copyGeoCoding(self.band_list[0], sambuca_product)
+        esa_snappy.ProductUtils.copyMetadata(source_product, sambuca_product)
 
         #create the ouput bands and add them to the output product
-        self.depth_band = sambuca_product.addBand('depth', snappy.ProductData.TYPE_FLOAT32)
+        self.depth_band = sambuca_product.addBand('depth', esa_snappy.ProductData.TYPE_FLOAT32)
         self.depth_band.setDescription('The depth computed by SAMBUCA')
         self.depth_band.setNoDataValue(Float.NaN)
         self.depth_band.setNoDataValueUsed(True)
-        self.sdi_band = sambuca_product.addBand('sdi', snappy.ProductData.TYPE_FLOAT32)
+        self.sdi_band = sambuca_product.addBand('sdi', esa_snappy.ProductData.TYPE_FLOAT32)
         self.sdi_band.setDescription('The sdi computed by SAMBUCA')
         self.sdi_band.setNoDataValue(Float.NaN)
         self.sdi_band.setNoDataValueUsed(True)
-        self.kd_band = sambuca_product.addBand('kd(550)', snappy.ProductData.TYPE_FLOAT32)
+        self.kd_band = sambuca_product.addBand('kd(550)', esa_snappy.ProductData.TYPE_FLOAT32)
         self.kd_band.setDescription('The kd computed by SAMBUCA')
         self.kd_band.setNoDataValue(Float.NaN)
         self.kd_band.setNoDataValueUsed(True)
-        self.error_f_band = sambuca_product.addBand('error_f', snappy.ProductData.TYPE_FLOAT32)
+        self.error_f_band = sambuca_product.addBand('error_f', esa_snappy.ProductData.TYPE_FLOAT32)
         self.error_f_band.setDescription('The error_f computed by SAMBUCA')
         self.error_f_band.setNoDataValue(Float.NaN)
         self.error_f_band.setNoDataValueUsed(True)
-        self.r_sub_band = sambuca_product.addBand('r_sub(550)', snappy.ProductData.TYPE_FLOAT32)
+        self.r_sub_band = sambuca_product.addBand('r_sub(550)', esa_snappy.ProductData.TYPE_FLOAT32)
         self.r_sub_band.setDescription('The r_sub(550) computed by SAMBUCA')
         self.r_sub_band.setNoDataValue(Float.NaN)
         self.r_sub_band.setNoDataValueUsed(True)
-        self.sub1_frac_band = sambuca_product.addBand('sub_1', snappy.ProductData.TYPE_FLOAT32)
+        self.sub1_frac_band = sambuca_product.addBand('sub_1', esa_snappy.ProductData.TYPE_FLOAT32)
         self.sub1_frac_band.setDescription('The sub_1 % computed by SAMBUCA')
         self.sub1_frac_band.setNoDataValue(Float.NaN)
         self.sub1_frac_band.setNoDataValueUsed(True)
-        self.sub2_frac_band = sambuca_product.addBand('sub_2', snappy.ProductData.TYPE_FLOAT32)
+        self.sub2_frac_band = sambuca_product.addBand('sub_2', esa_snappy.ProductData.TYPE_FLOAT32)
         self.sub2_frac_band.setDescription('The sub_2 % computed by SAMBUCA')
         self.sub2_frac_band.setNoDataValue(Float.NaN)
         self.sub2_frac_band.setNoDataValueUsed(True)
-        self.sub3_frac_band = sambuca_product.addBand('sub_3', snappy.ProductData.TYPE_FLOAT32)
+        self.sub3_frac_band = sambuca_product.addBand('sub_3', esa_snappy.ProductData.TYPE_FLOAT32)
         self.sub3_frac_band.setDescription('The sub_3 % computed by SAMBUCA')
         self.sub3_frac_band.setNoDataValue(Float.NaN)
         self.sub3_frac_band.setNoDataValueUsed(True)

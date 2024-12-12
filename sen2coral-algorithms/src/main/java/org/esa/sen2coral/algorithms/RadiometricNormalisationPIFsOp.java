@@ -1,6 +1,7 @@
 package org.esa.sen2coral.algorithms;
 
 
+import org.esa.snap.core.util.GeoUtils;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -386,7 +387,7 @@ public class RadiometricNormalisationPIFsOp extends PixelOperatorMultisize {
 
     private static Geometry createGeoBoundaryPolygonLonLat(Product product) {
         GeometryFactory gf = new GeometryFactory();
-        GeoPos[] geoPositions = ProductUtils.createGeoBoundary(product, 100);
+        GeoPos[] geoPositions = GeoUtils.createGeoBoundary(product, 100);
         Coordinate[] coordinates;
         if(geoPositions.length >= 0 && geoPositions.length <= 3) {
             coordinates = new Coordinate[0];
